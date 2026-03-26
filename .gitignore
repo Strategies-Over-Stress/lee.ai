@@ -16,6 +16,11 @@ dist/
 # internal docs (version controlled in separate private repo)
 docs/internal/
 
+# research database (local data, not version controlled)
+apps/research/research.db
+apps/research/research.db-wal
+apps/research/research.db-shm
+
 # turbo
 .turbo/
 
