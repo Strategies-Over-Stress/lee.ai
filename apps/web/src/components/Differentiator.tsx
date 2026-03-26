@@ -3,41 +3,61 @@
 import { motion, useInView } from "framer-motion";
 import { useRef, useState } from "react";
 
+interface Feature {
+  id: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  highlights: string[];
+}
+
 const features = [
   {
-    id: "speed",
-    title: "10x Development Speed",
-    subtitle: "Not a buzzword. A methodology.",
+    id: "hostage",
+    title: "Never get held hostage by a developer again",
+    subtitle: "Your business runs even if I disappear tomorrow.",
     description:
-      "I pair with AI agents that have full context of your codebase — architecture, conventions, deployment rules, business logic. Every line of code is informed by a 33K+ character instruction set. This isn't copy-pasting from ChatGPT.",
-    terminal: [
-      { prompt: "git log --oneline | head -5", output: "60+ commits with structured ticket references" },
-      { prompt: "wc -l CLAUDE.md", output: "675 lines of agent-ready documentation" },
-      { prompt: "ls tests/e2e/ | wc -l", output: "11 test suites, all automated" },
+      "Every system I build comes with complete documentation — written so that any developer (or even an AI agent) can pick up exactly where I left off. Your code, your infrastructure, your servers. No proprietary tools, no vendor lock-in, no \"only I know how this works.\"",
+    highlights: [
+      "Complete documentation included with every project",
+      "Your code, your servers, your full control",
+      "Any developer can onboard using the docs alone",
     ],
   },
   {
-    id: "quality",
-    title: "Production-Grade from Day 1",
-    subtitle: "Not a prototype. Not an MVP. Production.",
+    id: "sleep",
+    title: "Your marketing runs while you sleep",
+    subtitle: "Automation isn't a feature. It's the entire point.",
     description:
-      "Every project gets CI/CD pipelines, automated testing, Docker environments, atomic deployments with rollback, and comprehensive documentation. Because cutting corners now means paying triple later.",
-    terminal: [
-      { prompt: "make deploy-production", output: "✓ Backup created. ✓ Deployed. ✓ Health check passed." },
-      { prompt: "make rollback-production", output: "✓ Restored previous backup in 3 seconds." },
-      { prompt: "npx playwright test", output: "11 passed (42.3s)" },
+      "Email campaigns, ad performance tracking, social media scheduling, sales reports — all wired together and running without you touching anything. You wake up to results, not to-do lists.",
+    highlights: [
+      "Email, ads, and social media on autopilot",
+      "Real-time campaign tracking with actual ROI numbers",
+      "Reports delivered to your inbox automatically",
     ],
   },
   {
-    id: "ownership",
-    title: "You Own Everything",
-    subtitle: "No vendor lock-in. No proprietary tools.",
+    id: "breaks",
+    title: "Your site never breaks on a big day",
+    subtitle: "Peak traffic should mean peak revenue, not panic.",
     description:
-      "Your code, your infrastructure, your documentation. When (if) you hire a team, they can pick up exactly where I left off. The CLAUDE.md file alone is a complete onboarding guide for any developer or AI agent.",
-    terminal: [
-      { prompt: "cat CLAUDE.md | head -1", output: "# Agent Instructions for [Your Business]" },
-      { prompt: "git remote -v", output: "origin  git@github.com:you/your-project.git" },
-      { prompt: "ssh your-server 'ls backups/'", output: "Your infrastructure. Your backups. Your control." },
+      "Every change is tested automatically before it goes live. Every deployment has an instant rollback. Your site stays up on Black Friday, product launches, and viral moments — because the systems protecting it never sleep.",
+    highlights: [
+      "Every update tested automatically before going live",
+      "Bad changes reversed instantly — one command",
+      "Built for your highest-traffic days, not your average ones",
+    ],
+  },
+  {
+    id: "compound",
+    title: "It gets faster every month",
+    subtitle: "The systems compound. Your competitors' don't.",
+    description:
+      "I don't just automate your business — I automate the process that builds those automations. Every month, the AI tools I've set up handle more on their own, with the same quality and security. Month two is faster than month one. Month three is faster than month two.",
+    highlights: [
+      "AI tools that learn your business and improve over time",
+      "Less manual oversight needed every month",
+      "The same budget buys more output as the systems mature",
     ],
   },
 ];
@@ -46,7 +66,7 @@ export default function Differentiator() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const [activeFeature, setActiveFeature] = useState(features[0].id);
-  const active = features.find((f) => f.id === activeFeature)!;
+  const active = features.find((f: Feature) => f.id === activeFeature)!;
 
   return (
     <section className="relative py-32 px-6" ref={ref}>
@@ -64,16 +84,15 @@ export default function Differentiator() {
             Not another freelancer
           </h2>
           <p className="text-text-secondary mt-4 text-lg max-w-2xl mx-auto">
-            The difference between hiring a developer and partnering with an
-            AI-first engineer is the difference between renting labor and
-            installing infrastructure.
+            Freelancers write code and leave. I build systems that run your
+            business — then hand you the keys.
           </p>
         </motion.div>
 
         <div className="grid lg:grid-cols-[1fr,1.5fr] gap-8">
           {/* Feature tabs */}
           <div className="space-y-3">
-            {features.map((feature, index) => (
+            {features.map((feature: Feature, index: number) => (
               <motion.button
                 key={feature.id}
                 initial={{ opacity: 0, x: -20 }}
@@ -102,7 +121,7 @@ export default function Differentiator() {
             ))}
           </div>
 
-          {/* Feature detail + terminal */}
+          {/* Feature detail */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
@@ -118,30 +137,17 @@ export default function Differentiator() {
                 {active.description}
               </p>
 
-              {/* Terminal */}
-              <div className="rounded-2xl border border-surface-light bg-surface overflow-hidden">
-                <div className="flex items-center gap-2 px-4 py-3 border-b border-surface-light bg-surface-light/50">
-                  <div className="w-3 h-3 rounded-full bg-rose/60" />
-                  <div className="w-3 h-3 rounded-full bg-amber/60" />
-                  <div className="w-3 h-3 rounded-full bg-emerald/60" />
-                  <span className="ml-2 text-xs font-mono text-text-muted">
-                    terminal
-                  </span>
-                </div>
-                <div className="p-5 font-mono text-sm space-y-3">
-                  {active.terminal.map((line, i) => (
-                    <div key={i}>
-                      <div>
-                        <span className="text-emerald">$</span>{" "}
-                        <span className="text-text-secondary">
-                          {line.prompt}
-                        </span>
-                      </div>
-                      <div className="text-accent-bright">{line.output}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <ul className="space-y-3">
+                {active.highlights.map((item: string) => (
+                  <li
+                    key={item}
+                    className="flex items-start gap-3 text-text-secondary"
+                  >
+                    <span className="text-emerald mt-0.5">&#10003;</span>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
             </motion.div>
           </motion.div>
         </div>

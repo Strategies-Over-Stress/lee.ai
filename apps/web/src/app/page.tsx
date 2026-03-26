@@ -4,6 +4,7 @@ import ParticleField from "@/components/ParticleField";
 import Hero from "@/components/Hero";
 import CaseStudy from "@/components/CaseStudy";
 import Differentiator from "@/components/Differentiator";
+import Audience from "@/components/Audience";
 import Assessment from "@/components/Assessment";
 import Process from "@/components/Process";
 import Contact from "@/components/Contact";
@@ -28,6 +29,12 @@ export default function Home() {
         </div>
 
         <Differentiator />
+
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="h-px bg-gradient-to-r from-transparent via-accent/20 to-transparent" />
+        </div>
+
+        <Audience />
 
         <div className="max-w-6xl mx-auto px-6">
           <div className="h-px bg-gradient-to-r from-transparent via-accent/20 to-transparent" />

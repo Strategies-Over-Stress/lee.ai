@@ -17,12 +17,26 @@ export default function Contact() {
           </span>
           <h2 className="text-4xl sm:text-6xl font-bold mt-4 mb-6">
             Ready to{" "}
-            <span className="text-gradient">stop building slow?</span>
+            <span className="text-gradient">stop fighting your tech stack?</span>
           </h2>
-          <p className="text-text-secondary text-lg mb-12 max-w-2xl mx-auto">
+          <p className="text-text-secondary text-lg mb-8 max-w-2xl mx-auto">
             I take on 1-2 clients at a time so every engagement gets my full
-            attention. If your business needs to move faster, let&apos;s talk.
+            attention. Start with a free technical audit — no commitment, no
+            sales pitch. Just an honest look at what&apos;s costing you time and money.
           </p>
+
+          {/* Risk reversal */}
+          <div className="flex flex-wrap justify-center gap-6 mb-12 text-sm text-text-muted">
+            <span className="flex items-center gap-2">
+              <span className="text-emerald">&#10003;</span> Month-to-month, cancel anytime
+            </span>
+            <span className="flex items-center gap-2">
+              <span className="text-emerald">&#10003;</span> No lock-in contracts
+            </span>
+            <span className="flex items-center gap-2">
+              <span className="text-emerald">&#10003;</span> You own all the code
+            </span>
+          </div>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
             <a

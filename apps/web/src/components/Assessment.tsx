@@ -11,53 +11,53 @@ interface Question {
 
 const questions: Question[] = [
   {
-    id: "deploy",
-    question: "How do you deploy changes to production?",
+    id: "downtime",
+    question: "How often does your website have issues or go down?",
     options: [
-      { label: "FTP / manual file uploads", value: "ftp", score: 0 },
-      { label: "SSH in and git pull", value: "ssh", score: 1 },
-      { label: "CI/CD pipeline with staging", value: "cicd", score: 3 },
-      { label: "We don't have a process", value: "none", score: 0 },
+      { label: "Regularly — especially during sales or high traffic", value: "often", score: 0 },
+      { label: "Sometimes — we've had a few scares", value: "sometimes", score: 1 },
+      { label: "Rarely — but we're not confident in our setup", value: "rarely", score: 2 },
+      { label: "Never — we have solid systems in place", value: "never", score: 3 },
     ],
   },
   {
-    id: "testing",
-    question: "How do you catch bugs before they reach customers?",
+    id: "updates",
+    question: "How long does it take to make changes to your website?",
     options: [
-      { label: "We click around and hope for the best", value: "manual", score: 0 },
-      { label: "Manual QA checklist", value: "checklist", score: 1 },
-      { label: "Automated test suites", value: "automated", score: 3 },
-      { label: "Customers find them for us", value: "customers", score: 0 },
+      { label: "Days or weeks — we depend on a developer's schedule", value: "weeks", score: 0 },
+      { label: "A day or two if everything goes right", value: "days", score: 1 },
+      { label: "Hours — but we're nervous something will break", value: "hours", score: 2 },
+      { label: "Minutes — we have a reliable process", value: "minutes", score: 3 },
     ],
   },
   {
-    id: "speed",
-    question: "How long does a typical feature take to ship?",
+    id: "revenue",
+    question: "Have you ever lost a sale because of a technical problem?",
     options: [
-      { label: "Days", value: "days", score: 3 },
-      { label: "Weeks", value: "weeks", score: 2 },
-      { label: "Months", value: "months", score: 1 },
-      { label: "We've stopped counting", value: "never", score: 0 },
+      { label: "Yes — checkout broke, site went down, or pages didn't load", value: "yes_major", score: 0 },
+      { label: "Probably — we don't have visibility into what's failing", value: "probably", score: 0 },
+      { label: "Maybe once or twice, but nothing major", value: "minor", score: 2 },
+      { label: "No — our tech stack is solid", value: "no", score: 3 },
     ],
   },
   {
-    id: "ai",
-    question: "How is AI integrated into your development workflow?",
+    id: "tools",
+    question: "How many people or tools does it take to run your online business?",
     options: [
-      { label: "Our devs use Copilot / ChatGPT sometimes", value: "basic", score: 1 },
-      { label: "We have AI-augmented development processes", value: "augmented", score: 3 },
-      { label: "We've been meaning to look into it", value: "planning", score: 0 },
-      { label: "What do you mean?", value: "none", score: 0 },
+      { label: "Too many — nothing talks to each other", value: "fragmented", score: 0 },
+      { label: "A few freelancers and a handful of tools", value: "some", score: 1 },
+      { label: "One developer and a few key platforms", value: "lean", score: 2 },
+      { label: "Everything is connected and mostly automated", value: "automated", score: 3 },
     ],
   },
   {
-    id: "team",
-    question: "What's your current engineering situation?",
+    id: "control",
+    question: "Do you feel in control of your tech stack?",
     options: [
-      { label: "No technical team — I need one", value: "none", score: 0 },
-      { label: "Small team, moving too slow", value: "slow", score: 1 },
-      { label: "Outsourced devs, quality is inconsistent", value: "outsourced", score: 0 },
-      { label: "Good team, want to 10x with AI", value: "good", score: 2 },
+      { label: "Not at all — I depend on people I can't evaluate", value: "none", score: 0 },
+      { label: "Somewhat — but I wouldn't know if something was wrong", value: "somewhat", score: 1 },
+      { label: "Mostly — I understand the basics but not the details", value: "mostly", score: 2 },
+      { label: "Completely — I know what's running and why", value: "full", score: 3 },
     ],
   },
 ];
@@ -72,30 +72,30 @@ interface ResultProfile {
 function getResult(score: number): ResultProfile {
   if (score <= 4) {
     return {
-      title: "Ground Zero",
+      title: "Your tech is holding you back",
       description:
-        "Your tech stack needs a complete transformation. The good news? This is exactly where I do my best work. I've taken businesses from zero infrastructure to production-grade systems with CI/CD, automated testing, and AI-augmented workflows.",
+        "You're losing time, money, and sales to a tech stack that wasn't built to scale. The good news? This is exactly the kind of transformation I specialize in. I've taken businesses from this exact situation to fully automated operations.",
       recommendation:
-        "A full technical transformation engagement. We'll rebuild your foundation with modern architecture, automated deployments, and AI workflows from day one.",
+        "A full technical overhaul. We'll rebuild your foundation so your site stays up, your tools talk to each other, and you stop losing sleep over what might break next.",
       color: "text-rose",
     };
   }
   if (score <= 8) {
     return {
-      title: "Ready to Level Up",
+      title: "You're close — but leaving money on the table",
       description:
-        "You have some foundation in place, but you're leaving massive efficiency gains on the table. AI-first workflows could cut your delivery time by 5-10x while improving code quality.",
+        "You have some pieces in place, but your business is still doing too much manually. The right automation could free up hours every week and eliminate the technical surprises.",
       recommendation:
-        "A focused modernization sprint. We'll identify your biggest bottlenecks and systematically eliminate them with AI-augmented processes.",
+        "A focused automation sprint. We'll find your biggest time sinks and bottlenecks, then wire them up so they run themselves.",
       color: "text-amber",
     };
   }
   return {
-    title: "Optimization Territory",
+    title: "You're ahead of the game",
     description:
-      "You're already ahead of most teams. But there's a difference between using AI tools and having AI-native workflows baked into your entire development lifecycle.",
+      "Your tech stack is in solid shape. The next level is making it truly self-running — where AI handles the routine work and you only step in for strategy.",
     recommendation:
-      "A strategic AI workflow integration. We'll embed AI collaboration patterns into your architecture, documentation, and deployment processes.",
+      "A strategic automation upgrade. We'll identify the remaining manual touchpoints and build AI-powered workflows to handle them.",
     color: "text-emerald",
   };
 }

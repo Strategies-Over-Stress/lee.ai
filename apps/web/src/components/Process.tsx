@@ -30,11 +30,11 @@ const steps = [
   },
   {
     number: "04",
-    title: "Ongoing Partnership",
+    title: "Handoff — or Keep Building",
     description:
-      "Monthly retainer for continued development, optimization, and new feature delivery. Your business gets a senior engineer + AI force multiplier on tap.",
-    detail: "Scale up or down as needed.",
-    icon: "🤝",
+      "Once your systems are automated and documented, you own everything. Most clients are self-sufficient at this point. Some choose to keep me on retainer for new features — but you'll never need to.",
+    detail: "Your choice. No lock-in. Month-to-month if you stay.",
+    icon: "🔑",
   },
 ];
 

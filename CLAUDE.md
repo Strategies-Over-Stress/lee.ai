@@ -25,12 +25,12 @@ lee.ai/
 ├── package.json           # Root workspace config
 ├── turbo.json             # Turborepo task config
 ├── .gitignore
-├── scripts/
-│   ├── jira.py            # Jira CLI (create, edit, move, view, list, comment, delete)
-│   └── feature.py         # Feature branch manager (start, switch, pr, status)
 ├── docs/
 │   └── internal/          # Gitignored — separate private repo (lee.ai-internal)
 ├── apps/
+│   ├── features/          # Project management CLI tools (future standalone package)
+│   │   ├── jira.py        # Jira CLI (create, edit, move, view, list, comment, delete)
+│   │   └── feature.py     # Feature branch manager (create, start, switch, pr, status)
 │   └── web/               # Next.js 15 marketing site
 │       ├── src/
 │       │   ├── app/        # App Router pages + layout
@@ -131,27 +131,27 @@ feature.py pr                     → Pushes, creates GitHub PR, ticket → IN R
 jira.py move RICH-X "DONE"       → Manually mark done after merge
 ```
 
-### Feature Branch Commands (`scripts/feature.py`)
+### Feature Branch Commands (`apps/features/feature.py`)
 
 ```bash
 # Create a feature — ticket (TO DO) + branch created, stays on current branch
-python3 scripts/feature.py create "Add risk reversal to contact section"
-python3 scripts/feature.py create "Rewrite hero copy" -d "## Context\n\nResearch shows..."
-python3 scripts/feature.py create "Deploy pipeline" -f docs/deploy-ticket.md
-python3 scripts/feature.py create "Fix button animation" -t subtask -p RICH-1
+python3 apps/features/feature.py create "Add risk reversal to contact section"
+python3 apps/features/feature.py create "Rewrite hero copy" -d "## Context\n\nResearch shows..."
+python3 apps/features/feature.py create "Deploy pipeline" -f docs/deploy-ticket.md
+python3 apps/features/feature.py create "Fix button animation" -t subtask -p RICH-1
 
 # Start working — checks out branch, moves ticket to IN PROGRESS
-python3 scripts/feature.py start RICH-5
+python3 apps/features/feature.py start RICH-5
 
 # Switch to a different feature branch (no status change — just context switching)
-python3 scripts/feature.py switch RICH-5
+python3 apps/features/feature.py switch RICH-5
 
 # Push + create PR — moves ticket to IN REVIEW, links PR in Jira comment
-python3 scripts/feature.py pr
-python3 scripts/feature.py pr --title "Custom PR title" --body "Custom body"
+python3 apps/features/feature.py pr
+python3 apps/features/feature.py pr --title "Custom PR title" --body "Custom body"
 
 # Check current branch and linked ticket status
-python3 scripts/feature.py status
+python3 apps/features/feature.py status
 ```
 
 ### Branching Convention
@@ -174,32 +174,32 @@ python3 scripts/feature.py status
 
 ---
 
-## 5. Jira CLI (`scripts/jira.py`)
+## 5. Jira CLI (`apps/features/jira.py`)
 
 Direct ticket management. Zero external dependencies — Python stdlib only.
 
 ```bash
 # Create
-python3 scripts/jira.py create -s "Title" -d "## Markdown description"
-python3 scripts/jira.py create -s "Title" --file description.md
-python3 scripts/jira.py create -s "Subtask" -t subtask -p RICH-1
+python3 apps/features/jira.py create -s "Title" -d "## Markdown description"
+python3 apps/features/jira.py create -s "Title" --file description.md
+python3 apps/features/jira.py create -s "Subtask" -t subtask -p RICH-1
 
 # Edit
-python3 scripts/jira.py edit RICH-1 -s "New title"
-python3 scripts/jira.py edit RICH-1 -d "## New description"
-python3 scripts/jira.py edit RICH-1 --file updated.md
+python3 apps/features/jira.py edit RICH-1 -s "New title"
+python3 apps/features/jira.py edit RICH-1 -d "## New description"
+python3 apps/features/jira.py edit RICH-1 --file updated.md
 
 # Move / Delete
-python3 scripts/jira.py move RICH-1 "DONE"
-python3 scripts/jira.py delete RICH-3
+python3 apps/features/jira.py move RICH-1 "DONE"
+python3 apps/features/jira.py delete RICH-3
 
 # View / List
-python3 scripts/jira.py view RICH-1
-python3 scripts/jira.py list
-python3 scripts/jira.py list --status "To Do" --type epic
+python3 apps/features/jira.py view RICH-1
+python3 apps/features/jira.py list
+python3 apps/features/jira.py list --status "To Do" --type epic
 
 # Comment
-python3 scripts/jira.py comment RICH-1 "## Update\n\nFinished the **hero rewrite**."
+python3 apps/features/jira.py comment RICH-1 "## Update\n\nFinished the **hero rewrite**."
 ```
 
 ### Markdown → ADF

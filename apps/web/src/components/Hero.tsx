@@ -43,10 +43,10 @@ export default function Hero() {
         >
           <TypewriterText
             texts={[
-              "CI/CD pipelines — on autopilot",
-              "E2E testing — on autopilot",
-              "Deployments with rollback — on autopilot",
-              "Marketing pipelines — on autopilot",
+              "Your site updates itself — no developer needed",
+              "New products go live in minutes, not days",
+              "Marketing campaigns run while you sleep",
+              "Zero downtime, even on your biggest sales day",
             ]}
           />
         </motion.div>
@@ -62,7 +62,7 @@ export default function Hero() {
             href="#assess"
             className="group relative px-8 py-4 bg-accent hover:bg-accent-bright rounded-xl font-semibold text-lg transition-all duration-300 glow hover:scale-105"
           >
-            See if we&apos;re a fit
+            Get a free technical audit
             <span className="absolute inset-0 rounded-xl bg-accent/20 blur-xl group-hover:blur-2xl transition-all duration-300 -z-10" />
           </a>
           <a
@@ -81,17 +81,20 @@ export default function Hero() {
           className="mt-20 grid grid-cols-2 sm:grid-cols-4 gap-6 max-w-3xl mx-auto"
         >
           {[
-            { value: "7+", label: "Years enterprise" },
-            { value: "30+", label: "Custom plugins shipped" },
-            { value: "10x", label: "Faster delivery" },
-            { value: "$30K", label: "Peak monthly sales" },
+            { value: "$30K", label: "Client revenue in one month", sub: "with zero downtime" },
+            { value: "87%", label: "Lower ad costs than industry avg", sub: "$0.79 per add-to-cart" },
+            { value: "10x", label: "Faster page loads", sub: "30 seconds → 3 seconds" },
+            { value: "29%", label: "Visitors adding to cart", sub: "industry avg is 5-10%" },
           ].map((stat) => (
             <div key={stat.label} className="text-center">
               <div className="text-2xl sm:text-3xl font-bold text-gradient">
                 {stat.value}
               </div>
-              <div className="text-xs sm:text-sm text-text-muted mt-1">
+              <div className="text-xs sm:text-sm text-text-primary mt-1">
                 {stat.label}
+              </div>
+              <div className="text-xs text-text-muted mt-0.5">
+                {stat.sub}
               </div>
             </div>
           ))}
