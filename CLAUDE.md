@@ -28,19 +28,21 @@ lee.ai/
 ├── docs/
 │   └── internal/          # Gitignored — separate private repo (lee.ai-internal)
 ├── apps/
-│   ├── features/          # Project management CLI tools (future standalone package)
-│   │   ├── jira.py        # Jira CLI (create, edit, move, view, list, comment, delete)
-│   │   └── feature.py     # Feature branch manager (create, start, switch, pr, status)
-│   └── web/               # Next.js 15 marketing site
-│       ├── src/
-│       │   ├── app/        # App Router pages + layout
-│       │   ├── components/ # React components
-│       │   └── lib/        # Utilities
-│       ├── public/         # Static assets
-│       ├── package.json
-│       ├── next.config.ts
-│       ├── tsconfig.json
-│       └── postcss.config.mjs
+│   ├── features/          # Legacy local copies (now standalone: sos-dev-tools)
+│   ├── research/          # Automated web content pipeline
+│   │   ├── research.py    # CLI: sources, sync, summarize, search, read, stats
+│   │   ├── research.db    # SQLite database (gitignored)
+│   │   └── proposed-sources.md
+│   ├── studio/            # Internal content studio dashboard (Next.js)
+│   │   └── src/
+│   │       ├── app/        # Pages: /, /research, /generate, /queue, /sources
+│   │       ├── generators/ # Prompt templates (linkedin, blog, report, etc.)
+│   │       ├── components/ # Shared UI (Markdown, ArticleCard)
+│   │       └── lib/        # DB layer (reads research.db)
+│   └── web/               # Public marketing site (Next.js)
+│       └── src/
+│           ├── app/        # App Router pages + layout
+│           └── components/ # React components
 └── (future apps/packages)
 ```
 
@@ -117,41 +119,49 @@ All API credentials live in `.env` at the project root. **Never hardcode credent
 
 ## 4. Development Workflow
 
-Every change follows: **Ticket → Branch → PR → Merge**. The `feature.py` script automates the Jira ↔ Git lifecycle so ticket status always reflects reality.
+Every change follows: **Ticket → Branch → PR → Merge**. The `sos-feature` and `sos-jira` global CLI tools automate the Jira ↔ Git lifecycle so ticket status always reflects reality.
+
+### Install
+
+```bash
+pip install git+https://github.com/Strategies-Over-Stress/sos-dev-tools.git
+```
+
+This provides two global commands: `sos-jira` and `sos-feature`. They auto-discover issue types and workflow transitions from the Jira API — no hardcoded IDs. The CLI walks up from CWD to find the nearest `.env`, so each project gets its own Jira config.
 
 ### The Flow
 
 ```
-feature.py create "description"   → Creates ticket (TO DO) + branch (does not check out)
+sos-feature create "description"   → Creates ticket (TO DO) + branch (does not check out)
   ↓  (ready to work)
-feature.py start RICH-5           → Checks out branch, ticket → IN PROGRESS
+sos-feature start 5                → Checks out branch, ticket → IN PROGRESS
   ↓  (do the work, commit)
-feature.py pr                     → Pushes, creates GitHub PR, ticket → IN REVIEW
+sos-feature pr                     → Pushes, creates GitHub PR, ticket → IN REVIEW
   ↓  (review, merge PR)
-jira.py move RICH-X "DONE"       → Manually mark done after merge
+sos-jira move RICH-X "DONE"       → Manually mark done after merge
 ```
 
-### Feature Branch Commands (`apps/features/feature.py`)
+### Feature Branch Commands (`sos-feature`)
 
 ```bash
 # Create a feature — ticket (TO DO) + branch created, stays on current branch
-python3 apps/features/feature.py create "Add risk reversal to contact section"
-python3 apps/features/feature.py create "Rewrite hero copy" -d "## Context\n\nResearch shows..."
-python3 apps/features/feature.py create "Deploy pipeline" -f docs/deploy-ticket.md
-python3 apps/features/feature.py create "Fix button animation" -t subtask -p RICH-1
+sos-feature create "Add risk reversal to contact section"
+sos-feature create "Rewrite hero copy" -d "## Context\n\nResearch shows..."
+sos-feature create "Deploy pipeline" -f docs/deploy-ticket.md
+sos-feature create "Fix button animation" -t subtask -p RICH-1
 
 # Start working — checks out branch, moves ticket to IN PROGRESS
-python3 apps/features/feature.py start RICH-5
+sos-feature start 5          # shorthand for RICH-5
 
 # Switch to a different feature branch (no status change — just context switching)
-python3 apps/features/feature.py switch RICH-5
+sos-feature switch 5
 
 # Push + create PR — moves ticket to IN REVIEW, links PR in Jira comment
-python3 apps/features/feature.py pr
-python3 apps/features/feature.py pr --title "Custom PR title" --body "Custom body"
+sos-feature pr
+sos-feature pr --title "Custom PR title" --body "Custom body"
 
 # Check current branch and linked ticket status
-python3 apps/features/feature.py status
+sos-feature status
 ```
 
 ### Branching Convention
@@ -164,42 +174,42 @@ python3 apps/features/feature.py status
 
 | Git state | Ticket status | How it happens |
 |-----------|--------------|----------------|
-| Ticket + branch created | **To Do** | `feature.py create` |
-| Branch checked out to begin work | **In Progress** | `feature.py start` |
-| Branch checked out (context switch) | *(no change)* | `feature.py switch` |
-| PR opened | **IN REVIEW** | `feature.py pr` |
-| PR merged | **Done** | `jira.py move RICH-X "DONE"` (manual) |
+| Ticket + branch created | **To Do** | `sos-feature create` |
+| Branch checked out to begin work | **In Progress** | `sos-feature start` |
+| Branch checked out (context switch) | *(no change)* | `sos-feature switch` |
+| PR opened | **IN REVIEW** | `sos-feature pr` |
+| PR merged | **Done** | `sos-jira move RICH-X "DONE"` (manual) |
 
-**Rule:** Never move tickets manually unless marking as DONE after merge. Let the scripts handle TO DO, IN PROGRESS, and IN REVIEW transitions to avoid drift between ticket status and git state.
+**Rule:** Never move tickets manually unless marking as DONE after merge. Let the tools handle TO DO, IN PROGRESS, and IN REVIEW transitions to avoid drift between ticket status and git state.
 
 ---
 
-## 5. Jira CLI (`apps/features/jira.py`)
+## 5. Jira CLI (`sos-jira`)
 
-Direct ticket management. Zero external dependencies — Python stdlib only.
+Direct ticket management. Zero external dependencies — Python stdlib only. Issue types and transitions are auto-discovered from the Jira API on first use.
 
 ```bash
 # Create
-python3 apps/features/jira.py create -s "Title" -d "## Markdown description"
-python3 apps/features/jira.py create -s "Title" --file description.md
-python3 apps/features/jira.py create -s "Subtask" -t subtask -p RICH-1
+sos-jira create -s "Title" -d "## Markdown description"
+sos-jira create -s "Title" --file description.md
+sos-jira create -s "Subtask" -t subtask -p RICH-1
 
 # Edit
-python3 apps/features/jira.py edit RICH-1 -s "New title"
-python3 apps/features/jira.py edit RICH-1 -d "## New description"
-python3 apps/features/jira.py edit RICH-1 --file updated.md
+sos-jira edit RICH-1 -s "New title"
+sos-jira edit RICH-1 -d "## New description"
+sos-jira edit RICH-1 --file updated.md
 
 # Move / Delete
-python3 apps/features/jira.py move RICH-1 "DONE"
-python3 apps/features/jira.py delete RICH-3
+sos-jira move RICH-1 "DONE"
+sos-jira delete RICH-3
 
 # View / List
-python3 apps/features/jira.py view RICH-1
-python3 apps/features/jira.py list
-python3 apps/features/jira.py list --status "To Do" --type epic
+sos-jira view RICH-1
+sos-jira list
+sos-jira list --status "To Do" --type epic
 
 # Comment
-python3 apps/features/jira.py comment RICH-1 "## Update\n\nFinished the **hero rewrite**."
+sos-jira comment RICH-1 "## Update\n\nFinished the **hero rewrite**."
 ```
 
 ### Markdown → ADF
@@ -217,11 +227,15 @@ Descriptions and comments support markdown, automatically converted to Atlassian
 
 ### Issue Types
 
+Issue types are auto-discovered from your Jira project. Common types:
+
 | Type | Flag | Use for |
 |------|------|---------|
 | Task | `-t task` (default) | Standard work items |
 | Epic | `-t epic` | Large initiatives grouping multiple tasks |
 | Subtask | `-t subtask -p RICH-1` | Smaller items under a parent task/epic |
+
+Override via `.env` if auto-discovery doesn't match: `JIRA_ISSUE_TYPE_TASK=10122` etc.
 
 ---
 

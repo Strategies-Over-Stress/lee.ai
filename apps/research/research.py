@@ -230,10 +230,46 @@ def extract_title(raw_html):
     return None
 
 
+LOCALE_PATTERN = re.compile(
+    r"^/(?:(?:[a-z]{2}(?:-[a-z]{2})?)/)",
+    re.IGNORECASE,
+)
+
+# Common locale prefixes to strip for dedup
+LOCALE_PREFIXES = {
+    "af", "am", "ar", "az", "be", "bg", "bn", "bs", "ca", "cs", "cy", "da",
+    "de", "el", "en", "es", "et", "eu", "fa", "fi", "fil", "fr", "ga", "gl",
+    "gu", "he", "hi", "hr", "hu", "hy", "id", "is", "it", "ja", "ka", "kk",
+    "km", "kn", "ko", "ky", "lo", "lt", "lv", "mk", "ml", "mn", "mr", "ms",
+    "my", "nb", "ne", "nl", "no", "pa", "pl", "pt", "ro", "ru", "si", "sk",
+    "sl", "sq", "sr", "sv", "sw", "ta", "te", "th", "tr", "uk", "ur", "uz",
+    "vi", "zh",
+}
+
+
+def _normalize_path(path):
+    """Strip locale prefix from path for dedup. /fr/blog/article → /blog/article"""
+    match = LOCALE_PATTERN.match(path)
+    if match:
+        prefix = match.group(0).strip("/").split("/")[0].lower().split("-")[0]
+        if prefix in LOCALE_PREFIXES:
+            return path[match.end() - 1:]  # keep the leading /
+    return path
+
+
 def extract_article_links(raw_html, base_url):
     """Extract article-like links from a page (blog index pages)."""
     domain = extract_domain(base_url)
     links = set()
+    seen_normalized = set()
+
+    skip_segments = [
+        "/tag/", "/category/", "/author/", "/page/", "#", "?",
+        ".css", ".js", ".png", ".jpg", ".svg", ".gif", ".webp",
+        "/feed", "/rss", "/atom", "/sitemap",
+        "/login", "/signup", "/register", "/account", "/cart", "/checkout",
+        "/privacy", "/terms", "/cookie", "/legal",
+    ]
 
     for match in re.finditer(r'href=["\']([^"\']+)["\']', raw_html):
         href = match.group(1)
@@ -248,13 +284,22 @@ def extract_article_links(raw_html, base_url):
         if domain not in href:
             continue
 
-        # Filter for article-like URLs (has path depth, not just domain)
+        # Extract path
         path = href.split(domain)[-1]
-        if path.count("/") >= 2 and not any(
-            skip in path.lower()
-            for skip in ["/tag/", "/category/", "/author/", "/page/", "#", "?", ".css", ".js", ".png", ".jpg", "/feed"]
-        ):
-            links.add(href)
+
+        # Skip non-article URLs
+        if path.count("/") < 2:
+            continue
+        if any(skip in path.lower() for skip in skip_segments):
+            continue
+
+        # Deduplicate locale variants: /fr/blog/x and /blog/x → keep first seen
+        normalized = _normalize_path(path)
+        if normalized in seen_normalized:
+            continue
+        seen_normalized.add(normalized)
+
+        links.add(href)
 
     return list(links)[:20]  # Cap at 20 per source per sync
 
@@ -518,6 +563,12 @@ def cmd_sync(args, db):
                 continue
 
             c_hash = content_hash(clean)
+
+            # Skip if identical content already exists (different URL, same article)
+            dupe = db.execute("SELECT id, url FROM articles WHERE content_hash = ?", (c_hash,)).fetchone()
+            if dupe:
+                continue
+
             words = len(clean.split())
 
             db.execute(
