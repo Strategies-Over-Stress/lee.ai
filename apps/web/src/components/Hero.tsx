@@ -42,12 +42,12 @@ export default function Hero() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 1.2 }}
-          className="text-xl sm:text-2xl text-text-secondary font-light mb-10 max-w-3xl mx-auto"
+          className="text-xl sm:text-2xl text-white/80 font-light mb-10 max-w-3xl mx-auto"
         >
           I build custom software that replaces your subscriptions &mdash;
           guaranteed cheaper, or you don&apos;t pay.
           <br />
-          <span className="text-lg text-text-muted mt-2 block">
+          <span className="text-lg text-white/50 mt-2 block">
             So you can focus on building software that actually grows your business, not paying a monthly tariff.
           </span>
         </motion.p>
