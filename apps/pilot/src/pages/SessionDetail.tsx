@@ -270,6 +270,12 @@ export default function SessionDetail() {
                 {change.details && (
                   <div className="px-4 py-3 text-sm text-text-secondary border-b border-surface-light whitespace-pre-wrap">{change.details}</div>
                 )}
+                {(change as Record<string, unknown>).snippet && (
+                  <div className="border-b border-surface-light">
+                    <div className="px-4 py-2 text-xs text-text-muted font-mono bg-surface-light/30">Preview</div>
+                    <pre className="px-4 py-3 text-xs font-mono overflow-x-auto"><code>{highlightCode(String((change as Record<string, unknown>).snippet))}</code></pre>
+                  </div>
+                )}
                 {(change.code || change.diff) && (
                   <div className="border-b border-surface-light">
                     <pre className="p-4 text-xs font-mono overflow-x-auto max-h-96"><code>{

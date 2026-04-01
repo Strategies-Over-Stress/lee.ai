@@ -21,6 +21,7 @@ Given the user's goal below:
 - **NO RESEARCH.** Do not perform web searches, fetch URLs, or do open-ended investigation. You receive a specific plan — translate it into code changes. If you need codebase context, read files. Nothing more.
 - **NO AGENTS.** Do not spawn subagents for research or exploration. Use Glob/Grep/Read directly.
 - If the goal is unclear or requires research you don't have, write what you can and note the gaps as comments in the session for the user to fill in.
+- **Every change MUST have a detailed `details` field and a `snippet` field.** The `details` must explain WHAT is changing, WHERE (file, function, line range), WHY, and what the impact is. The `snippet` must show 5-15 lines of the actual code being written or changed. A reviewer reading only the session.json (without opening build.py) should fully understand every change.
 
 ## Session directory
 
@@ -43,7 +44,8 @@ Example: `20260401-143022-add-contact-form`
       "action": "create | edit | delete | run",
       "path": "relative/path/from/project/root",
       "summary": "What this change accomplishes (1 line)",
-      "details": "Longer explanation with reasoning (optional)",
+      "details": "REQUIRED. Detailed explanation of what this step does, WHY it's needed, what lines/sections are affected, and how it connects to the overall goal. Be specific — name the functions, classes, or sections being changed. A reviewer should understand the full impact without reading the build script.",
+      "snippet": "A short (5-15 line) code preview showing the key change. For edits: show the new code that will replace the old. For creates: show the most important section of the new file. For deletes: show what's being removed. For run: show the command.",
       "code": "full file content for creates (or relevant code for edits)",
       "diff": "unified diff for edits (optional, alongside code)",
       "comments": []

@@ -13,6 +13,7 @@ export interface Change {
   path: string;
   summary: string;
   details?: string;
+  snippet?: string;
   code?: string;
   diff?: string;
   comments: Comment[];
