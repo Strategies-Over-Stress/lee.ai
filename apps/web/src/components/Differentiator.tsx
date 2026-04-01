@@ -112,10 +112,10 @@ export default function Differentiator() {
                   className="w-full text-left p-5 cursor-pointer flex items-start justify-between gap-4"
                 >
                   <div>
-                    <h3 className={"font-bold text-lg " + (isOpen ? "text-text-primary" : "text-text-secondary")}>
+                    <h3 className={"font-bold text-xl " + (isOpen ? "text-white" : "text-white/70")}>
                       {feature.title}
                     </h3>
-                    <p className="text-sm text-text-muted mt-1">{feature.subtitle}</p>
+                    <p className="text-sm text-white/40 mt-1">{feature.subtitle}</p>
                   </div>
                   <span className={"text-text-muted transition-transform duration-300 mt-1 " + (isOpen ? "rotate-180" : "")}>
                     &#9660;
@@ -135,14 +135,14 @@ export default function Differentiator() {
                         {/* Giant stat */}
                         <div className="mb-6">
                           <div className="text-5xl sm:text-6xl font-black text-gradient">{feature.stat}</div>
-                          <div className="text-sm text-text-muted mt-2">{feature.statLabel}</div>
+                          <div className="text-sm text-white/50 mt-2">{feature.statLabel}</div>
                         </div>
 
-                        <p className="text-text-secondary text-lg mb-6">{feature.description}</p>
+                        <p className="text-white/80 text-lg mb-6">{feature.description}</p>
 
                         <ul className="space-y-3">
                           {feature.highlights.map((item) => (
-                            <li key={item} className="flex items-start gap-3 text-text-secondary">
+                            <li key={item} className="flex items-start gap-3 text-white/80">
                               <span className="text-emerald mt-0.5">&#10003;</span>
                               <span>{item}</span>
                             </li>
