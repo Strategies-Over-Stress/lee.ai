@@ -28,6 +28,8 @@ struct Change {
     #[serde(skip_serializing_if = "Option::is_none")]
     details: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    snippet: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     code: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     diff: Option<String>,
