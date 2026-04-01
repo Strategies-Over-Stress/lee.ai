@@ -90,6 +90,15 @@ const cases = [
   },
 ];
 
+function SiteScreenshot({ src, alt }: { src: string; alt: string }) {
+  return (
+    <div className="w-full rounded-lg mb-4 overflow-hidden border border-gray-200 shadow-sm">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={src} alt={alt} className="w-full h-auto" />
+    </div>
+  );
+}
+
 function MockupBefore() {
   return (
     <svg viewBox="0 0 400 200" className="w-full rounded-lg mb-4" xmlns="http://www.w3.org/2000/svg">

@@ -115,7 +115,7 @@ export default function Differentiator() {
                     <h3 className={"font-bold text-xl " + (isOpen ? "text-white" : "text-white/70")}>
                       {feature.title}
                     </h3>
-                    <p className="text-sm text-white/40 mt-1">{feature.subtitle}</p>
+                    <p className="text-sm text-white/60 mt-1">{feature.subtitle}</p>
                   </div>
                   <span className={"text-text-muted transition-transform duration-300 mt-1 " + (isOpen ? "rotate-180" : "")}>
                     &#9660;

@@ -47,12 +47,12 @@ export default function Guarantee() {
                 className="flex items-center gap-2 px-5 py-3 rounded-xl border border-emerald/20 bg-emerald/5"
               >
                 <span className="text-lg">{badge.icon}</span>
-                <span className="text-sm text-text-secondary">{badge.text}</span>
+                <span className="text-sm text-white/80">{badge.text}</span>
               </motion.div>
             ))}
           </div>
 
-          <p className="text-text-muted text-sm max-w-xl mx-auto">
+          <p className="text-white/50 text-sm max-w-xl mx-auto">
             Not a &ldquo;satisfaction guarantee&rdquo; with fine print. If I can&apos;t save you money while giving you better software, the engagement is free. Period.
           </p>
         </motion.div>

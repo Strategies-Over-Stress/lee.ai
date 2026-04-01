@@ -47,6 +47,11 @@ export default function Hero() {
           </span>
         </motion.p>
 
+        {/* Billing receipt */}
+        <div className="mt-8 mb-10">
+          <BillingReceipt />
+        </div>
+
         {/* CTA buttons */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -74,11 +79,6 @@ export default function Hero() {
             Read: Rebuilding the Wheel &rarr;
           </a>
         </motion.div>
-
-        {/* Billing receipt */}
-        <div className="mt-10">
-          <BillingReceipt />
-        </div>
 
         {/* Stats bar */}
         <motion.div
