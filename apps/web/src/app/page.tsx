@@ -1,5 +1,6 @@
 "use client";
 
+import Navbar from "@/components/Navbar";
 import ParticleField from "@/components/ParticleField";
 import Hero from "@/components/Hero";
 import CaseStudy from "@/components/CaseStudy";
@@ -13,6 +14,7 @@ import Contact from "@/components/Contact";
 export default function Home() {
   return (
     <main className="relative grid-bg">
+      <Navbar />
       <ParticleField />
 
       <div className="relative z-10">

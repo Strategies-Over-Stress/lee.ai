@@ -34,10 +34,10 @@ const questions: Question[] = [
     id: "trapped",
     question: "Have you ever kept paying for a subscription because canceling felt too risky or too much hassle?",
     options: [
-      { label: "No, I\u2019m on top of it", value: "no", score: 3, wasteFactor: 0 },
+      { label: "No, I’m on top of it", value: "no", score: 3, wasteFactor: 0 },
       { label: "Once or twice", value: "once", score: 2, wasteFactor: 100 },
-      { label: "Yes, more than I\u2019d like to admit", value: "yes", score: 1, wasteFactor: 300 },
-      { label: "I don\u2019t track this closely enough to know", value: "unknown", score: 0, wasteFactor: 400 },
+      { label: "Yes, more than I’d like to admit", value: "yes", score: 1, wasteFactor: 300 },
+      { label: "I don’t track this closely enough to know", value: "unknown", score: 0, wasteFactor: 400 },
     ],
   },
   {
@@ -45,19 +45,19 @@ const questions: Question[] = [
     question: "Have you or your team tried using AI to build or automate something?",
     options: [
       { label: "Yes and it went well", value: "success", score: 3, wasteFactor: 0 },
-      { label: "Yes but it didn\u2019t work out", value: "failed", score: 1, wasteFactor: 200 },
-      { label: "No but I\u2019m curious", value: "curious", score: 2, wasteFactor: 100 },
-      { label: "No and I\u2019m skeptical", value: "skeptical", score: 1, wasteFactor: 50 },
+      { label: "Yes but it didn’t work out", value: "failed", score: 1, wasteFactor: 200 },
+      { label: "No but I’m curious", value: "curious", score: 2, wasteFactor: 100 },
+      { label: "No and I’m skeptical", value: "skeptical", score: 1, wasteFactor: 50 },
     ],
   },
   {
     id: "lockin",
     question: "If a vendor you rely on doubled their price tomorrow, what would you do?",
     options: [
-      { label: "We\u2019d be fine \u2014 we own our critical systems", value: "fine", score: 3, wasteFactor: 0 },
-      { label: "We\u2019d find alternatives quickly", value: "scramble", score: 2, wasteFactor: 100 },
-      { label: "We\u2019d manage but it would hurt", value: "manage", score: 1, wasteFactor: 200 },
-      { label: "Panic \u2014 we\u2019re completely locked in", value: "panic", score: 0, wasteFactor: 400 },
+      { label: "We’d be fine — we own our critical systems", value: "fine", score: 3, wasteFactor: 0 },
+      { label: "We’d find alternatives quickly", value: "scramble", score: 2, wasteFactor: 100 },
+      { label: "We’d manage but it would hurt", value: "manage", score: 1, wasteFactor: 200 },
+      { label: "Panic — we’re completely locked in", value: "panic", score: 0, wasteFactor: 400 },
     ],
   },
 ];
@@ -73,22 +73,22 @@ function getResult(score: number): ResultProfile {
   if (score <= 5) {
     return {
       title: "Your business is on a subscription treadmill",
-      description: "You\u2019re spending thousands per year on tools that don\u2019t fully serve you, and you\u2019re locked into vendors who know it. The good news: this is exactly the situation where my guarantee kicks in.",
-      recommendation: "A full software review. Let\u2019s map where your money goes and what we can own instead.",
+      description: "You’re spending thousands per year on tools that don’t fully serve you, and you’re locked into vendors who know it. The good news: this is exactly the situation where my guarantee kicks in.",
+      recommendation: "A full software review. Let’s map where your money goes and what we can own instead.",
       color: "text-rose",
     };
   }
   if (score <= 10) {
     return {
-      title: "You\u2019re overpaying \u2014 but you\u2019re close to breaking free",
-      description: "You\u2019ve got some pieces in place, but you\u2019re still bleeding money on software that doesn\u2019t fully serve your needs. A focused engagement could eliminate most of that waste permanently.",
+      title: "You’re overpaying — but you’re close to breaking free",
+      description: "You’ve got some pieces in place, but you’re still bleeding money on software that doesn’t fully serve your needs. A focused engagement could eliminate most of that waste permanently.",
       recommendation: "A targeted build. We replace your most expensive, least useful subscriptions first.",
       color: "text-amber",
     };
   }
   return {
-    title: "You\u2019re ahead of the game",
-    description: "Your stack is in decent shape, but there\u2019s still room to own more and rent less. The next level is full ownership.",
+    title: "You’re ahead of the game",
+    description: "Your stack is in decent shape, but there’s still room to own more and rent less. The next level is full ownership.",
     recommendation: "A strategic upgrade. We identify the remaining subscriptions worth replacing.",
     color: "text-emerald",
   };
@@ -121,7 +121,7 @@ export default function Assessment() {
   };
 
   return (
-    <section id="assess" className="relative py-32 px-6">
+    <section id="assess" className="relative py-32 px-6 bg-surface/50">
       <div className="max-w-3xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

@@ -16,6 +16,7 @@ Given the user's goal below:
 - The build script must use only Python standard library.
 - The build script must print what it does as it runs.
 - The build script must be idempotent (safe to run twice).
+- **Prefer edits over rewrites.** Use `edit_file(path, old, new)` for targeted changes to existing files. Only use `write_file()` for brand new files. This produces smaller diffs, is safer, and avoids accidentally losing code that doesn't need to change.
 - Include full file contents in the `code` field for new files, and unified diffs for edits.
 - **NO RESEARCH.** Do not perform web searches, fetch URLs, or do open-ended investigation. You receive a specific plan — translate it into code changes. If you need codebase context, read files. Nothing more.
 - **NO AGENTS.** Do not spawn subagents for research or exploration. Use Glob/Grep/Read directly.

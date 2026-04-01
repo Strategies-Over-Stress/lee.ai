@@ -19,13 +19,13 @@ export default function BillingReceipt() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8 }}
-      className="max-w-lg mx-auto rounded-2xl border border-surface-light bg-surface/80 backdrop-blur-sm overflow-hidden mb-12"
+      className="max-w-lg mx-auto rounded-2xl border border-gray-200 bg-white shadow-2xl shadow-accent/10 overflow-hidden mb-10"
     >
       {/* Header */}
-      <div className="flex items-center gap-2 px-6 py-3 border-b border-surface-light bg-surface">
+      <div className="flex items-center gap-2 px-6 py-3 border-b border-gray-200 bg-gray-50">
         <span className="text-amber text-sm">&#9888;</span>
-        <span className="text-sm font-mono text-text-muted">Renewal Notice</span>
-        <span className="ml-auto text-xs text-text-muted">Renews in 3 days</span>
+        <span className="text-sm font-mono text-gray-600">Renewal Notice</span>
+        <span className="ml-auto text-xs text-red-500 font-medium">Renews in 3 days</span>
       </div>
 
       {/* Line items */}
@@ -38,10 +38,10 @@ export default function BillingReceipt() {
             transition={{ duration: 0.4, delay: 0.3 + i * 0.15 }}
             className="flex items-center justify-between"
           >
-            <span className={"text-sm " + (item.waste ? "text-rose" : "text-text-muted")}>
+            <span className={"text-base " + (item.waste ? "text-red-600 font-medium" : "text-gray-700")}>
               {item.name}
             </span>
-            <span className={"text-sm font-mono font-medium " + (item.waste ? "text-rose" : "text-text-secondary")}>
+            <span className={"text-base font-mono font-semibold " + (item.waste ? "text-red-600" : "text-gray-500")}>
               {item.cost}/mo
             </span>
           </motion.div>
@@ -52,7 +52,7 @@ export default function BillingReceipt() {
           initial={{ scaleX: 0 }}
           animate={{ scaleX: 1 }}
           transition={{ duration: 0.6, delay: 1.2 }}
-          className="h-px bg-surface-light origin-left"
+          className="h-px bg-gray-200 origin-left"
         />
 
         {/* Total */}
@@ -62,11 +62,11 @@ export default function BillingReceipt() {
           transition={{ duration: 0.5, delay: 1.4 }}
           className="flex items-center justify-between pt-1"
         >
-          <span className="text-sm font-semibold text-text-primary">Total</span>
+          <span className="text-lg font-bold text-gray-900">Total</span>
           <motion.span
             animate={{ opacity: [1, 0.6, 1] }}
             transition={{ repeat: Infinity, duration: 2 }}
-            className="text-lg font-mono font-bold text-rose"
+            className="text-2xl font-mono font-black text-red-600"
           >
             {total}/mo
           </motion.span>

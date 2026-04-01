@@ -7,30 +7,30 @@ const steps = [
   {
     number: "01",
     title: "Free Consultation",
-    description: "30 minutes. We look at what you\u2019re spending on software and what you\u2019re actually getting for it. No pitch. No commitment. Just an honest look at the numbers.",
+    description: "30 minutes. We look at what you’re spending on software and what you’re actually getting for it. No pitch. No commitment. Just an honest look at the numbers.",
     detail: "Free. No strings attached.",
-    icon: "\ud83d\udcde",
+    icon: "📞",
   },
   {
     number: "02",
     title: "Software Review",
-    description: "I map every tool you\u2019re paying for \u2014 what it costs, what it does, what it doesn\u2019t do, and what\u2019s trapping you. You get a clear picture of where your money goes.",
+    description: "I map every tool you’re paying for \u2014 what it costs, what it does, what it doesn’t do, and what’s trapping you. You get a clear picture of where your money goes.",
     detail: "Delivered in 48 hours.",
-    icon: "\ud83d\udd0d",
+    icon: "🔍",
   },
   {
     number: "03",
     title: "Build Phase",
     description: "We replace the waste with software you own. Built with AI for speed, reviewed by a professional for safety. You see working software in weeks, not months.",
     detail: "Weekly check-ins. Transparent progress.",
-    icon: "\u26a1",
+    icon: "⚡",
   },
   {
     number: "04",
     title: "Handoff",
-    description: "You own everything. No monthly fees. No lock-in. No renewal notices. Ever. I\u2019m available if you want to keep building \u2014 but you\u2019ll never need me to keep the lights on.",
+    description: "You own everything. No monthly fees. No lock-in. No renewal notices. Ever. I’m available if you want to keep building \u2014 but you’ll never need me to keep the lights on.",
     detail: "Your code. Your servers. Your freedom.",
-    icon: "\ud83d\udd11",
+    icon: "🔑",
   },
 ];
 
@@ -39,7 +39,7 @@ export default function Process() {
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
-    <section className="relative py-32 px-6" ref={ref}>
+    <section className="relative py-32 px-6 bg-accent/[0.02]" ref={ref}>
       <div className="max-w-5xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

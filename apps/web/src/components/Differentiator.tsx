@@ -16,36 +16,38 @@ interface Feature {
 const features: Feature[] = [
   {
     id: "waste",
-    title: "Stop paying for features you don\u2019t use",
-    subtitle: "You\u2019re subsidizing someone else\u2019s product roadmap.",
+    title: "Stop paying for features you don’t use",
+    subtitle: "You’re subsidizing someone else’s product roadmap.",
     stat: "47%",
-    statLabel: "of software licenses go completely unused \u2014 Zylo, 2026",
-    description: "That enterprise CRM with 400 features? You use 12 of them. Those other 388 are why your bill keeps going up every year. I build exactly what you need \u2014 nothing more, nothing less. And it costs $0/month to keep running.",
+    statLabel: "of software licenses go completely unused — Zylo, 2026",
+    description: "That enterprise CRM with 400 features? You use 12 of them. Those other 388 are why your bill keeps going up every year. I build exactly what you need — nothing more, nothing less. And it costs $0/month to keep running.",
     highlights: [
       "Built for YOUR workflow, not a generic one-size-fits-all",
-      "No features you\u2019ll never use inflating your bill",
-      "$0/month subscription fees \u2014 you own it outright",
+      "No features you’ll never use inflating your bill",
+      "$0/month subscription fees — you own it outright",
     ],
   },
   {
     id: "own",
-    title: "Own it. Don\u2019t rent it.",
-    subtitle: "SaaS companies love recurring revenue. You shouldn\u2019t love giving it to them.",
+    title: "Own it. Don’t rent it.",
+    subtitle: "SaaS companies love recurring revenue. You shouldn’t love giving it to them.",
     stat: "$0/mo",
     statLabel: "The cost of your software in 2029. Because you already own it.",
-    description: "Custom software you own has no renewal date, no annual price increases, no \u2018we\u2019re updating our terms of service\u2019 emails. Two years from now, it\u2019s still running. Still $0/month. Still yours.",
+    description: "Custom software you own has no renewal date, no annual price increases, no ‘we’re updating our terms of service’ emails. Two years from now, it’s still running. Still $0/month. Still yours.",
     highlights: [
       "No price increases. Ever.",
       "No vendor lock-in. Your data stays yours.",
       "Five years from now? Still $0/month.",
+      "Fully integrated — no more paying to access your own data",
+      "Redirect resources to building software that makes YOU stand out",
     ],
   },
   {
     id: "risk",
     title: "AI without the risk",
-    subtitle: "You don\u2019t need to understand vulnerabilities. You need someone who does.",
+    subtitle: "You don’t need to understand vulnerabilities. You need someone who does.",
     stat: "45%",
-    statLabel: "of AI-generated code fails security tests \u2014 Veracode, 2025",
+    statLabel: "of AI-generated code fails security tests — Veracode, 2025",
     description: "I use AI to build faster and cheaper, but every line is reviewed with a decade of professional engineering judgment. Your data stays safe. Your compliance stays intact. Your business stays protected.",
     highlights: [
       "Every line of code reviewed by a professional",
@@ -59,10 +61,10 @@ const features: Feature[] = [
     subtitle: "Replace $100/month Zapier chains with real integrations.",
     stat: "$6/mo",
     statLabel: "replaces $100/month in duct-tape automation",
-    description: "You\u2019ve got Zapier connecting your email tool to your CRM to your spreadsheet to your calendar. 20 steps. $100/month. One break and the whole chain goes down. I replace duct-tape integrations with real systems that run reliably.",
+    description: "You’ve got Zapier connecting your email tool to your CRM to your spreadsheet to your calendar. 20 steps. $100/month. One break and the whole chain goes down. I replace duct-tape integrations with real systems that run reliably.",
     highlights: [
       "Replace $100/month Zapier chains with $6/month solutions",
-      "Real integrations that don\u2019t break when one tool updates",
+      "Real integrations that don’t break when one tool updates",
       "One system instead of 12 tools pretending to talk to each other",
     ],
   },
@@ -75,7 +77,7 @@ export default function Differentiator() {
   const active = features.find((f) => f.id === activeFeature)!;
 
   return (
-    <section className="relative py-32 px-6" ref={ref}>
+    <section className="relative py-32 px-6 bg-accent/[0.02]" ref={ref}>
       <div className="max-w-6xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -135,7 +137,7 @@ export default function Differentiator() {
             <ul className="space-y-3">
               {active.highlights.map((item) => (
                 <li key={item} className="flex items-start gap-3 text-text-secondary">
-                  <span className="text-emerald mt-0.5">\u2713</span>
+                  <span className="text-emerald mt-0.5">✓</span>
                   <span>{item}</span>
                 </li>
               ))}

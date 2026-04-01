@@ -33,7 +33,7 @@ export default function DragSlider({ beforeContent, afterContent }: DragSliderPr
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-80 sm:h-96 rounded-2xl overflow-hidden border border-surface-light cursor-col-resize select-none"
+      className="relative w-full h-[28rem] sm:h-[32rem] rounded-2xl overflow-hidden border border-surface-light cursor-col-resize select-none"
       onMouseMove={handleMouseMove}
       onMouseUp={() => setDragging(false)}
       onMouseLeave={() => setDragging(false)}

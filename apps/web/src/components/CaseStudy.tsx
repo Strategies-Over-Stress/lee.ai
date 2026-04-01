@@ -13,18 +13,19 @@ const cases = [
       "$1,500+/mo in WordPress plugins and SaaS subscriptions",
       "Site crashed on biggest sales day",
       "Copying data between tools by hand",
-      "Fragile stack \u2014 nothing talked to each other",
+      "Fragile stack — nothing talked to each other",
     ],
     after: [
       "Dumped $1,500+ in plugins and SaaS products",
       "More performant AND more attractive site",
-      "Every feature those plugins provided \u2014 customized for her",
+      "Every feature those plugins provided — customized for her",
       "She truly got her cake and ate it too",
+      "Fully integrated — no more paying to access her own data",
     ],
-    moneyLine: "She rebuilt the wheel \u2014 and it rolls better. Dumped $1,500+/mo in WordPress plugins and SaaS products, got a site that\u2019s faster, more beautiful, with every feature custom-built for her business.",
+    moneyLine: "She rebuilt the wheel — and it rolls better. Dumped $1,500+/mo in WordPress plugins and SaaS products, got a site that’s faster, more beautiful, with every feature custom-built for her business.",
     stats: [
       { value: "$30K", label: "Revenue month", sub: "zero downtime" },
-      { value: "10x", label: "Faster page loads", sub: "30s \u2192 3s" },
+      { value: "10x", label: "Faster page loads", sub: "30s → 3s" },
       { value: "$0/mo", label: "Plugin/SaaS fees", sub: "for replaced tools" },
     ],
   },
@@ -35,16 +36,17 @@ const cases = [
     before: [
       "$4,000+/year in CRM and SaaS subscriptions",
       "Using a fraction of the features she paid for",
-      "Trapped by compliance fears \u2014 SEC regulations",
+      "Trapped by compliance fears — SEC regulations",
       "Vendor lock-in on client data",
     ],
     after: [
       "Custom CRM built for her exact workflow",
-      "Fully self-hosted \u2014 she owns every byte",
+      "Fully self-hosted — she owns every byte",
       "SEC-compliant from the architecture up",
       "Saved $4,000+ in annual expenses",
+      "Fully integrated — one system, zero limitations",
     ],
-    moneyLine: "Dominique rebuilt the wheel \u2014 and saved $4,000+ a year doing it. Her CRM is compliant, self-hosted, and will never send her another invoice.",
+    moneyLine: "Dominique rebuilt the wheel — and saved $4,000+ a year doing it. Her CRM is compliant, self-hosted, and will never send her another invoice.",
     stats: [
       { value: "$4K+", label: "Annual savings", sub: "vs previous subscriptions" },
       { value: "100%", label: "Feature fit", sub: "her exact workflow" },
@@ -60,7 +62,7 @@ function BeforePanel({ items }: { items: string[] }) {
       <ul className="space-y-2">
         {items.map((item) => (
           <li key={item} className="flex items-center gap-2 text-sm text-text-secondary">
-            <span className="text-rose">\u2717</span> {item}
+            <span className="text-rose">✗</span> {item}
           </li>
         ))}
       </ul>
@@ -75,7 +77,7 @@ function AfterPanel({ items }: { items: string[] }) {
       <ul className="space-y-2">
         {items.map((item) => (
           <li key={item} className="flex items-center gap-2 text-sm text-text-secondary">
-            <span className="text-emerald">\u2713</span> {item}
+            <span className="text-emerald">✓</span> {item}
           </li>
         ))}
       </ul>
@@ -90,7 +92,7 @@ export default function CaseStudy() {
   const activeCase = cases.find((c) => c.id === activeTab)!;
 
   return (
-    <section id="proof" className="relative py-32 px-6" ref={ref}>
+    <section id="proof" className="relative py-32 px-6 bg-surface/50" ref={ref}>
       <div className="max-w-6xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

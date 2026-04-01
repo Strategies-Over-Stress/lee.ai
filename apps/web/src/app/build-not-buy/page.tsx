@@ -3,47 +3,47 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const businessArticle = `It\u2019s Time to Rebuild the Wheel
+const businessArticle = `It’s Time to Rebuild the Wheel
 
 You already know the feeling. Another month, another stack of software subscriptions auto-renewing. Salesforce. QuickBooks. Zapier. Mailchimp. Slack. That project management tool nobody actually uses but someone signed up for in 2023.
 
-They told you \u201cdon\u2019t reinvent the wheel\u201d \u2014 just subscribe to someone else\u2019s. But their wheel costs you $1,500/month, does 60% of what you need, and they raise the price every year. Maybe it\u2019s time to rebuild the wheel. One that actually fits your car.
+They told you “don’t reinvent the wheel” — just subscribe to someone else’s. But their wheel costs you $1,500/month, does 60% of what you need, and they raise the price every year. Maybe it’s time to rebuild the wheel. One that actually fits your car.
 
-You\u2019re not imagining it \u2014 41% of business owners report subscription fatigue. The average company uses 130+ software subscriptions and only actually uses about half of them. That\u2019s not a rounding error. That\u2019s money walking out the door every month.
+You’re not imagining it — 41% of business owners report subscription fatigue. The average company uses 130+ software subscriptions and only actually uses about half of them. That’s not a rounding error. That’s money walking out the door every month.
 
-And it\u2019s getting worse. Software costs per employee hit $9,100 in 2025 and are heading toward $10,800 this year. If you\u2019re a small business, you\u2019re spending 6-12% of your entire revenue just on software tools. Tools that do 80% of what you need and charge you 100% of the price.
+And it’s getting worse. Software costs per employee hit $9,100 in 2025 and are heading toward $10,800 this year. If you’re a small business, you’re spending 6-12% of your entire revenue just on software tools. Tools that do 80% of what you need and charge you 100% of the price.
 
-That missing 20%? It used to not be worth fighting for. That\u2019s changed.
+That missing 20%? It used to not be worth fighting for. That’s changed.
 
 The $39.99/Month Trap
 
 For years, the pitch was simple: Why build something custom when you can just subscribe?
 
-And it made sense. Custom software was expensive. Six figures, minimum. Months of development. Ongoing maintenance. The math didn\u2019t work for most businesses.
+And it made sense. Custom software was expensive. Six figures, minimum. Months of development. Ongoing maintenance. The math didn’t work for most businesses.
 
 But AI has rewritten that math.
 
-What used to cost $200,000 and take six months can now be built in weeks for a fraction of the price \u2014 if you know what you\u2019re doing. That\u2019s a big \u201cif,\u201d and we\u2019ll get to it.
+What used to cost $200,000 and take six months can now be built in weeks for a fraction of the price — if you know what you’re doing. That’s a big “if,” and we’ll get to it.
 
 The Risk Nobody Tells You About
 
 45% of AI-generated code samples failed security tests, introducing OWASP Top 10 vulnerabilities. 62% of AI-generated code contains design flaws or known security vulnerabilities.
 
-Then there\u2019s the exposure of private keys \u2014 first to the AI provider itself, then scattered across your codebase, logs, local files, and environment variables.
+Then there’s the exposure of private keys — first to the AI provider itself, then scattered across your codebase, logs, local files, and environment variables.
 
-So What\u2019s the Solution?
+So What’s the Solution?
 
-Human-in-the-loop AI software development. A professional who knows what\u2019s worth paying for. What you can safely automate. And what requires direct, hands-on professional development.
+Human-in-the-loop AI software development. A professional who knows what’s worth paying for. What you can safely automate. And what requires direct, hands-on professional development.
 
 Your solution. Your software. My decades of experience. For a fraction of the cost of your annual SaaS subscriptions.`;
 
-const technicalArticle = `For the First Time in History, It\u2019s Cheaper to Rebuild the Wheel
+const technicalArticle = `For the First Time in History, It’s Cheaper to Rebuild the Wheel
 
-AI models can now more reliably build software from scratch than maintain older, tangled codebases. Large-scale rewrites to existing software are technically possible \u2014 but dramatically more risky.
+AI models can now more reliably build software from scratch than maintain older, tangled codebases. Large-scale rewrites to existing software are technically possible — but dramatically more risky.
 
-According to RAND Corporation (2025), 80% of AI projects fail to deliver intended business value. MIT\u2019s 2025 study puts it even higher: 95% of generative AI pilots fail, mostly due to brittle workflows and misaligned expectations.
+According to RAND Corporation (2025), 80% of AI projects fail to deliver intended business value. MIT’s 2025 study puts it even higher: 95% of generative AI pilots fail, mostly due to brittle workflows and misaligned expectations.
 
-The \u201ccode is a liability\u201d argument is now multiplied. When your codebase depends on an AI\u2019s context window, and sweeping changes produce broken code you\u2019ll spend more time debugging than building, the economics of maintaining legacy software are worse than ever.
+The “code is a liability” argument is now multiplied. When your codebase depends on an AI’s context window, and sweeping changes produce broken code you’ll spend more time debugging than building, the economics of maintaining legacy software are worse than ever.
 
 SaaS Subscription Fatigue: The Numbers
 
@@ -54,13 +54,13 @@ SaaS Subscription Fatigue: The Numbers
 
 AI-Generated Code Security
 
-Veracode\u2019s 2025 report found that 45% of AI-generated code samples failed security tests. 86% failed to defend against cross-site scripting (CWE-80). 88% were vulnerable to log injection attacks (CWE-117).
+Veracode’s 2025 report found that 45% of AI-generated code samples failed security tests. 86% failed to defend against cross-site scripting (CWE-80). 88% were vulnerable to log injection attacks (CWE-117).
 
 Check Point Research discovered vulnerabilities in AI coding tools that allow remote code execution and API key theft through malicious project configurations.
 
 Custom Software vs SaaS Economics
 
-Custom software development: $100K-$400K for medium projects. SaaS: $10-$300 per user/month. Break-even at years 2-4 \u2014 faster with AI-assisted development.
+Custom software development: $100K-$400K for medium projects. SaaS: $10-$300 per user/month. Break-even at years 2-4 — faster with AI-assisted development.
 
 The tipping point: when monthly SaaS costs exceed $2,000-3,000, custom becomes viable. With AI, that threshold drops dramatically.`;
 
@@ -119,12 +119,15 @@ export default function BuildNotBuy() {
             className="prose-custom"
           >
             {(view === "business" ? businessArticle : technicalArticle)
-              .split("\n\n")
+              .split("
+
+")
               .map((para, i) => {
                 if (para.startsWith("\u2022 ")) {
                   return (
                     <ul key={i} className="space-y-2 my-6 text-text-secondary">
-                      {para.split("\n").map((line, j) => (
+                      {para.split("
+").map((line, j) => (
                         <li key={j} className="text-sm">{line.replace("\u2022 ", "")}</li>
                       ))}
                     </ul>

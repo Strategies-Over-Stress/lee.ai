@@ -14,7 +14,7 @@ export default function Guarantee() {
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
-    <section className="relative py-32 px-6" ref={ref}>
+    <section className="relative py-32 px-6 bg-emerald/[0.03]" ref={ref}>
       {/* Emerald glow background */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
         <div className="w-[600px] h-[600px] rounded-full bg-emerald/5 blur-[120px]" />

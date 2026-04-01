@@ -5,7 +5,7 @@ import BillingReceipt from "./BillingReceipt";
 
 export default function Hero() {
   return (
-    <section className="relative min-h-screen flex items-center justify-center px-6">
+    <section className="relative pt-24 pb-16 flex items-center justify-center px-6">
       <div className="max-w-5xl mx-auto text-center z-10">
         {/* Availability badge */}
         <motion.div
@@ -27,8 +27,8 @@ export default function Hero() {
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 1.6 }}
-          className="text-5xl sm:text-7xl font-black tracking-tight leading-[0.95] mb-6"
+          transition={{ duration: 0.8, delay: 1.0 }}
+          className="text-5xl sm:text-7xl lg:text-8xl font-black tracking-tight leading-[0.95] mb-6 text-white"
         >
           What if this number
           <br />
@@ -39,7 +39,7 @@ export default function Hero() {
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 2.0 }}
+          transition={{ duration: 0.8, delay: 1.3 }}
           className="text-xl sm:text-2xl text-text-secondary font-light mb-12 max-w-3xl mx-auto"
         >
           I build custom software that replaces your subscriptions &mdash;
@@ -50,7 +50,7 @@ export default function Hero() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 2.2 }}
+          transition={{ duration: 0.6, delay: 1.5 }}
           className="flex flex-col sm:flex-row gap-4 justify-center"
         >
           <a
@@ -66,14 +66,20 @@ export default function Hero() {
           >
             See the proof
           </a>
+          <a
+            href="/build-not-buy"
+            className="px-8 py-4 text-accent-bright hover:text-white font-semibold text-lg transition-all duration-300"
+          >
+            Read: Rebuilding the Wheel &rarr;
+          </a>
         </motion.div>
 
         {/* Stats bar */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 2.6 }}
-          className="mt-20 grid grid-cols-2 sm:grid-cols-4 gap-6 max-w-3xl mx-auto"
+          transition={{ duration: 0.8, delay: 1.8 }}
+          className="mt-12 grid grid-cols-2 sm:grid-cols-4 gap-6 max-w-3xl mx-auto"
         >
           {[
             { value: "$1,500+", label: "Wasted on average", sub: "on SaaS every month" },
@@ -100,7 +106,7 @@ export default function Hero() {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 3 }}
+        transition={{ delay: 2.2 }}
         className="absolute bottom-8 left-1/2 -translate-x-1/2"
       >
         <motion.div
