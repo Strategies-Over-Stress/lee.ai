@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { listSessions, onSessionsChanged, deleteSession, getProjectRoot, Session } from "../lib/ipc";
+import { listSessions, onSessionsChanged, deleteSession, Session } from "../lib/ipc";
 
 const statusColors: Record<string, string> = {
   awaiting_review: "text-amber bg-amber/10 border-amber/20",
@@ -14,15 +14,12 @@ const statusColors: Record<string, string> = {
 export default function Home() {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
-  const [projectRoot, setProjectRootState] = useState("");
-
   const refresh = () => {
     listSessions().then((s) => { setSessions(s); setLoading(false); });
   };
 
   useEffect(() => {
     refresh();
-    getProjectRoot().then(setProjectRootState);
     const unsub = onSessionsChanged(refresh);
     return () => { unsub.then((fn) => fn()); };
   }, []);
@@ -37,9 +34,6 @@ export default function Home() {
   };
 
   if (loading) return <div className="text-text-muted">Loading...</div>;
-
-  // Shorten project root for display
-  const shortRoot = projectRoot.replace(/^\/Users\/[^/]+\//, "~/");
 
   return (
     <div>
@@ -76,9 +70,6 @@ export default function Home() {
                     {totalComments > 0 && " \u00b7 " + totalComments + " comment" + (totalComments !== 1 ? "s" : "")}
                     {session.ticket && " \u00b7 " + session.ticket}
                     {" \u00b7 iteration " + session.iteration}
-                  </div>
-                  <div className="text-xs text-text-muted font-mono mt-1.5 truncate">
-                    {shortRoot}
                   </div>
                 </Link>
                 <div className="flex items-center gap-2 flex-shrink-0 ml-4">

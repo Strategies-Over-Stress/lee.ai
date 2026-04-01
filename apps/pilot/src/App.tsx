@@ -1,7 +1,9 @@
 import { Routes, Route, Link, useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
 import Home from "./pages/Home";
 import SessionDetail from "./pages/SessionDetail";
 import Research from "./pages/Research";
+import { getProjectRoot, setProjectRoot, pickFolder } from "./lib/ipc";
 
 function Nav() {
   const location = useLocation();
@@ -26,14 +28,52 @@ function Nav() {
   );
 }
 
+function ProjectSwitcher() {
+  const [root, setRoot] = useState("");
+
+  useEffect(() => {
+    getProjectRoot().then(setRoot);
+  }, []);
+
+  const handlePick = async () => {
+    const path = await pickFolder();
+    if (path) {
+      try {
+        const result = await setProjectRoot(path.replace(/\/$/, ""));
+        setRoot(result);
+        // Force full reload so sessions + research refresh from new project
+        window.location.reload();
+      } catch { /* ignore */ }
+    }
+  };
+
+  const shortRoot = root.replace(/^\/Users\/[^/]+\//, "~/");
+
+  return (
+    <button
+      onClick={handlePick}
+      className="w-full text-left px-3 py-2 text-xs text-text-muted hover:text-accent-bright transition-colors font-mono truncate cursor-pointer"
+      title={"Project: " + root + "\nClick to switch"}
+    >
+      <span className="text-text-muted mr-1">&#128193;</span>
+      {shortRoot}
+    </button>
+  );
+}
+
 export default function App() {
   return (
     <div className="flex h-screen">
-      <aside className="w-56 flex-shrink-0 border-r border-surface-light bg-surface p-4 flex flex-col gap-1">
+      <aside className="w-56 flex-shrink-0 border-r border-surface-light bg-surface p-4 flex flex-col">
         <Link to="/" className="text-lg font-bold text-accent-bright mb-6 px-3">
           pilot
         </Link>
-        <Nav />
+        <div className="flex-1">
+          <Nav />
+        </div>
+        <div className="border-t border-surface-light pt-2">
+          <ProjectSwitcher />
+        </div>
       </aside>
       <main className="flex-1 p-8 overflow-auto">
         <Routes>
