@@ -1,7 +1,43 @@
 "use client";
 
-import { motion, useInView, AnimatePresence } from "framer-motion";
-import { useRef, useState } from "react";
+import { motion, useInView, AnimatePresence, useMotionValue, useTransform, animate } from "framer-motion";
+import { useRef, useState, useEffect } from "react";
+
+function CountUp({ value, suffix = "" }: { value: string; suffix?: string }) {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true });
+  const [display, setDisplay] = useState("0");
+
+  useEffect(() => {
+    if (!isInView) return;
+    // Extract numeric part
+    const numeric = parseFloat(value.replace(/[^0-9.]/g, ""));
+    const prefix = value.match(/^[^0-9]*/)?.[0] || "";
+    const valueSuffix = value.match(/[^0-9.]*$/)?.[0] || "";
+
+    if (isNaN(numeric)) {
+      setDisplay(value);
+      return;
+    }
+
+    const controls = animate(0, numeric, {
+      duration: 1.5,
+      ease: "easeOut",
+      onUpdate: (v) => {
+        if (numeric >= 100) {
+          setDisplay(prefix + Math.round(v).toLocaleString() + valueSuffix);
+        } else if (numeric >= 1) {
+          setDisplay(prefix + Math.round(v) + valueSuffix);
+        } else {
+          setDisplay(prefix + v.toFixed(1) + valueSuffix);
+        }
+      },
+    });
+    return () => controls.stop();
+  }, [isInView, value]);
+
+  return <span ref={ref}>{display}{suffix}</span>;
+}
 
 const cases = [
   {
@@ -267,7 +303,7 @@ export default function CaseStudy() {
         <div className="grid sm:grid-cols-3 gap-6 mt-10 max-w-2xl mx-auto">
           {activeCase.stats.map((stat) => (
             <div key={stat.label} className="text-center">
-              <div className="text-3xl font-bold text-gradient">{stat.value}</div>
+              <div className="text-3xl font-bold text-gradient"><CountUp value={stat.value} /></div>
               <div className="text-sm text-gray-900 mt-1">{stat.label}</div>
               <div className="text-xs text-gray-400 mt-0.5">{stat.sub}</div>
             </div>
