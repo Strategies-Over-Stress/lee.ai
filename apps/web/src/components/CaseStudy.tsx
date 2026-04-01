@@ -54,14 +54,72 @@ const cases = [
   },
 ];
 
+function MockupBefore() {
+  return (
+    <svg viewBox="0 0 400 200" className="w-full rounded-lg mb-4" xmlns="http://www.w3.org/2000/svg">
+      <rect width="400" height="200" fill="#1a1a24" rx="8"/>
+      {/* Chaotic toolbar */}
+      <rect x="0" y="0" width="400" height="32" fill="#2a2a3a" rx="8"/>
+      <circle cx="16" cy="16" r="5" fill="#f43f5e"/>
+      <circle cx="32" cy="16" r="5" fill="#f59e0b"/>
+      <circle cx="48" cy="16" r="5" fill="#6b7280"/>
+      {/* Scattered plugin boxes */}
+      <rect x="12" y="44" width="80" height="50" fill="#f43f5e" opacity="0.15" rx="4"/>
+      <rect x="100" y="44" width="60" height="50" fill="#f59e0b" opacity="0.15" rx="4"/>
+      <rect x="168" y="44" width="90" height="50" fill="#f43f5e" opacity="0.15" rx="4"/>
+      <rect x="266" y="44" width="70" height="50" fill="#6b7280" opacity="0.15" rx="4"/>
+      <rect x="344" y="44" width="44" height="50" fill="#f43f5e" opacity="0.15" rx="4"/>
+      {/* Messy rows */}
+      <rect x="12" y="104" width="180" height="8" fill="#6b7280" opacity="0.2" rx="2"/>
+      <rect x="12" y="120" width="120" height="8" fill="#f43f5e" opacity="0.2" rx="2"/>
+      <rect x="200" y="104" width="100" height="8" fill="#6b7280" opacity="0.2" rx="2"/>
+      <rect x="12" y="140" width="376" height="6" fill="#6b7280" opacity="0.1" rx="2"/>
+      <rect x="12" y="154" width="200" height="6" fill="#6b7280" opacity="0.1" rx="2"/>
+      <rect x="12" y="168" width="300" height="6" fill="#f43f5e" opacity="0.1" rx="2"/>
+      {/* Error badge */}
+      <rect x="310" y="106" width="78" height="22" fill="#f43f5e" opacity="0.3" rx="4"/>
+      <text x="324" y="121" fill="#f43f5e" fontSize="10" fontFamily="monospace">3 errors</text>
+    </svg>
+  );
+}
+
+function MockupAfter() {
+  return (
+    <svg viewBox="0 0 400 200" className="w-full rounded-lg mb-4" xmlns="http://www.w3.org/2000/svg">
+      <rect width="400" height="200" fill="#f8fafc" rx="8"/>
+      {/* Clean nav */}
+      <rect x="0" y="0" width="400" height="32" fill="#ffffff" rx="8"/>
+      <circle cx="16" cy="16" r="5" fill="#10b981"/>
+      <rect x="60" y="12" width="40" height="8" fill="#6366f1" opacity="0.3" rx="2"/>
+      <rect x="110" y="12" width="50" height="8" fill="#e2e8f0" rx="2"/>
+      <rect x="170" y="12" width="35" height="8" fill="#e2e8f0" rx="2"/>
+      {/* Dashboard cards */}
+      <rect x="12" y="44" width="120" height="64" fill="#ffffff" rx="6" stroke="#e2e8f0"/>
+      <rect x="24" y="56" width="50" height="8" fill="#6366f1" opacity="0.3" rx="2"/>
+      <text x="24" y="84" fill="#1e293b" fontSize="18" fontWeight="bold" fontFamily="sans-serif">$30K</text>
+      <rect x="144" y="44" width="120" height="64" fill="#ffffff" rx="6" stroke="#e2e8f0"/>
+      <rect x="156" y="56" width="60" height="8" fill="#10b981" opacity="0.3" rx="2"/>
+      <text x="156" y="84" fill="#10b981" fontSize="18" fontWeight="bold" fontFamily="sans-serif">100%</text>
+      <rect x="276" y="44" width="112" height="64" fill="#ffffff" rx="6" stroke="#e2e8f0"/>
+      <rect x="288" y="56" width="45" height="8" fill="#6366f1" opacity="0.3" rx="2"/>
+      <text x="288" y="84" fill="#1e293b" fontSize="18" fontWeight="bold" fontFamily="sans-serif">3s</text>
+      {/* Chart area */}
+      <rect x="12" y="120" width="376" height="68" fill="#ffffff" rx="6" stroke="#e2e8f0"/>
+      <polyline points="24,172 80,155 140,160 200,140 260,145 320,130 376,135" fill="none" stroke="#6366f1" strokeWidth="2"/>
+      <polyline points="24,175 80,168 140,170 200,158 260,160 320,150 376,148" fill="none" stroke="#10b981" strokeWidth="2" opacity="0.5"/>
+    </svg>
+  );
+}
+
 function BeforePanel({ items }: { items: string[] }) {
   return (
-    <div className="w-full h-full bg-rose/5 p-8 flex flex-col justify-center">
-      <h3 className="text-xl font-bold text-rose mb-4">Before</h3>
+    <div className="w-full bg-rose-50 p-8">
+      <MockupBefore />
+      <h3 className="text-xl font-bold text-rose-600 mb-4">Before</h3>
       <ul className="space-y-2">
         {items.map((item) => (
           <li key={item} className="flex items-center gap-2 text-sm text-gray-600">
-            <span className="text-rose">✗</span> {item}
+            <span className="text-rose-500">&#10007;</span> {item}
           </li>
         ))}
       </ul>
@@ -71,12 +129,13 @@ function BeforePanel({ items }: { items: string[] }) {
 
 function AfterPanel({ items }: { items: string[] }) {
   return (
-    <div className="w-full h-full bg-emerald/5 p-8 flex flex-col justify-center">
-      <h3 className="text-xl font-bold text-emerald mb-4">After</h3>
+    <div className="w-full bg-emerald-50 p-8">
+      <MockupAfter />
+      <h3 className="text-xl font-bold text-emerald-600 mb-4">After</h3>
       <ul className="space-y-2">
         {items.map((item) => (
           <li key={item} className="flex items-center gap-2 text-sm text-gray-600">
-            <span className="text-emerald">✓</span> {item}
+            <span className="text-emerald-500">&#10003;</span> {item}
           </li>
         ))}
       </ul>
