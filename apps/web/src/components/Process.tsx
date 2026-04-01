@@ -6,35 +6,31 @@ import { useRef } from "react";
 const steps = [
   {
     number: "01",
-    title: "Discovery Call",
-    description:
-      "30-minute call to understand your business, tech stack, and pain points. No sales pitch — just an honest assessment of whether AI-first development can help you.",
-    detail: "Free. No commitment.",
-    icon: "📞",
+    title: "Free Consultation",
+    description: "30 minutes. We look at what you\u2019re spending on software and what you\u2019re actually getting for it. No pitch. No commitment. Just an honest look at the numbers.",
+    detail: "Free. No strings attached.",
+    icon: "\ud83d\udcde",
   },
   {
     number: "02",
-    title: "Technical Audit",
-    description:
-      "I dive into your codebase, infrastructure, and workflows. You get a concrete report: what's working, what's burning time, and exactly what I'd change.",
+    title: "Software Review",
+    description: "I map every tool you\u2019re paying for \u2014 what it costs, what it does, what it doesn\u2019t do, and what\u2019s trapping you. You get a clear picture of where your money goes.",
     detail: "Delivered in 48 hours.",
-    icon: "🔍",
+    icon: "\ud83d\udd0d",
   },
   {
     number: "03",
-    title: "Transformation Sprint",
-    description:
-      "We start building. CI/CD pipelines, automated testing, AI-collaborative architecture, feature delivery. You see results in the first week, not the first quarter.",
+    title: "Build Phase",
+    description: "We replace the waste with software you own. Built with AI for speed, reviewed by a professional for safety. You see working software in weeks, not months.",
     detail: "Weekly check-ins. Transparent progress.",
-    icon: "⚡",
+    icon: "\u26a1",
   },
   {
     number: "04",
-    title: "Handoff — or Keep Building",
-    description:
-      "Once your systems are automated and documented, you own everything. Most clients are self-sufficient at this point. Some choose to keep me on retainer for new features — but you'll never need to.",
-    detail: "Your choice. No lock-in. Month-to-month if you stay.",
-    icon: "🔑",
+    title: "Handoff",
+    description: "You own everything. No monthly fees. No lock-in. No renewal notices. Ever. I\u2019m available if you want to keep building \u2014 but you\u2019ll never need me to keep the lights on.",
+    detail: "Your code. Your servers. Your freedom.",
+    icon: "\ud83d\udd11",
   },
 ];
 
@@ -52,22 +48,18 @@ export default function Process() {
           className="text-center mb-16"
         >
           <span className="font-mono text-accent text-sm tracking-widest uppercase">
-            The Process
+            How It Works
           </span>
           <h2 className="text-4xl sm:text-5xl font-bold mt-4">
-            How it works
+            From first call to software you own
           </h2>
           <p className="text-text-secondary mt-4 text-lg max-w-2xl mx-auto">
-            From first call to production code. No bloated proposals, no
-            six-month timelines.
+            No bloated proposals. No six-month timelines.
           </p>
         </motion.div>
 
-        {/* Steps */}
         <div className="relative">
-          {/* Connecting line */}
           <div className="absolute left-8 top-0 bottom-0 w-px bg-gradient-to-b from-accent/50 via-accent/20 to-transparent hidden md:block" />
-
           <div className="space-y-8">
             {steps.map((step, index) => (
               <motion.div
@@ -77,25 +69,16 @@ export default function Process() {
                 transition={{ duration: 0.5, delay: 0.2 + index * 0.15 }}
                 className="relative flex gap-6 md:gap-8 group"
               >
-                {/* Step number */}
                 <div className="relative z-10 flex-shrink-0 w-16 h-16 rounded-2xl bg-surface border border-surface-light group-hover:border-accent/50 flex items-center justify-center transition-all duration-300">
                   <span className="text-2xl">{step.icon}</span>
                 </div>
-
-                {/* Step content */}
                 <div className="flex-1 pb-8">
                   <div className="flex items-baseline gap-3 mb-2">
-                    <span className="font-mono text-accent text-sm">
-                      {step.number}
-                    </span>
+                    <span className="font-mono text-accent text-sm">{step.number}</span>
                     <h3 className="text-xl font-bold">{step.title}</h3>
                   </div>
-                  <p className="text-text-secondary mb-2">
-                    {step.description}
-                  </p>
-                  <span className="text-sm font-mono text-accent-bright">
-                    {step.detail}
-                  </span>
+                  <p className="text-text-secondary mb-2">{step.description}</p>
+                  <span className="text-sm font-mono text-accent-bright">{step.detail}</span>
                 </div>
               </motion.div>
             ))}

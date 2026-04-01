@@ -1,123 +1,176 @@
 "use client";
 
 import { motion, useInView } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useState } from "react";
+import DragSlider from "./DragSlider";
 
-const beforeItems = [
-  { label: "Site crashed on every big sales day", icon: "🔴" },
-  { label: "Updating products took an entire day", icon: "🔴" },
-  { label: "No idea which marketing campaigns actually worked", icon: "🔴" },
-  { label: "One developer change could break the whole site", icon: "🔴" },
-  { label: "No way to undo a bad update", icon: "🔴" },
-  { label: "Paying multiple freelancers, nothing connected", icon: "🔴" },
-  { label: "Every task required manual, repetitive work", icon: "🔴" },
+const cases = [
+  {
+    id: "ecommerce",
+    tab: "LoveAmethystRose.com",
+    site: "https://loveamethystrose.com",
+    before: [
+      "$1,500+/mo in WordPress plugins and SaaS subscriptions",
+      "Site crashed on biggest sales day",
+      "Copying data between tools by hand",
+      "Fragile stack \u2014 nothing talked to each other",
+    ],
+    after: [
+      "Dumped $1,500+ in plugins and SaaS products",
+      "More performant AND more attractive site",
+      "Every feature those plugins provided \u2014 customized for her",
+      "She truly got her cake and ate it too",
+    ],
+    moneyLine: "She rebuilt the wheel \u2014 and it rolls better. Dumped $1,500+/mo in WordPress plugins and SaaS products, got a site that\u2019s faster, more beautiful, with every feature custom-built for her business.",
+    stats: [
+      { value: "$30K", label: "Revenue month", sub: "zero downtime" },
+      { value: "10x", label: "Faster page loads", sub: "30s \u2192 3s" },
+      { value: "$0/mo", label: "Plugin/SaaS fees", sub: "for replaced tools" },
+    ],
+  },
+  {
+    id: "advisor",
+    tab: "DominiqueWells.com",
+    site: "https://dominiquewells.com",
+    before: [
+      "$4,000+/year in CRM and SaaS subscriptions",
+      "Using a fraction of the features she paid for",
+      "Trapped by compliance fears \u2014 SEC regulations",
+      "Vendor lock-in on client data",
+    ],
+    after: [
+      "Custom CRM built for her exact workflow",
+      "Fully self-hosted \u2014 she owns every byte",
+      "SEC-compliant from the architecture up",
+      "Saved $4,000+ in annual expenses",
+    ],
+    moneyLine: "Dominique rebuilt the wheel \u2014 and saved $4,000+ a year doing it. Her CRM is compliant, self-hosted, and will never send her another invoice.",
+    stats: [
+      { value: "$4K+", label: "Annual savings", sub: "vs previous subscriptions" },
+      { value: "100%", label: "Feature fit", sub: "her exact workflow" },
+      { value: "3 wks", label: "Time to build", sub: "SEC-compliant" },
+    ],
+  },
 ];
 
-const afterItems = [
-  { label: "100% uptime during $30K sales month", icon: "🟢" },
-  { label: "New products go live in under 10 minutes", icon: "🟢" },
-  { label: "Every campaign tracked with real ROI data", icon: "🟢" },
-  { label: "Changes tested automatically before going live", icon: "🟢" },
-  { label: "Bad updates reversed in one command, instantly", icon: "🟢" },
-  { label: "8 tools connected and running on autopilot", icon: "🟢" },
-  { label: "Marketing emails, ads, and reports fully automated", icon: "🟢" },
-];
+function BeforePanel({ items }: { items: string[] }) {
+  return (
+    <div className="w-full h-full bg-rose/5 p-8 flex flex-col justify-center">
+      <h3 className="text-xl font-bold text-rose mb-4">Before</h3>
+      <ul className="space-y-2">
+        {items.map((item) => (
+          <li key={item} className="flex items-center gap-2 text-sm text-text-secondary">
+            <span className="text-rose">\u2717</span> {item}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
+function AfterPanel({ items }: { items: string[] }) {
+  return (
+    <div className="w-full h-full bg-emerald/5 p-8 flex flex-col justify-center">
+      <h3 className="text-xl font-bold text-emerald mb-4">After</h3>
+      <ul className="space-y-2">
+        {items.map((item) => (
+          <li key={item} className="flex items-center gap-2 text-sm text-text-secondary">
+            <span className="text-emerald">\u2713</span> {item}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
 export default function CaseStudy() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const [activeTab, setActiveTab] = useState("ecommerce");
+  const activeCase = cases.find((c) => c.id === activeTab)!;
 
   return (
     <section id="proof" className="relative py-32 px-6" ref={ref}>
       <div className="max-w-6xl mx-auto">
-        {/* Section header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          className="text-center mb-12"
         >
           <span className="font-mono text-accent text-sm tracking-widest uppercase">
-            Case Study
+            Real Businesses. Real Savings.
           </span>
           <h2 className="text-4xl sm:text-5xl font-bold mt-4">
             The Transformation
           </h2>
           <p className="text-text-secondary mt-4 max-w-2xl mx-auto text-lg">
-            A real e-commerce brand was bleeding time and money on a broken tech
-            stack. Here&apos;s what changed when we rebuilt it with AI-first engineering.
+            These aren&apos;t hypotheticals. These are owner-operators who were in exactly your position.
           </p>
         </motion.div>
 
-        {/* Before / After comparison */}
-        <div className="grid md:grid-cols-2 gap-8 mb-16">
-          {/* Before */}
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="p-8 rounded-2xl border border-rose/20 bg-rose/5"
-          >
-            <h3 className="text-2xl font-bold text-rose mb-6">Before</h3>
-            <ul className="space-y-3">
-              {beforeItems.map((item) => (
-                <li
-                  key={item.label}
-                  className="flex items-center gap-3 text-text-secondary"
-                >
-                  <span>{item.icon}</span>
-                  <span>{item.label}</span>
-                </li>
-              ))}
-            </ul>
-          </motion.div>
-
-          {/* After */}
-          <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="p-8 rounded-2xl border border-emerald/20 bg-emerald/5"
-          >
-            <h3 className="text-2xl font-bold text-emerald mb-6">After</h3>
-            <ul className="space-y-3">
-              {afterItems.map((item) => (
-                <li
-                  key={item.label}
-                  className="flex items-center gap-3 text-text-secondary"
-                >
-                  <span>{item.icon}</span>
-                  <span>{item.label}</span>
-                </li>
-              ))}
-            </ul>
-          </motion.div>
+        {/* Tabs */}
+        <div className="flex justify-center gap-2 mb-10">
+          {cases.map((c) => (
+            <button
+              key={c.id}
+              onClick={() => setActiveTab(c.id)}
+              className={"px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-300 cursor-pointer " +
+                (activeTab === c.id
+                  ? "bg-accent/10 border border-accent/50 text-text-primary"
+                  : "border border-surface-light text-text-secondary hover:border-accent/30")}
+            >
+              {c.tab}
+            </button>
+          ))}
         </div>
 
-        {/* Results highlight */}
+        {/* Site link */}
+        <div className="text-center mb-6">
+          <a
+            href={activeCase.site}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-accent-bright hover:text-accent transition-colors font-mono"
+          >
+            {activeCase.site} &rarr;
+          </a>
+        </div>
+
+        {/* Drag slider */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, delay: 0.6 }}
-          className="rounded-2xl border border-accent/20 bg-accent/5 p-8 glow"
+          key={activeTab}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4 }}
         >
-          <h3 className="text-xl font-bold mb-6 text-center">The Results</h3>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              { value: "10x", label: "Faster page loads", sub: "30 seconds → 3 seconds" },
-              { value: "$0.79", label: "Cost per add-to-cart", sub: "87% below industry average" },
-              { value: "29%", label: "Visitors adding to cart", sub: "industry avg is 5-10%" },
-              { value: "19-27%", label: "Email capture rate", sub: "industry avg is 3-5%" },
-            ].map((stat) => (
-              <div key={stat.label} className="text-center">
-                <div className="text-3xl font-bold text-gradient">{stat.value}</div>
-                <div className="text-sm text-text-primary mt-1">{stat.label}</div>
-                <div className="text-xs text-text-muted mt-0.5">{stat.sub}</div>
-              </div>
-            ))}
-          </div>
+          <DragSlider
+            beforeContent={<BeforePanel items={activeCase.before} />}
+            afterContent={<AfterPanel items={activeCase.after} />}
+          />
         </motion.div>
+
+        {/* Money line */}
+        <motion.p
+          key={activeTab + "-money"}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="text-center text-lg sm:text-xl text-accent-bright font-medium mt-10 max-w-3xl mx-auto italic"
+        >
+          &ldquo;{activeCase.moneyLine}&rdquo;
+        </motion.p>
+
+        {/* Stats */}
+        <div className="grid sm:grid-cols-3 gap-6 mt-10 max-w-2xl mx-auto">
+          {activeCase.stats.map((stat) => (
+            <div key={stat.label} className="text-center">
+              <div className="text-3xl font-bold text-gradient">{stat.value}</div>
+              <div className="text-sm text-text-primary mt-1">{stat.label}</div>
+              <div className="text-xs text-text-muted mt-0.5">{stat.sub}</div>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );

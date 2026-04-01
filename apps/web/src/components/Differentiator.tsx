@@ -7,57 +7,63 @@ interface Feature {
   id: string;
   title: string;
   subtitle: string;
+  stat: string;
+  statLabel: string;
   description: string;
   highlights: string[];
 }
 
-const features = [
+const features: Feature[] = [
   {
-    id: "hostage",
-    title: "Never get held hostage by a developer again",
-    subtitle: "Your business runs even if I disappear tomorrow.",
-    description:
-      "Every system I build comes with complete documentation — written so that any developer (or even an AI agent) can pick up exactly where I left off. Your code, your infrastructure, your servers. No proprietary tools, no vendor lock-in, no \"only I know how this works.\"",
+    id: "waste",
+    title: "Stop paying for features you don\u2019t use",
+    subtitle: "You\u2019re subsidizing someone else\u2019s product roadmap.",
+    stat: "47%",
+    statLabel: "of software licenses go completely unused \u2014 Zylo, 2026",
+    description: "That enterprise CRM with 400 features? You use 12 of them. Those other 388 are why your bill keeps going up every year. I build exactly what you need \u2014 nothing more, nothing less. And it costs $0/month to keep running.",
     highlights: [
-      "Complete documentation included with every project",
-      "Your code, your servers, your full control",
-      "Any developer can onboard using the docs alone",
+      "Built for YOUR workflow, not a generic one-size-fits-all",
+      "No features you\u2019ll never use inflating your bill",
+      "$0/month subscription fees \u2014 you own it outright",
     ],
   },
   {
-    id: "sleep",
-    title: "Your marketing runs while you sleep",
-    subtitle: "Automation isn't a feature. It's the entire point.",
-    description:
-      "Email campaigns, ad performance tracking, social media scheduling, sales reports — all wired together and running without you touching anything. You wake up to results, not to-do lists.",
+    id: "own",
+    title: "Own it. Don\u2019t rent it.",
+    subtitle: "SaaS companies love recurring revenue. You shouldn\u2019t love giving it to them.",
+    stat: "$0/mo",
+    statLabel: "The cost of your software in 2029. Because you already own it.",
+    description: "Custom software you own has no renewal date, no annual price increases, no \u2018we\u2019re updating our terms of service\u2019 emails. Two years from now, it\u2019s still running. Still $0/month. Still yours.",
     highlights: [
-      "Email, ads, and social media on autopilot",
-      "Real-time campaign tracking with actual ROI numbers",
-      "Reports delivered to your inbox automatically",
+      "No price increases. Ever.",
+      "No vendor lock-in. Your data stays yours.",
+      "Five years from now? Still $0/month.",
     ],
   },
   {
-    id: "breaks",
-    title: "Your site never breaks on a big day",
-    subtitle: "Peak traffic should mean peak revenue, not panic.",
-    description:
-      "Every change is tested automatically before it goes live. Every deployment has an instant rollback. Your site stays up on Black Friday, product launches, and viral moments — because the systems protecting it never sleep.",
+    id: "risk",
+    title: "AI without the risk",
+    subtitle: "You don\u2019t need to understand vulnerabilities. You need someone who does.",
+    stat: "45%",
+    statLabel: "of AI-generated code fails security tests \u2014 Veracode, 2025",
+    description: "I use AI to build faster and cheaper, but every line is reviewed with a decade of professional engineering judgment. Your data stays safe. Your compliance stays intact. Your business stays protected.",
     highlights: [
-      "Every update tested automatically before going live",
-      "Bad changes reversed instantly — one command",
-      "Built for your highest-traffic days, not your average ones",
+      "Every line of code reviewed by a professional",
+      "Compliance built into the architecture from day one",
+      "Your private data stays private",
     ],
   },
   {
-    id: "compound",
-    title: "It gets faster every month",
-    subtitle: "The systems compound. Your competitors' don't.",
-    description:
-      "I don't just automate your business — I automate the process that builds those automations. Every month, the AI tools I've set up handle more on their own, with the same quality and security. Month two is faster than month one. Month three is faster than month two.",
+    id: "duct",
+    title: "No more duct tape",
+    subtitle: "Replace $100/month Zapier chains with real integrations.",
+    stat: "$6/mo",
+    statLabel: "replaces $100/month in duct-tape automation",
+    description: "You\u2019ve got Zapier connecting your email tool to your CRM to your spreadsheet to your calendar. 20 steps. $100/month. One break and the whole chain goes down. I replace duct-tape integrations with real systems that run reliably.",
     highlights: [
-      "AI tools that learn your business and improve over time",
-      "Less manual oversight needed every month",
-      "The same budget buys more output as the systems mature",
+      "Replace $100/month Zapier chains with $6/month solutions",
+      "Real integrations that don\u2019t break when one tool updates",
+      "One system instead of 12 tools pretending to talk to each other",
     ],
   },
 ];
@@ -66,7 +72,7 @@ export default function Differentiator() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const [activeFeature, setActiveFeature] = useState(features[0].id);
-  const active = features.find((f: Feature) => f.id === activeFeature)!;
+  const active = features.find((f) => f.id === activeFeature)!;
 
   return (
     <section className="relative py-32 px-6" ref={ref}>
@@ -81,74 +87,59 @@ export default function Differentiator() {
             Why This Is Different
           </span>
           <h2 className="text-4xl sm:text-5xl font-bold mt-4">
-            Not another freelancer
+            Not another subscription
           </h2>
           <p className="text-text-secondary mt-4 text-lg max-w-2xl mx-auto">
-            Freelancers write code and leave. I build systems that run your
-            business — then hand you the keys.
+            This isn&apos;t another tool to pay for. It&apos;s software you own &mdash; built by someone who&apos;s been doing this for a decade.
           </p>
         </motion.div>
 
         <div className="grid lg:grid-cols-[1fr,1.5fr] gap-8">
-          {/* Feature tabs */}
+          {/* Tabs */}
           <div className="space-y-3">
-            {features.map((feature: Feature, index: number) => (
+            {features.map((feature, index) => (
               <motion.button
                 key={feature.id}
                 initial={{ opacity: 0, x: -20 }}
                 animate={isInView ? { opacity: 1, x: 0 } : {}}
                 transition={{ duration: 0.4, delay: 0.2 + index * 0.1 }}
                 onClick={() => setActiveFeature(feature.id)}
-                className={`w-full text-left p-5 rounded-xl border transition-all duration-300 ${
-                  activeFeature === feature.id
+                className={"w-full text-left p-5 rounded-xl border transition-all duration-300 cursor-pointer " +
+                  (activeFeature === feature.id
                     ? "border-accent/50 bg-accent/5 glow"
-                    : "border-surface-light bg-surface hover:border-accent/20"
-                }`}
+                    : "border-surface-light bg-surface hover:border-accent/20")}
               >
-                <h3
-                  className={`font-bold text-lg ${
-                    activeFeature === feature.id
-                      ? "text-text-primary"
-                      : "text-text-secondary"
-                  }`}
-                >
+                <h3 className={"font-bold text-lg " + (activeFeature === feature.id ? "text-text-primary" : "text-text-secondary")}>
                   {feature.title}
                 </h3>
-                <p className="text-sm text-text-muted mt-1">
-                  {feature.subtitle}
-                </p>
+                <p className="text-sm text-text-muted mt-1">{feature.subtitle}</p>
               </motion.button>
             ))}
           </div>
 
-          {/* Feature detail */}
+          {/* Detail panel */}
           <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.4 }}
+            key={activeFeature}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
           >
-            <motion.div
-              key={activeFeature}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <p className="text-text-secondary text-lg mb-6">
-                {active.description}
-              </p>
+            {/* Giant stat */}
+            <div className="mb-8">
+              <div className="text-6xl sm:text-7xl font-black text-gradient">{active.stat}</div>
+              <div className="text-sm text-text-muted mt-2">{active.statLabel}</div>
+            </div>
 
-              <ul className="space-y-3">
-                {active.highlights.map((item: string) => (
-                  <li
-                    key={item}
-                    className="flex items-start gap-3 text-text-secondary"
-                  >
-                    <span className="text-emerald mt-0.5">&#10003;</span>
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </motion.div>
+            <p className="text-text-secondary text-lg mb-6">{active.description}</p>
+
+            <ul className="space-y-3">
+              {active.highlights.map((item) => (
+                <li key={item} className="flex items-start gap-3 text-text-secondary">
+                  <span className="text-emerald mt-0.5">\u2713</span>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
           </motion.div>
         </div>
       </div>

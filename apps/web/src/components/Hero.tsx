@@ -1,13 +1,13 @@
 "use client";
 
 import { motion } from "framer-motion";
-import TypewriterText from "./TypewriterText";
+import BillingReceipt from "./BillingReceipt";
 
 export default function Hero() {
   return (
     <section className="relative min-h-screen flex items-center justify-center px-6">
       <div className="max-w-5xl mx-auto text-center z-10">
-        {/* Terminal-style intro */}
+        {/* Availability badge */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -20,49 +20,44 @@ export default function Hero() {
           </span>
         </motion.div>
 
+        {/* Billing receipt animation */}
+        <BillingReceipt />
+
         {/* Main headline */}
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="text-5xl sm:text-7xl lg:text-8xl font-black tracking-tight leading-[0.9] mb-6"
+          transition={{ duration: 0.8, delay: 1.6 }}
+          className="text-5xl sm:text-7xl font-black tracking-tight leading-[0.95] mb-6"
         >
-          Hire me once.
+          What if this number
           <br />
-          <span className="text-gradient">I&apos;ll automate myself</span>
-          <br />
-          out of a job.
+          <span className="text-gradient">was $0?</span>
         </motion.h1>
 
-        {/* Rotating subtitle */}
-        <motion.div
+        {/* Subheadline */}
+        <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
-          className="text-xl sm:text-2xl text-text-secondary font-light mb-12 min-h-[3.5rem] sm:min-h-[2rem] flex items-start justify-center"
+          transition={{ duration: 0.8, delay: 2.0 }}
+          className="text-xl sm:text-2xl text-text-secondary font-light mb-12 max-w-3xl mx-auto"
         >
-          <TypewriterText
-            texts={[
-              "Your site updates itself — no developer needed",
-              "New products go live in minutes, not days",
-              "Marketing campaigns run while you sleep",
-              "Zero downtime, even on your biggest sales day",
-            ]}
-          />
-        </motion.div>
+          I build custom software that replaces your subscriptions &mdash;
+          guaranteed cheaper, or you don&apos;t pay.
+        </motion.p>
 
         {/* CTA buttons */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.8 }}
+          transition={{ duration: 0.6, delay: 2.2 }}
           className="flex flex-col sm:flex-row gap-4 justify-center"
         >
           <a
             href="#assess"
             className="group relative px-8 py-4 bg-accent hover:bg-accent-bright rounded-xl font-semibold text-lg transition-all duration-300 glow hover:scale-105"
           >
-            Get a free technical audit
+            Find out how much you&apos;re wasting
             <span className="absolute inset-0 rounded-xl bg-accent/20 blur-xl group-hover:blur-2xl transition-all duration-300 -z-10" />
           </a>
           <a
@@ -77,14 +72,14 @@ export default function Hero() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 1.2 }}
+          transition={{ duration: 0.8, delay: 2.6 }}
           className="mt-20 grid grid-cols-2 sm:grid-cols-4 gap-6 max-w-3xl mx-auto"
         >
           {[
-            { value: "$30K", label: "Client revenue in one month", sub: "with zero downtime" },
-            { value: "87%", label: "Lower ad costs than industry avg", sub: "$0.79 per add-to-cart" },
-            { value: "10x", label: "Faster page loads", sub: "30 seconds → 3 seconds" },
-            { value: "29%", label: "Visitors adding to cart", sub: "industry avg is 5-10%" },
+            { value: "$1,500+", label: "Wasted on average", sub: "on SaaS every month" },
+            { value: "47%", label: "Of licenses go unused", sub: "that\u2019s your money" },
+            { value: "80-95%", label: "Of AI projects fail", sub: "without guidance" },
+            { value: "$0/mo", label: "Your cost after we build", sub: "you own it forever" },
           ].map((stat) => (
             <div key={stat.label} className="text-center">
               <div className="text-2xl sm:text-3xl font-bold text-gradient">
@@ -105,7 +100,7 @@ export default function Hero() {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 2 }}
+        transition={{ delay: 3 }}
         className="absolute bottom-8 left-1/2 -translate-x-1/2"
       >
         <motion.div
