@@ -20,31 +20,35 @@ export default function Hero() {
           </span>
         </motion.div>
 
-        {/* Billing receipt animation */}
-        <BillingReceipt />
-
         {/* Main headline */}
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 1.0 }}
-          className="text-5xl sm:text-7xl lg:text-8xl font-black tracking-tight leading-[0.95] mb-6 text-white"
+          transition={{ duration: 0.8, delay: 0.4 }}
+          className="text-5xl sm:text-7xl lg:text-8xl font-black tracking-tight leading-[0.95] mb-4 text-white"
         >
-          What if this number
+          Are you ready for
           <br />
-          <span className="text-gradient">was $0?</span>
+          <span className="text-gradient">your next SaaS bill?</span>
         </motion.h1>
 
         {/* Subheadline */}
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 1.3 }}
-          className="text-xl sm:text-2xl text-text-secondary font-light mb-12 max-w-3xl mx-auto"
+          transition={{ duration: 0.8, delay: 0.7 }}
+          className="text-xl sm:text-2xl text-text-secondary font-light mb-10 max-w-3xl mx-auto"
         >
           I build custom software that replaces your subscriptions &mdash;
           guaranteed cheaper, or you don&apos;t pay.
+          <br />
+          <span className="text-lg text-text-muted mt-2 block">
+            So you can focus on building software that actually grows your business, not paying a monthly tariff.
+          </span>
         </motion.p>
+
+        {/* Billing receipt */}
+        <BillingReceipt />
 
         {/* CTA buttons */}
         <motion.div
