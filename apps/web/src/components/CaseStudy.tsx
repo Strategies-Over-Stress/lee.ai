@@ -60,7 +60,7 @@ function BeforePanel({ items }: { items: string[] }) {
       <h3 className="text-xl font-bold text-rose mb-4">Before</h3>
       <ul className="space-y-2">
         {items.map((item) => (
-          <li key={item} className="flex items-center gap-2 text-sm text-text-secondary">
+          <li key={item} className="flex items-center gap-2 text-sm text-gray-600">
             <span className="text-rose">✗</span> {item}
           </li>
         ))}
@@ -75,7 +75,7 @@ function AfterPanel({ items }: { items: string[] }) {
       <h3 className="text-xl font-bold text-emerald mb-4">After</h3>
       <ul className="space-y-2">
         {items.map((item) => (
-          <li key={item} className="flex items-center gap-2 text-sm text-text-secondary">
+          <li key={item} className="flex items-center gap-2 text-sm text-gray-600">
             <span className="text-emerald">✓</span> {item}
           </li>
         ))}
@@ -92,7 +92,7 @@ export default function CaseStudy() {
   const activeCase = cases.find((c) => c.id === activeTab)!;
 
   return (
-    <section id="proof" className="relative py-32 px-6 bg-surface/50" ref={ref}>
+    <section id="proof" className="relative py-32 px-6" ref={ref}>
       <div className="max-w-6xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -103,10 +103,10 @@ export default function CaseStudy() {
           <span className="font-mono text-accent text-sm tracking-widest uppercase">
             Real Businesses. Real Savings.
           </span>
-          <h2 className="text-4xl sm:text-5xl font-bold mt-4">
+          <h2 className="text-4xl sm:text-5xl font-bold mt-4 text-gray-900">
             The Transformation
           </h2>
-          <p className="text-text-secondary mt-4 max-w-2xl mx-auto text-lg">
+          <p className="text-gray-600 mt-4 max-w-2xl mx-auto text-lg">
             These aren&apos;t hypotheticals. These are owner-operators who were in exactly your position.
           </p>
         </motion.div>
@@ -119,8 +119,8 @@ export default function CaseStudy() {
               onClick={() => setActiveTab(c.id)}
               className={"px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-300 cursor-pointer " +
                 (activeTab === c.id
-                  ? "bg-accent/10 border border-accent/50 text-text-primary"
-                  : "border border-surface-light text-text-secondary hover:border-accent/30")}
+                  ? "bg-accent/10 border border-accent/50 text-gray-900"
+                  : "border border-gray-200 text-gray-500 hover:border-accent/30")}
             >
               {c.tab}
             </button>
@@ -201,8 +201,8 @@ export default function CaseStudy() {
           {activeCase.stats.map((stat) => (
             <div key={stat.label} className="text-center">
               <div className="text-3xl font-bold text-gradient">{stat.value}</div>
-              <div className="text-sm text-text-primary mt-1">{stat.label}</div>
-              <div className="text-xs text-text-muted mt-0.5">{stat.sub}</div>
+              <div className="text-sm text-gray-900 mt-1">{stat.label}</div>
+              <div className="text-xs text-gray-400 mt-0.5">{stat.sub}</div>
             </div>
           ))}
         </div>

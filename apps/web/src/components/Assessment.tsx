@@ -121,7 +121,7 @@ export default function Assessment() {
   };
 
   return (
-    <section id="assess" className="relative py-32 px-6 bg-surface/50">
+    <section id="assess" className="relative py-32 px-6">
       <div className="max-w-3xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -133,16 +133,16 @@ export default function Assessment() {
           <span className="font-mono text-accent text-sm tracking-widest uppercase">
             Interactive Assessment
           </span>
-          <h2 className="text-4xl sm:text-5xl font-bold mt-4">
+          <h2 className="text-4xl sm:text-5xl font-bold mt-4 text-gray-900">
             Is your software stack costing you?
           </h2>
-          <p className="text-text-secondary mt-4 text-lg">
+          <p className="text-gray-600 mt-4 text-lg">
             5 questions. 60 seconds. Find out where you stand.
           </p>
         </motion.div>
 
         {/* Progress bar */}
-        <div className="h-1 bg-surface-light rounded-full mb-8 overflow-hidden">
+        <div className="h-1 bg-gray-200 rounded-full mb-8 overflow-hidden">
           <motion.div
             className="h-full bg-gradient-to-r from-accent to-emerald rounded-full"
             animate={{ width: `${progress}%` }}
@@ -188,9 +188,9 @@ export default function Assessment() {
                       whileHover={{ scale: 1.02, x: 8 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => handleAnswer(questions[currentQuestion].id, option.score, option.wasteFactor)}
-                      className="w-full text-left p-5 rounded-xl border border-surface-light bg-surface hover:border-accent/50 hover:bg-surface-light transition-all duration-200 group cursor-pointer"
+                      className="w-full text-left p-5 rounded-xl border border-gray-200 bg-gray-50 hover:border-accent/50 hover:bg-accent/5 transition-all duration-200 group cursor-pointer"
                     >
-                      <span className="text-text-secondary group-hover:text-text-primary transition-colors">
+                      <span className="text-gray-700 group-hover:text-gray-900 transition-colors">
                         {option.label}
                       </span>
                     </motion.button>

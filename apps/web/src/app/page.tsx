@@ -13,53 +13,49 @@ import Contact from "@/components/Contact";
 
 export default function Home() {
   return (
-    <main className="relative grid-bg">
+    <main className="relative">
       <Navbar />
-      <ParticleField />
 
-      <div className="relative z-10">
-        <Hero />
-
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="h-px bg-gradient-to-r from-transparent via-accent/20 to-transparent" />
+      {/* Hero — dark with particles */}
+      <div className="relative grid-bg">
+        <ParticleField />
+        <div className="relative z-10">
+          <Hero />
         </div>
+      </div>
 
+      {/* Case Study — white background */}
+      <div className="bg-white text-gray-900">
         <CaseStudy />
+      </div>
 
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="h-px bg-gradient-to-r from-transparent via-emerald/20 to-transparent" />
-        </div>
-
+      {/* Guarantee — emerald gradient */}
+      <div className="bg-gradient-to-b from-emerald-950 via-emerald-900/80 to-midnight">
         <Guarantee />
+      </div>
 
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="h-px bg-gradient-to-r from-transparent via-accent/20 to-transparent" />
-        </div>
-
+      {/* Differentiator — dark with accent tint */}
+      <div className="bg-gradient-to-b from-midnight via-accent/[0.04] to-midnight">
         <Differentiator />
+      </div>
 
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="h-px bg-gradient-to-r from-transparent via-accent/20 to-transparent" />
-        </div>
-
+      {/* Assessment — white background */}
+      <div className="bg-white text-gray-900">
         <Assessment />
+      </div>
 
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="h-px bg-gradient-to-r from-transparent via-accent/20 to-transparent" />
-        </div>
-
+      {/* ROI Calculator — blue gradient */}
+      <div className="bg-gradient-to-b from-accent-900/30 via-accent/10 to-midnight">
         <ROICalculator />
+      </div>
 
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="h-px bg-gradient-to-r from-transparent via-accent/20 to-transparent" />
-        </div>
-
+      {/* Process — dark */}
+      <div className="bg-surface">
         <Process />
+      </div>
 
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="h-px bg-gradient-to-r from-transparent via-accent/20 to-transparent" />
-        </div>
-
+      {/* Contact — dark with grid */}
+      <div className="grid-bg">
         <Contact />
       </div>
     </main>
