@@ -54,8 +54,8 @@ export default function Home() {
         <Process />
       </div>
 
-      {/* Contact — dark with grid */}
-      <div className="grid-bg">
+      {/* Contact — bright blue gradient */}
+      <div className="bg-gradient-to-b from-accent/20 via-accent/10 to-midnight">
         <Contact />
       </div>
     </main>
