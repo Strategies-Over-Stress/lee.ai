@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>LinkedIn Post Editor</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0a0a0f;
+    color: #f0f0f5;
+    font-family: 'Inter', system-ui, sans-serif;
+    padding: 40px;
+    display: flex;
+    gap: 40px;
+    min-height: 100vh;
+  }
+
+  /* Left: Image preview */
+  .image-side {
+    flex: 0 0 500px;
+    position: sticky;
+    top: 40px;
+    align-self: flex-start;
+  }
+  .image-card {
+    background: #111118;
+    border: 1px solid #2a2a35;
+    border-radius: 16px;
+    padding: 40px 36px;
+    box-shadow:
+      0 0 60px rgba(99, 102, 241, 0.06),
+      0 25px 50px rgba(0, 0, 0, 0.4);
+  }
+  .image-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #6b7280;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 32px;
+  }
+  .row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 14px 0;
+    border-bottom: 1px solid #1a1a24;
+  }
+  .row:last-child { border-bottom: none; }
+  .session {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: #9ca3af;
+  }
+  .approvals {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    font-weight: 600;
+  }
+  .a1 { color: #10b981; }
+  .a2 { color: #818cf8; }
+  .a3 { color: #f59e0b; }
+  .a4 { color: #f43f5e; }
+  .a5 { color: #f43f5e; font-size: 28px; }
+  .suffix {
+    font-size: 13px;
+    color: #6b7280;
+    font-weight: 400;
+    margin-left: 6px;
+  }
+  .bottom-line {
+    margin-top: 28px;
+    padding-top: 20px;
+    border-top: 1px solid #2a2a35;
+    text-align: center;
+  }
+  .bottom-stat {
+    font-size: 15px;
+    color: #f43f5e;
+    font-weight: 600;
+  }
+  .bottom-label {
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 4px;
+  }
+  .watermark {
+    text-align: right;
+    font-size: 11px;
+    color: #4b5563;
+    margin-top: 16px;
+    letter-spacing: 0.5px;
+  }
+
+  /* Right: Post editor */
+  .editor-side {
+    flex: 1;
+    max-width: 600px;
+  }
+  .editor-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #6b7280;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .editor {
+    width: 100%;
+    min-height: 500px;
+    padding: 20px;
+    background: #111118;
+    border: 1px solid #2a2a35;
+    border-radius: 12px;
+    color: #e5e5ea;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.8;
+    resize: vertical;
+    outline: none;
+  }
+  .editor:focus {
+    border-color: rgba(99, 102, 241, 0.4);
+  }
+  .char-count {
+    text-align: right;
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 8px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .copy-btn {
+    margin-top: 12px;
+    padding: 10px 20px;
+    background: #6366f1;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+  }
+  .copy-btn:hover { background: #818cf8; }
+  .copy-btn.copied { background: #10b981; }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Image -->
+  <div class="image-side">
+    <div class="image-card" id="captureArea">
+      <div class="image-title">AI approval fatigue</div>
+
+      <div class="row">
+        <span class="session">Session 1</span>
+        <span class="approvals a1">12 <span class="suffix">approvals</span></span>
+      </div>
+      <div class="row">
+        <span class="session">Session 5</span>
+        <span class="approvals a2">28 <span class="suffix">approvals</span></span>
+      </div>
+      <div class="row">
+        <span class="session">Session 10</span>
+        <span class="approvals a3">47 <span class="suffix">approvals</span></span>
+      </div>
+      <div class="row">
+        <span class="session">Session 20</span>
+        <span class="approvals a4">93 <span class="suffix">approvals</span></span>
+      </div>
+      <div class="row">
+        <span class="session">Session 50</span>
+        <span class="approvals a5">??? </span>
+      </div>
+
+      <div class="bottom-line">
+        <div class="bottom-stat">Time spent approving &gt; time spent building</div>
+        <div class="bottom-label">Same tasks. Re-discovered every session.</div>
+      </div>
+      <div class="watermark">richlee.dev</div>
+    </div>
+    <p style="font-size: 11px; color: #4b5563; margin-top: 12px; text-align: center;">
+      Screenshot the card above for LinkedIn (Cmd+Shift+4)
+    </p>
+  </div>
+
+  <!-- Editor -->
+  <div class="editor-side">
+    <div class="editor-label">LinkedIn Post</div>
+    <textarea class="editor" id="postText">A team refactored 10,000 lines of legacy code with AI. Tests passed. They shipped Friday afternoon.
+
+By Monday: 127 bugs.
+
+I keep seeing this story. And every time, the takeaway is "AI doesn't understand legacy code."
+
+That's not the lesson.
+
+The lesson is: why did anyone — human or AI — ship a 10,000-line change in one release?
+
+No senior engineer would rewrite 10K lines and push it to production on a Friday. Not without staged rollouts. Not without incremental verification. Not without a rollback plan.
+
+But give someone an AI tool and suddenly the rules don't apply. The code looks clean. The tests pass. Ship it.
+
+That's not an AI problem. That's a process problem wearing an AI mask.
+
+Here's what actually works:
+
+Ship 200 lines. Verify. Ship 200 more. Every change is a PR. Every PR is reviewed. Rollback is one command. If something breaks, you know exactly which 200 lines caused it.
+
+AI absolutely misses context that humans carry in their heads — the business rule from a lawsuit in 2019, the rate limit workaround from a 2am incident, the race condition nobody documented.
+
+But that's not a reason to avoid AI. It's a reason to have a deployment process that catches what AI misses before it reaches production.
+
+The teams shipping AI-generated code safely aren't writing better prompts. They're building better guardrails — automated processes that make it physically impossible to ship 10K lines without incremental verification.
+
+AI is a senior dev with amnesia. Extremely capable, but needs infrastructure around it. The infrastructure is your edge — not the AI itself.</textarea>
+    <div class="char-count" id="charCount"></div>
+    <button class="copy-btn" id="copyBtn" onclick="copyText()">Copy to clipboard</button>
+  </div>
+
+  <script>
+    const textarea = document.getElementById('postText');
+    const charCount = document.getElementById('charCount');
+    const copyBtn = document.getElementById('copyBtn');
+
+    function updateCount() {
+      const text = textarea.value;
+      const chars = text.length;
+      const words = text.trim().split(/\s+/).filter(Boolean).length;
+      charCount.textContent = `${chars} chars · ${words} words`;
+    }
+
+    function copyText() {
+      navigator.clipboard.writeText(textarea.value).then(() => {
+        copyBtn.textContent = 'Copied!';
+        copyBtn.classList.add('copied');
+        setTimeout(() => {
+          copyBtn.textContent = 'Copy to clipboard';
+          copyBtn.classList.remove('copied');
+        }, 2000);
+      });
+    }
+
+    textarea.addEventListener('input', updateCount);
+    updateCount();
+  </script>
+</body>
+</html>

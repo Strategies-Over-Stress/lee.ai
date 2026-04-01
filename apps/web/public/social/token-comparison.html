@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0a0a0f;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 60px;
+  }
+  .container {
+    display: flex;
+    gap: 24px;
+    width: 900px;
+  }
+  .terminal {
+    background: #111118;
+    border: 1px solid #2a2a35;
+    border-radius: 16px;
+    flex: 1;
+    overflow: hidden;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+  }
+  .terminal.bad {
+    border-color: rgba(244, 63, 94, 0.2);
+  }
+  .terminal.good {
+    border-color: rgba(16, 185, 129, 0.2);
+    box-shadow:
+      0 0 40px rgba(16, 185, 129, 0.05),
+      0 25px 50px rgba(0, 0, 0, 0.4);
+  }
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: #1a1a24;
+    border-bottom: 1px solid #2a2a35;
+  }
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot.red { background: rgba(244, 63, 94, 0.7); }
+  .dot.yellow { background: rgba(245, 158, 11, 0.7); }
+  .dot.green { background: rgba(16, 185, 129, 0.7); }
+  .title {
+    margin-left: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #6b7280;
+  }
+  .label {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 16px 20px 4px;
+  }
+  .label.bad { color: #f43f5e; }
+  .label.good { color: #10b981; }
+  .content {
+    padding: 8px 20px 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.8;
+  }
+  .prompt { color: #10b981; }
+  .cmd { color: #9ca3af; }
+  .out { color: #6b7280; }
+  .dim { color: #4b5563; }
+  .accent { color: #818cf8; }
+  .bad-num { color: #f43f5e; font-weight: 600; }
+  .good-num { color: #10b981; font-weight: 600; }
+  .spacer { height: 12px; }
+  .divider { height: 1px; background: #2a2a35; margin: 14px 0; }
+  .total {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 12px 20px 18px;
+  }
+  .total.bad { color: #f43f5e; }
+  .total.good { color: #10b981; }
+  .watermark {
+    text-align: center;
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    color: #4b5563;
+    margin-top: 20px;
+    letter-spacing: 0.5px;
+  }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div>
+    <div class="container">
+      <!-- Left: Without automation -->
+      <div class="terminal bad">
+        <div class="header">
+          <div class="dot red"></div>
+          <div class="dot yellow"></div>
+          <div class="dot green"></div>
+          <span class="title">without-automation</span>
+        </div>
+        <div class="label bad">Every session</div>
+        <div class="content">
+          <div><span class="prompt">$</span> <span class="cmd">curl -X POST jira/api/3/issue</span></div>
+          <div><span class="out">  → construct ADF JSON body...</span></div>
+          <div><span class="out">  → parse response for ticket key...</span></div>
+          <div><span class="bad-num">  ~800 tokens</span></div>
+
+          <div class="spacer"></div>
+          <div><span class="prompt">$</span> <span class="cmd">git checkout -b feature/...</span></div>
+          <div><span class="out">  → wait, what's the naming convention?</span></div>
+          <div><span class="out">  → read CLAUDE.md to check...</span></div>
+          <div><span class="bad-num">  ~400 tokens</span></div>
+
+          <div class="spacer"></div>
+          <div><span class="prompt">$</span> <span class="cmd">grep -r "checkout" src/</span></div>
+          <div><span class="out">  → explore codebase structure...</span></div>
+          <div><span class="out">  → read 5 files to find the right one...</span></div>
+          <div><span class="bad-num">  ~2,000 tokens</span></div>
+
+          <div class="divider"></div>
+          <div><span class="dim">// repeat every session</span></div>
+        </div>
+        <div class="total bad">~3,200 tokens before real work starts</div>
+      </div>
+
+      <!-- Right: With automation -->
+      <div class="terminal good">
+        <div class="header">
+          <div class="dot red"></div>
+          <div class="dot yellow"></div>
+          <div class="dot green"></div>
+          <span class="title">with-automation</span>
+        </div>
+        <div class="label good">Every session</div>
+        <div class="content">
+          <div><span class="prompt">$</span> <span class="cmd">sos-feature create "Add checkout"</span></div>
+          <div><span class="accent">  Created RICH-8 + branch</span></div>
+          <div><span class="good-num">  ~50 tokens</span></div>
+
+          <div class="spacer"></div>
+          <div><span class="prompt">$</span> <span class="cmd">read CLAUDE.md</span></div>
+          <div><span class="accent">  Full architecture in one file</span></div>
+          <div><span class="good-num">  ~100 tokens</span></div>
+
+          <div class="spacer"></div>
+          <div><span class="prompt">$</span> <span class="cmd">sos-feature pr</span></div>
+          <div><span class="accent">  Pushed + PR + Jira updated</span></div>
+          <div><span class="good-num">  ~50 tokens</span></div>
+
+          <div class="divider"></div>
+          <div><span class="dim">// infrastructure compounds</span></div>
+        </div>
+        <div class="total good">~200 tokens — then straight to work</div>
+      </div>
+    </div>
+    <div class="watermark">richlee.dev</div>
+  </div>
+</body>
+</html>

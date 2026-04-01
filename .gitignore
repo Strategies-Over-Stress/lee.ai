@@ -37,3 +37,14 @@ Thumbs.db
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# pilot
+.pilot/sessions/
+.pilot/research/context.json
+
+# python
+__pycache__/
+*.pyc
+
+# rust / tauri
+apps/pilot/src-tauri/target/
