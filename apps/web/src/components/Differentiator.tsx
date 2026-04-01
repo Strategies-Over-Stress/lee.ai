@@ -11,11 +11,13 @@ interface Feature {
   statLabel: string;
   description: string;
   highlights: string[];
+  icon: React.ReactNode;
 }
 
 const features: Feature[] = [
   {
     id: "waste",
+    icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="2" strokeLinecap="round"><path d="M19 7l-7 7-3-3-4 4"/><path d="M22 7h-5V2"/></svg>,
     title: "Stop paying for features you don’t use",
     subtitle: "You’re subsidizing someone else’s product roadmap.",
     stat: "47%",
@@ -29,6 +31,7 @@ const features: Feature[] = [
   },
   {
     id: "own",
+    icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2" strokeLinecap="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.778 7.778 5.5 5.5 0 017.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>,
     title: "Own it. Don’t rent it.",
     subtitle: "SaaS companies love recurring revenue. You shouldn’t love giving it to them.",
     stat: "$0/mo",
@@ -44,6 +47,7 @@ const features: Feature[] = [
   },
   {
     id: "risk",
+    icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4" stroke="#10b981" strokeWidth="2"/></svg>,
     title: "AI without the risk",
     subtitle: "You don’t need to understand vulnerabilities. You need someone who does.",
     stat: "45%",
@@ -57,6 +61,7 @@ const features: Feature[] = [
   },
   {
     id: "duct",
+    icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f43f5e" strokeWidth="2" strokeLinecap="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>,
     title: "No more duct tape",
     subtitle: "Replace $100/month Zapier chains with real integrations.",
     stat: "$6/mo",
@@ -111,11 +116,14 @@ export default function Differentiator() {
                   onClick={() => setOpenId(isOpen ? null : feature.id)}
                   className="w-full text-left p-5 cursor-pointer flex items-start justify-between gap-4"
                 >
-                  <div>
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0 mt-0.5">{feature.icon}</div>
+                    <div>
                     <h3 className={"font-bold text-xl " + (isOpen ? "text-white" : "text-white/70")}>
                       {feature.title}
                     </h3>
                     <p className="text-sm text-white/60 mt-1">{feature.subtitle}</p>
+                    </div>
                   </div>
                   <span className={"text-text-muted transition-transform duration-300 mt-1 " + (isOpen ? "rotate-180" : "")}>
                     &#9660;
