@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useInView } from "framer-motion";
+import { motion, useInView, AnimatePresence } from "framer-motion";
 import { useRef, useState } from "react";
 
 interface Feature {
@@ -73,8 +73,7 @@ const features: Feature[] = [
 export default function Differentiator() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
-  const [activeFeature, setActiveFeature] = useState(features[0].id);
-  const active = features.find((f) => f.id === activeFeature)!;
+  const [openId, setOpenId] = useState<string | null>(features[0].id);
 
   return (
     <section className="relative py-32 px-6 bg-accent/[0.02]" ref={ref}>
@@ -96,53 +95,66 @@ export default function Differentiator() {
           </p>
         </motion.div>
 
-        <div className="grid lg:grid-cols-[1fr,1.5fr] gap-8">
-          {/* Tabs */}
-          <div className="space-y-3">
-            {features.map((feature, index) => (
-              <motion.button
+        <div className="max-w-3xl mx-auto space-y-4">
+          {features.map((feature, index) => {
+            const isOpen = openId === feature.id;
+            return (
+              <motion.div
                 key={feature.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={isInView ? { opacity: 1, x: 0 } : {}}
+                initial={{ opacity: 0, y: 20 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.4, delay: 0.2 + index * 0.1 }}
-                onClick={() => setActiveFeature(feature.id)}
-                className={"w-full text-left p-5 rounded-xl border transition-all duration-300 cursor-pointer " +
-                  (activeFeature === feature.id
-                    ? "border-accent/50 bg-accent/5 glow"
-                    : "border-surface-light bg-surface hover:border-accent/20")}
+                className={"rounded-xl border transition-all duration-300 overflow-hidden " +
+                  (isOpen ? "border-accent/50 bg-accent/5 glow" : "border-surface-light bg-surface hover:border-accent/20")}
               >
-                <h3 className={"font-bold text-lg " + (activeFeature === feature.id ? "text-text-primary" : "text-text-secondary")}>
-                  {feature.title}
-                </h3>
-                <p className="text-sm text-text-muted mt-1">{feature.subtitle}</p>
-              </motion.button>
-            ))}
-          </div>
+                <button
+                  onClick={() => setOpenId(isOpen ? null : feature.id)}
+                  className="w-full text-left p-5 cursor-pointer flex items-start justify-between gap-4"
+                >
+                  <div>
+                    <h3 className={"font-bold text-lg " + (isOpen ? "text-text-primary" : "text-text-secondary")}>
+                      {feature.title}
+                    </h3>
+                    <p className="text-sm text-text-muted mt-1">{feature.subtitle}</p>
+                  </div>
+                  <span className={"text-text-muted transition-transform duration-300 mt-1 " + (isOpen ? "rotate-180" : "")}>
+                    &#9660;
+                  </span>
+                </button>
 
-          {/* Detail panel */}
-          <motion.div
-            key={activeFeature}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            {/* Giant stat */}
-            <div className="mb-8">
-              <div className="text-6xl sm:text-7xl font-black text-gradient">{active.stat}</div>
-              <div className="text-sm text-text-muted mt-2">{active.statLabel}</div>
-            </div>
+                <AnimatePresence>
+                  {isOpen && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="px-5 pb-6">
+                        {/* Giant stat */}
+                        <div className="mb-6">
+                          <div className="text-5xl sm:text-6xl font-black text-gradient">{feature.stat}</div>
+                          <div className="text-sm text-text-muted mt-2">{feature.statLabel}</div>
+                        </div>
 
-            <p className="text-text-secondary text-lg mb-6">{active.description}</p>
+                        <p className="text-text-secondary text-lg mb-6">{feature.description}</p>
 
-            <ul className="space-y-3">
-              {active.highlights.map((item) => (
-                <li key={item} className="flex items-start gap-3 text-text-secondary">
-                  <span className="text-emerald mt-0.5">✓</span>
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-          </motion.div>
+                        <ul className="space-y-3">
+                          {feature.highlights.map((item) => (
+                            <li key={item} className="flex items-start gap-3 text-text-secondary">
+                              <span className="text-emerald mt-0.5">&#10003;</span>
+                              <span>{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            );
+          })}
         </div>
       </div>
     </section>
