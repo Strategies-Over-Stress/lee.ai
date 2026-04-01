@@ -26,6 +26,14 @@ export default function Guarantee() {
           animate={isInView ? { opacity: 1, scale: 1 } : {}}
           transition={{ duration: 0.6 }}
         >
+          {/* Money icon */}
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-emerald/10 mb-6">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="12" r="10" stroke="#10b981" strokeWidth="2"/>
+              <path d="M12 6v12M15 9.5c0-1.38-1.34-2.5-3-2.5s-3 1.12-3 2.5 1.34 2.5 3 2.5 3 1.12 3 2.5-1.34 2.5-3 2.5" stroke="#10b981" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+          </div>
+          <br />
           <span className="font-mono text-emerald text-sm tracking-widest uppercase">
             The Only Guarantee in AI Consulting
           </span>
