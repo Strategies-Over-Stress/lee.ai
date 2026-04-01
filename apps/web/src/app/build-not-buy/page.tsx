@@ -119,15 +119,12 @@ export default function BuildNotBuy() {
             className="prose-custom"
           >
             {(view === "business" ? businessArticle : technicalArticle)
-              .split("
-
-")
+              .split("\n\n")
               .map((para, i) => {
                 if (para.startsWith("\u2022 ")) {
                   return (
                     <ul key={i} className="space-y-2 my-6 text-text-secondary">
-                      {para.split("
-").map((line, j) => (
+                      {para.split("\n").map((line, j) => (
                         <li key={j} className="text-sm">{line.replace("\u2022 ", "")}</li>
                       ))}
                     </ul>
