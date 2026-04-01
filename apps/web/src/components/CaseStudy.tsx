@@ -1,8 +1,7 @@
 "use client";
 
-import { motion, useInView } from "framer-motion";
+import { motion, useInView, AnimatePresence } from "framer-motion";
 import { useRef, useState } from "react";
-import DragSlider from "./DragSlider";
 
 const cases = [
   {
@@ -89,6 +88,7 @@ export default function CaseStudy() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const [activeTab, setActiveTab] = useState("ecommerce");
+  const [showAfter, setShowAfter] = useState(false);
   const activeCase = cases.find((c) => c.id === activeTab)!;
 
   return (
@@ -139,18 +139,51 @@ export default function CaseStudy() {
           </a>
         </div>
 
-        {/* Drag slider */}
-        <motion.div
-          key={activeTab}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.4 }}
-        >
-          <DragSlider
-            beforeContent={<BeforePanel items={activeCase.before} />}
-            afterContent={<AfterPanel items={activeCase.after} />}
-          />
-        </motion.div>
+        {/* Before / After toggle */}
+        <div className="flex justify-center mb-6">
+          <div className="inline-flex rounded-xl border border-surface-light bg-surface p-1">
+            <button
+              onClick={() => setShowAfter(false)}
+              className={"px-6 py-2.5 rounded-lg text-sm font-semibold transition-all cursor-pointer " +
+                (!showAfter ? "bg-rose/20 text-rose" : "text-text-secondary hover:text-text-primary")}
+            >
+              Before
+            </button>
+            <button
+              onClick={() => setShowAfter(true)}
+              className={"px-6 py-2.5 rounded-lg text-sm font-semibold transition-all cursor-pointer " +
+                (showAfter ? "bg-emerald/20 text-emerald" : "text-text-secondary hover:text-text-primary")}
+            >
+              After
+            </button>
+          </div>
+        </div>
+
+        <AnimatePresence mode="wait">
+          {!showAfter ? (
+            <motion.div
+              key={activeTab + "-before"}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              transition={{ duration: 0.3 }}
+              className="rounded-2xl border border-rose/20 overflow-hidden"
+            >
+              <BeforePanel items={activeCase.before} />
+            </motion.div>
+          ) : (
+            <motion.div
+              key={activeTab + "-after"}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3 }}
+              className="rounded-2xl border border-emerald/20 overflow-hidden"
+            >
+              <AfterPanel items={activeCase.after} />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Money line */}
         <motion.p
