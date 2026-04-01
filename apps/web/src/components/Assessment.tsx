@@ -130,6 +130,15 @@ export default function Assessment() {
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
+          {/* Assessment icon */}
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-accent/10 mb-6">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" stroke="#6366f1" strokeWidth="2" strokeLinecap="round"/>
+              <rect x="9" y="3" width="6" height="4" rx="1" stroke="#6366f1" strokeWidth="2"/>
+              <path d="M9 12l2 2 4-4" stroke="#10b981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
+          <br />
           <span className="font-mono text-accent text-sm tracking-widest uppercase">
             Interactive Assessment
           </span>
