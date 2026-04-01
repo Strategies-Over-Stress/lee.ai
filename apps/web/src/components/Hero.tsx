@@ -32,11 +32,16 @@ export default function Hero() {
           <span className="text-gradient">your next SaaS bill?</span>
         </motion.h1>
 
+        {/* Billing receipt */}
+        <div className="mt-8 mb-8">
+          <BillingReceipt />
+        </div>
+
         {/* Subheadline */}
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.7 }}
+          transition={{ duration: 0.8, delay: 1.2 }}
           className="text-xl sm:text-2xl text-text-secondary font-light mb-10 max-w-3xl mx-auto"
         >
           I build custom software that replaces your subscriptions &mdash;
@@ -46,11 +51,6 @@ export default function Hero() {
             So you can focus on building software that actually grows your business, not paying a monthly tariff.
           </span>
         </motion.p>
-
-        {/* Billing receipt */}
-        <div className="mt-8 mb-10">
-          <BillingReceipt />
-        </div>
 
         {/* CTA buttons */}
         <motion.div
