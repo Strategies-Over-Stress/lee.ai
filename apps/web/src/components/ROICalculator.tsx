@@ -42,8 +42,8 @@ export default function ROICalculator() {
           <div className="space-y-8">
             <div>
               <div className="flex justify-between text-sm mb-2">
-                <span className="text-text-secondary">Subscriptions you pay for</span>
-                <span className="font-mono font-bold text-text-primary">{subCount}</span>
+                <span className="text-white/70">Subscriptions you pay for</span>
+                <span className="font-mono font-bold text-white">{subCount}</span>
               </div>
               <input
                 type="range"
@@ -57,8 +57,8 @@ export default function ROICalculator() {
 
             <div>
               <div className="flex justify-between text-sm mb-2">
-                <span className="text-text-secondary">Average cost per subscription</span>
-                <span className="font-mono font-bold text-text-primary">${avgCost}/mo</span>
+                <span className="text-white/70">Average cost per subscription</span>
+                <span className="font-mono font-bold text-white">${avgCost}/mo</span>
               </div>
               <input
                 type="range"
@@ -73,8 +73,8 @@ export default function ROICalculator() {
 
             <div>
               <div className="flex justify-between text-sm mb-2">
-                <span className="text-text-secondary">How many do you actually need?</span>
-                <span className="font-mono font-bold text-text-primary">{needed}</span>
+                <span className="text-white/70">How many do you actually need?</span>
+                <span className="font-mono font-bold text-white">{needed}</span>
               </div>
               <input
                 type="range"
@@ -91,25 +91,25 @@ export default function ROICalculator() {
           <div className="rounded-2xl border border-surface-light bg-surface p-8">
             <div className="space-y-6">
               <div className="flex justify-between items-center">
-                <span className="text-text-secondary text-sm">Current annual cost</span>
+                <span className="text-white/70 text-sm">Estimated annual cost</span>
                 <span className="text-xl font-mono font-bold text-rose">${currentAnnual.toLocaleString()}/yr</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-text-secondary text-sm">After we build</span>
+                <span className="text-white/70 text-sm">Estimated cost after we build</span>
                 <span className="text-xl font-mono font-bold text-emerald">${afterAnnual}/yr</span>
               </div>
               <div className="h-px bg-surface-light" />
               <div className="flex justify-between items-center">
-                <span className="text-text-primary font-semibold">You save</span>
+                <span className="text-white font-semibold">Estimated savings</span>
                 <span className="text-2xl font-mono font-bold text-gradient">${savings.toLocaleString()}/yr</span>
               </div>
               <div className="flex justify-between items-center pt-4 border-t border-surface-light">
-                <span className="text-text-primary font-bold text-lg">Over 5 years</span>
+                <span className="text-white font-bold text-lg">Over 5 years</span>
                 <span className="text-3xl font-mono font-black text-gradient">${fiveYear.toLocaleString()}</span>
               </div>
             </div>
 
-            <p className="text-xs text-text-muted mt-6">
+            <p className="text-xs text-white/40 mt-6">
               *Assumes $15/month average hosting cost for custom software. Actual costs vary by project.
             </p>
           </div>
