@@ -30,9 +30,9 @@ The user clicked "Iterate" in the Pilot app after adding comments. You must:
 Execute the build script:
 
 1. Run: `python3 .pilot/sessions/<id>/build.py`
-2. If it succeeds: set status to `"done"`, write a brief summary in `session.json`
+2. If it succeeds: set status to `"deploy_queue"`, write a brief summary in `session.json`
 3. If it fails: set status to `"failed"`, include the error output in the summary
-4. Report what happened
+4. Report what happened. If successful, tell the user to run `/pilot-deploy` to merge into the target branch.
 
 ### Status: `awaiting_review`
 

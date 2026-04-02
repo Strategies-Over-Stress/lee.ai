@@ -9,6 +9,7 @@ const statusColors: Record<string, string> = {
   approved: "text-emerald bg-emerald/10 border-emerald/20",
   iterating: "text-accent-bright bg-accent/10 border-accent/20",
   done: "text-emerald bg-emerald/10 border-emerald/20",
+  deploy_queue: "text-accent-bright bg-accent/10 border-accent/20",
   failed: "text-rose bg-rose/10 border-rose/20",
 };
 
@@ -49,7 +50,7 @@ export default function Home() {
 
       {/* Status filter */}
       <div className="flex flex-wrap gap-2 mb-6">
-        {["all", "awaiting_review", "reviewing", "approved", "iterating", "done", "failed"].map((s) => (
+        {["all", "awaiting_review", "reviewing", "approved", "iterating", "done", "deploy_queue", "failed"].map((s) => (
           <button
             key={s}
             onClick={() => setFilter(s)}

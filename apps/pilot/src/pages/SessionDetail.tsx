@@ -9,6 +9,7 @@ import {
   deleteChange,
   approveSession,
   iterateSession,
+  updateSessionStatus,
   listSessionVersions,
   SessionVersion,
   onDataChanged,
@@ -76,6 +77,8 @@ const statusColors: Record<string, string> = {
   approved: "text-emerald bg-emerald/10 border-emerald/20",
   iterating: "text-accent-bright bg-accent/10 border-accent/20",
   done: "text-emerald bg-emerald/10 border-emerald/20",
+  deploy_queue: "text-accent-bright bg-accent/10 border-accent/20",
+  deployed: "text-emerald bg-emerald/10 border-emerald/20",
   failed: "text-rose bg-rose/10 border-rose/20",
 };
 
@@ -378,7 +381,20 @@ export default function SessionDetail() {
             Waiting for /pilot-run to process feedback...
           </div>
         ) : session.status === "done" ? (
-          <div className="text-emerald text-sm">Session complete.</div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={async () => { if (!id) return; const updated = await updateSessionStatus(id, "deploy_queue"); setSession(updated); }}
+              className="px-6 py-2.5 bg-accent hover:bg-accent-bright text-white rounded-lg font-medium text-sm transition-colors cursor-pointer"
+            >
+              Queue for Deploy
+            </button>
+            <span className="text-emerald text-sm">Session complete — ready to deploy</span>
+          </div>
+        ) : session.status === "deploy_queue" ? (
+          <div className="flex items-center gap-2 text-accent-bright text-sm">
+            <span className="text-accent-bright">&#10003;</span>
+            In deploy queue — run <code className="font-mono bg-surface px-2 py-0.5 rounded">/pilot-deploy</code> to merge into target branch
+          </div>
         ) : session.status === "failed" ? (
           <div className="flex items-center gap-3">
             <button onClick={approve} className="px-6 py-2.5 bg-emerald hover:bg-emerald/90 text-white rounded-lg font-medium text-sm transition-colors cursor-pointer">
