@@ -524,6 +524,20 @@ fn update_research(state: tauri::State<AppState>, id: String, content: String) -
 }
 
 #[tauri::command]
+fn rename_research(state: tauri::State<AppState>, id: String, name: String) -> Result<ResearchItem, String> {
+    let conn = state.db.lock().unwrap();
+    conn.execute(
+        "UPDATE research SET name = ?, updated_at = ? WHERE id = ?",
+        params![name, now(), id]
+    ).map_err(|e| e.to_string())?;
+    conn.query_row(
+        "SELECT id, project_id, name, content, created_at, updated_at FROM research WHERE id = ?",
+        params![id],
+        |r| Ok(ResearchItem { id: r.get(0)?, project_id: r.get(1)?, name: r.get(2)?, content: r.get(3)?, created_at: r.get(4)?, updated_at: r.get(5)? })
+    ).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
 fn delete_research(state: tauri::State<AppState>, id: String) -> Result<(), String> {
     let conn = state.db.lock().unwrap();
     conn.execute("DELETE FROM research WHERE id = ?", params![id])
@@ -807,6 +821,7 @@ fn main() {
             list_research,
             add_research,
             update_research,
+            rename_research,
             delete_research,
             enqueue_research,
             // History

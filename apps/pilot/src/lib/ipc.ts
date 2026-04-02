@@ -134,6 +134,9 @@ export const addResearch = (projectId: string, name: string, content: string): P
 export const updateResearch = (id: string, content: string): Promise<ResearchItem> =>
   invoke("update_research", { id, content });
 
+export const renameResearch = (id: string, name: string): Promise<ResearchItem> =>
+  invoke("rename_research", { id, name });
+
 export const deleteResearch = (id: string): Promise<void> =>
   invoke("delete_research", { id });
 

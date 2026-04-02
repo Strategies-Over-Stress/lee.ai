@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { listResearch, addResearch, deleteResearch, enqueueResearch, onDataChanged, ResearchItem } from "../lib/ipc";
+import { listResearch, addResearch, renameResearch, deleteResearch, enqueueResearch, onDataChanged, ResearchItem } from "../lib/ipc";
 import { useProject } from "../lib/ProjectContext";
 
 function highlightMarkdown(text: string): React.ReactNode[] {
@@ -117,8 +117,16 @@ export default function Research() {
                 />
                 <button
                   onClick={() => setSelected(item)}
+                  onDoubleClick={async () => {
+                    const newName = prompt("Rename research file:", item.name);
+                    if (newName && newName !== item.name) {
+                      const updated = await renameResearch(item.id, newName);
+                      setItems((prev) => prev.map((r) => r.id === updated.id ? updated : r));
+                      if (selected?.id === updated.id) setSelected(updated);
+                    }
+                  }}
                   className={"flex-1 text-left text-sm truncate cursor-pointer transition-colors " + (selected?.id === item.id ? "text-text-primary" : "text-text-secondary hover:text-text-primary")}
-                  title={item.name}
+                  title={item.name + " (double-click to rename)"}
                 >
                   {item.name}
                 </button>
