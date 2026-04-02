@@ -12,6 +12,7 @@ dist/
 .env
 .env.local
 .env.*.local
+.jira-cache.json
 
 # internal docs (version controlled in separate private repo)
 docs/internal/

@@ -22,6 +22,7 @@ Environment variables (from .env):
 """
 
 import argparse
+import base64
 import json
 import os
 import re
@@ -56,25 +57,11 @@ EMAIL = os.environ["JIRA_EMAIL"]
 API_TOKEN = os.environ["JIRA_API_TOKEN"]
 PROJECT_KEY = os.environ.get("JIRA_PROJECT_KEY", "RICH")
 
-ISSUE_TYPES = {
-    "task": "10122",
-    "epic": "10123",
-    "subtask": "10124",
-}
-
-TRANSITIONS = {
-    "TO DO": "11",
-    "IN PROGRESS": "21",
-    "IN REVIEW": "2",
-    "DONE": "31",
-}
-
 # ---------------------------------------------------------------------------
-# HTTP helpers
+# HTTP / API
 # ---------------------------------------------------------------------------
 
 def _auth_header():
-    import base64
     creds = base64.b64encode(f"{EMAIL}:{API_TOKEN}".encode()).decode()
     return f"Basic {creds}"
 
@@ -97,18 +84,128 @@ def api(method, path, data=None):
         sys.exit(1)
 
 # ---------------------------------------------------------------------------
+# Issue type auto-discovery
+# ---------------------------------------------------------------------------
+
+_issue_type_cache = None
+_CACHE_FILE = Path(__file__).resolve().parent.parent.parent / ".jira-cache.json"
+_CACHE_TTL = 86400  # 24 hours
+
+
+def _load_disk_cache():
+    """Load cached issue types from disk if fresh. Returns dict or None."""
+    if not _CACHE_FILE.exists():
+        return None
+    try:
+        data = json.loads(_CACHE_FILE.read_text())
+        entry = data.get(BASE_URL)
+        if not entry:
+            return None
+        import time
+        if time.time() - entry.get("ts", 0) > _CACHE_TTL:
+            return None
+        return entry["types"]
+    except (json.JSONDecodeError, KeyError):
+        return None
+
+
+def _save_disk_cache(types):
+    """Persist issue types to disk, keyed by Jira instance URL."""
+    import time
+    data = {}
+    if _CACHE_FILE.exists():
+        try:
+            data = json.loads(_CACHE_FILE.read_text())
+        except json.JSONDecodeError:
+            pass
+    data[BASE_URL] = {"types": types, "ts": time.time()}
+    _CACHE_FILE.write_text(json.dumps(data, indent=2))
+
+
+def get_issue_types():
+    """Auto-discover issue types from the Jira instance. Returns {lowercase_name: id}."""
+    global _issue_type_cache
+    if _issue_type_cache is not None:
+        return _issue_type_cache
+
+    # Check for env overrides first (JIRA_ISSUE_TYPE_TASK=10122 etc.)
+    env_types = {}
+    for key, val in os.environ.items():
+        if key.startswith("JIRA_ISSUE_TYPE_"):
+            type_name = key[len("JIRA_ISSUE_TYPE_"):].lower()
+            env_types[type_name] = val
+    if env_types:
+        _issue_type_cache = env_types
+        return _issue_type_cache
+
+    # Check disk cache
+    cached = _load_disk_cache()
+    if cached:
+        _issue_type_cache = cached
+        return _issue_type_cache
+
+    # Discover from API
+    try:
+        all_types = api("GET", "/issuetype")
+        types = {}
+        for it in all_types:
+            name = it["name"].lower().replace(" ", "")
+            types[name] = str(it["id"])
+        _issue_type_cache = types
+        _save_disk_cache(types)
+        return _issue_type_cache
+    except SystemExit:
+        print("Error: could not discover issue types. Set JIRA_ISSUE_TYPE_TASK etc. in .env", file=sys.stderr)
+        sys.exit(1)
+
+
+def get_issue_type_id(name):
+    """Get issue type ID by name (case-insensitive). Exits on failure."""
+    name = name.lower().replace(" ", "")
+    types = get_issue_types()
+    if name in types:
+        return types[name]
+    # Fuzzy match
+    for key, val in types.items():
+        if name in key or key in name:
+            return val
+    available = ", ".join(sorted(types.keys()))
+    print(f"Error: issue type '{name}' not found. Available: {available}", file=sys.stderr)
+    sys.exit(1)
+
+# ---------------------------------------------------------------------------
+# Transition auto-discovery
+# ---------------------------------------------------------------------------
+
+def get_transitions(ticket_key):
+    """Discover available transitions for a ticket. Returns {UPPERCASE_NAME: id}."""
+    result = api("GET", f"/issue/{ticket_key}/transitions")
+    return {t["name"].upper(): str(t["id"]) for t in result.get("transitions", [])}
+
+
+def transition_ticket(ticket_key, status):
+    """Move a ticket to a new status. Discovers valid transitions from the API."""
+    status = status.upper()
+    transitions = get_transitions(ticket_key)
+    if status not in transitions:
+        valid = ", ".join(f'"{s}"' for s in sorted(transitions.keys()))
+        print(f"Error: transition to \"{status}\" not available. Valid: {valid}", file=sys.stderr)
+        sys.exit(1)
+    api("POST", f"/issue/{ticket_key}/transitions", {
+        "transition": {"id": transitions[status]},
+    })
+
+# ---------------------------------------------------------------------------
 # Markdown → ADF converter
 # ---------------------------------------------------------------------------
 
 def _parse_inline(text):
     """Parse inline markdown (**bold**, `code`) into ADF text nodes."""
     nodes = []
-    # Split on **bold** and `code` patterns
     pattern = r"(\*\*(.+?)\*\*|`(.+?)`)"
     last_end = 0
 
     for match in re.finditer(pattern, text):
-        # Add plain text before this match
         if match.start() > last_end:
             plain = text[last_end : match.start()]
             if plain:
@@ -129,7 +226,6 @@ def _parse_inline(text):
 
         last_end = match.end()
 
-    # Remaining plain text
     if last_end < len(text):
         remaining = text[last_end:]
         if remaining:
@@ -160,12 +256,10 @@ def md_to_adf(text):
     while i < len(lines):
         line = lines[i]
 
-        # Skip empty lines
         if not line.strip():
             i += 1
             continue
 
-        # Headings: ## or ###
         heading_match = re.match(r"^(#{1,6})\s+(.+)$", line)
         if heading_match:
             level = len(heading_match.group(1))
@@ -177,7 +271,6 @@ def md_to_adf(text):
             i += 1
             continue
 
-        # Bullet list: lines starting with - or *
         if re.match(r"^\s*[-*]\s+", line):
             items = []
             while i < len(lines) and re.match(r"^\s*[-*]\s+", lines[i]):
@@ -193,7 +286,6 @@ def md_to_adf(text):
             blocks.append({"type": "bulletList", "content": items})
             continue
 
-        # Ordered list: lines starting with 1. 2. etc.
         if re.match(r"^\s*\d+\.\s+", line):
             items = []
             while i < len(lines) and re.match(r"^\s*\d+\.\s+", lines[i]):
@@ -213,7 +305,6 @@ def md_to_adf(text):
             })
             continue
 
-        # Regular paragraph — collect consecutive non-special lines
         para_lines = []
         while (
             i < len(lines)
@@ -238,13 +329,13 @@ def md_to_adf(text):
 # ---------------------------------------------------------------------------
 
 def cmd_create(args):
+    issue_type_id = get_issue_type_id(args.type)
     fields = {
         "project": {"key": PROJECT_KEY},
-        "issuetype": {"id": ISSUE_TYPES[args.type]},
+        "issuetype": {"id": issue_type_id},
         "summary": args.summary,
     }
 
-    # Description: --file takes precedence over --description
     desc_text = None
     if args.file:
         desc_text = Path(args.file).read_text()
@@ -265,16 +356,8 @@ def cmd_create(args):
 
 def cmd_move(args):
     ticket = args.ticket.upper()
-    status = args.status.upper()
-
-    if status not in TRANSITIONS:
-        valid = ", ".join(f'"{s}"' for s in TRANSITIONS)
-        print(f"Error: unknown status \"{status}\". Valid: {valid}", file=sys.stderr)
-        sys.exit(1)
-
-    transition_id = TRANSITIONS[status]
-    api("POST", f"/issue/{ticket}/transitions", {"transition": {"id": transition_id}})
-    print(f"{ticket} → {status}")
+    transition_ticket(ticket, args.status)
+    print(f"{ticket} → {args.status.upper()}")
 
 
 def cmd_view(args):
@@ -290,7 +373,6 @@ def cmd_view(args):
         print(f"  Parent:  {fields['parent']['key']}")
     print(f"  URL:     {BASE_URL}/browse/{issue['key']}")
 
-    # Print description as plain text
     desc = fields.get("description")
     if desc and desc.get("content"):
         print(f"  ---")
@@ -394,7 +476,7 @@ def main():
     p_create.add_argument("--summary", "-s", required=True, help="Issue title")
     p_create.add_argument("--description", "-d", default=None, help="Issue description (supports markdown)")
     p_create.add_argument("--file", "-f", default=None, help="Read description from a markdown file")
-    p_create.add_argument("--type", "-t", default="task", choices=ISSUE_TYPES.keys(), help="Issue type (default: task)")
+    p_create.add_argument("--type", "-t", default="task", type=str.lower, help="Issue type (auto-discovered from Jira)")
     p_create.add_argument("--parent", "-p", default=None, help="Parent issue key for subtasks (e.g., RICH-1)")
 
     # edit
@@ -407,7 +489,7 @@ def main():
     # move
     p_move = sub.add_parser("move", help="Transition an issue to a new status")
     p_move.add_argument("ticket", help="Issue key (e.g., RICH-1)")
-    p_move.add_argument("status", help='Target status: "TO DO", "IN PROGRESS", "IN REVIEW", "DONE"')
+    p_move.add_argument("status", help='Target status (auto-discovered from Jira)')
 
     # view
     p_view = sub.add_parser("view", help="View issue details")

@@ -2,10 +2,10 @@
 """Feature branch manager — ties Git branches to Jira ticket lifecycle.
 
 Usage:
-    python scripts/feature.py create "Add risk reversal" [-d "description"] [-f file.md] [-t epic] [-p RICH-1]
+    python scripts/feature.py create "Title" [-d "desc"] [-f file.md] [-t task] [-p RICH-1]
     python scripts/feature.py start RICH-5
     python scripts/feature.py switch RICH-5
-    python scripts/feature.py pr [--title "PR title"] [--body "PR body"]
+    python scripts/feature.py pr [--title "..."] [--body "..."]
     python scripts/feature.py status
 
 Lifecycle:
@@ -20,90 +20,22 @@ Environment variables (from .env):
 """
 
 import argparse
-import json
-import os
 import re
 import subprocess
 import sys
 from pathlib import Path
-from urllib.request import Request, urlopen
-from urllib.error import HTTPError
+
+from jira import (
+    api,
+    md_to_adf,
+    get_issue_type_id,
+    transition_ticket,
+    BASE_URL,
+    PROJECT_KEY,
+)
 
 # ---------------------------------------------------------------------------
-# Config
-# ---------------------------------------------------------------------------
-
-def load_env():
-    env_path = Path(__file__).resolve().parent.parent.parent / ".env"
-    if not env_path.exists():
-        print(f"Error: .env not found at {env_path}", file=sys.stderr)
-        sys.exit(1)
-    for line in env_path.read_text().splitlines():
-        line = line.strip()
-        if not line or line.startswith("#") or "=" not in line:
-            continue
-        key, value = line.split("=", 1)
-        value = value.strip().strip('"').strip("'")
-        os.environ.setdefault(key, value)
-
-
-load_env()
-
-BASE_URL = os.environ["JIRA_BASE_URL"]
-EMAIL = os.environ["JIRA_EMAIL"]
-API_TOKEN = os.environ["JIRA_API_TOKEN"]
-PROJECT_KEY = os.environ.get("JIRA_PROJECT_KEY", "RICH")
-
-ISSUE_TYPES = {
-    "task": "10122",
-    "epic": "10123",
-    "subtask": "10124",
-}
-
-TRANSITIONS = {
-    "TO DO": "11",
-    "IN PROGRESS": "21",
-    "IN REVIEW": "2",
-    "DONE": "31",
-}
-
-# ---------------------------------------------------------------------------
-# Jira API helpers (shared with jira.py)
-# ---------------------------------------------------------------------------
-
-def _auth_header():
-    import base64
-    creds = base64.b64encode(f"{EMAIL}:{API_TOKEN}".encode()).decode()
-    return f"Basic {creds}"
-
-
-def jira_api(method, path, data=None):
-    url = f"{BASE_URL}/rest/api/3{path}"
-    body = json.dumps(data).encode() if data else None
-    req = Request(url, data=body, method=method)
-    req.add_header("Authorization", _auth_header())
-    req.add_header("Content-Type", "application/json")
-    req.add_header("Accept", "application/json")
-    try:
-        with urlopen(req) as resp:
-            if resp.status == 204:
-                return {}
-            return json.loads(resp.read())
-    except HTTPError as e:
-        error_body = e.read().decode()
-        print(f"Jira API error {e.code}: {error_body}", file=sys.stderr)
-        sys.exit(1)
-
-
-def md_to_adf(text):
-    """Import md_to_adf from jira.py to avoid duplication."""
-    scripts_dir = Path(__file__).resolve().parent
-    sys.path.insert(0, str(scripts_dir))
-    from jira import md_to_adf as _md_to_adf
-    return _md_to_adf(text)
-
-# ---------------------------------------------------------------------------
-# Git helpers
+# Git / GitHub helpers
 # ---------------------------------------------------------------------------
 
 def git(*args):
@@ -158,58 +90,31 @@ def slugify(text):
     return slug.strip("-")[:50]
 
 # ---------------------------------------------------------------------------
-# Jira ticket helpers
-# ---------------------------------------------------------------------------
-
-def create_ticket(summary, description=None, issue_type="task", parent=None):
-    fields = {
-        "project": {"key": PROJECT_KEY},
-        "issuetype": {"id": ISSUE_TYPES[issue_type]},
-        "summary": summary,
-    }
-    if description:
-        fields["description"] = md_to_adf(description)
-    if parent:
-        fields["parent"] = {"key": parent}
-
-    result = jira_api("POST", "/issue", {"fields": fields})
-    return result["key"]
-
-
-def transition_ticket(ticket_key, status):
-    status = status.upper()
-    if status not in TRANSITIONS:
-        return
-    jira_api("POST", f"/issue/{ticket_key}/transitions", {
-        "transition": {"id": TRANSITIONS[status]},
-    })
-
-
-def get_ticket(ticket_key):
-    return jira_api("GET", f"/issue/{ticket_key}")
-
-# ---------------------------------------------------------------------------
 # Commands
 # ---------------------------------------------------------------------------
 
 def cmd_create(args):
-    # Resolve description
     desc_text = None
     if args.file:
         desc_text = Path(args.file).read_text()
     elif args.description:
         desc_text = args.description
 
-    # Create Jira ticket (stays in TO DO)
-    ticket_key = create_ticket(
-        summary=args.summary,
-        description=desc_text,
-        issue_type=args.type,
-        parent=args.parent,
-    )
+    issue_type_id = get_issue_type_id(args.type)
+    fields = {
+        "project": {"key": PROJECT_KEY},
+        "issuetype": {"id": issue_type_id},
+        "summary": args.summary,
+    }
+    if desc_text:
+        fields["description"] = md_to_adf(desc_text)
+    if args.parent:
+        fields["parent"] = {"key": args.parent}
+
+    result = api("POST", "/issue", {"fields": fields})
+    ticket_key = result["key"]
     print(f"Created {ticket_key} — {BASE_URL}/browse/{ticket_key}")
 
-    # Create feature branch (but stay on current branch)
     slug = slugify(args.summary)
     branch_name = f"feature/{ticket_key}-{slug}"
     git("branch", branch_name)
@@ -220,7 +125,6 @@ def cmd_create(args):
 def cmd_start(args):
     ticket_key = resolve_ticket(args.ticket)
 
-    # Find the branch matching this ticket
     all_branches = git("branch", "--list", f"feature/{ticket_key}-*").strip()
     if not all_branches:
         print(f"Error: no branch found for {ticket_key}", file=sys.stderr)
@@ -230,7 +134,6 @@ def cmd_start(args):
     git("checkout", branch_name)
     print(f"Checked out {branch_name}")
 
-    # Move ticket to IN PROGRESS
     transition_ticket(ticket_key, "IN PROGRESS")
     print(f"{ticket_key} → IN PROGRESS")
 
@@ -238,7 +141,6 @@ def cmd_start(args):
 def cmd_switch(args):
     ticket_key = resolve_ticket(args.ticket)
 
-    # Find the branch matching this ticket
     all_branches = git("branch", "--list", f"feature/{ticket_key}-*").strip()
     if not all_branches:
         print(f"Error: no branch found for {ticket_key}", file=sys.stderr)
@@ -257,20 +159,16 @@ def cmd_pr(args):
         print(f"Error: current branch '{branch}' doesn't match feature/{{TICKET}}-* pattern", file=sys.stderr)
         sys.exit(1)
 
-    # Get ticket info for PR defaults
-    issue = get_ticket(ticket_key)
+    issue = api("GET", f"/issue/{ticket_key}")
     summary = issue["fields"]["summary"]
     ticket_url = f"{BASE_URL}/browse/{ticket_key}"
 
-    # Push branch
     git("push", "-u", "origin", branch)
     print(f"Pushed {branch}")
 
-    # Build PR title and body
     pr_title = args.title or f"[{ticket_key}] {summary}"
     pr_body = args.body or f"## Summary\n\nResolves [{ticket_key}]({ticket_url})\n\n## Test plan\n\n- [ ] Verify changes locally\n- [ ] Review in staging"
 
-    # Create PR
     pr_url = gh(
         "pr", "create",
         "--title", pr_title,
@@ -279,12 +177,10 @@ def cmd_pr(args):
     )
     print(f"PR created — {pr_url}")
 
-    # Add PR link as comment on ticket
-    jira_api("POST", f"/issue/{ticket_key}/comment", {
+    api("POST", f"/issue/{ticket_key}/comment", {
         "body": md_to_adf(f"PR opened: {pr_url}"),
     })
 
-    # Move ticket to IN REVIEW
     transition_ticket(ticket_key, "IN REVIEW")
     print(f"{ticket_key} → IN REVIEW")
 
@@ -298,7 +194,7 @@ def cmd_status(args):
         print(f"  Ticket:  (none — not a feature branch)")
         return
 
-    issue = get_ticket(ticket_key)
+    issue = api("GET", f"/issue/{ticket_key}")
     fields = issue["fields"]
 
     print(f"  Branch:  {branch}")
@@ -324,7 +220,7 @@ def main():
     p_create.add_argument("summary", help="Ticket title (also used to generate branch name)")
     p_create.add_argument("-d", "--description", default=None, help="Ticket description (supports markdown)")
     p_create.add_argument("-f", "--file", default=None, help="Read description from a markdown file")
-    p_create.add_argument("-t", "--type", default="task", choices=ISSUE_TYPES.keys(), help="Issue type (default: task)")
+    p_create.add_argument("-t", "--type", default="task", type=str.lower, help="Issue type (auto-discovered from Jira)")
     p_create.add_argument("-p", "--parent", default=None, help="Parent issue key for subtasks")
 
     # start
