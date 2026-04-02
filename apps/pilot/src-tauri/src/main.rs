@@ -309,6 +309,9 @@ fn get_or_create_project(state: tauri::State<AppState>, name: String, path: Stri
         |row| Ok(Project { id: row.get(0)?, name: row.get(1)?, path: row.get(2)?, created_at: row.get(3)? })
     );
     if let Ok(p) = existing {
+        // Import any new legacy data
+        import_legacy_sessions(&conn, &p.id, &p.path);
+        import_legacy_research(&conn, &p.id, &p.path);
         *state.current_project_id.lock().unwrap() = Some(p.id.clone());
         return Ok(p);
     }
@@ -318,7 +321,10 @@ fn get_or_create_project(state: tauri::State<AppState>, name: String, path: Stri
         "INSERT INTO projects (id, name, path, created_at) VALUES (?, ?, ?, ?)",
         params![id, name, path, ts]
     ).map_err(|e| e.to_string())?;
-    let project = Project { id: id.clone(), name, path, created_at: ts };
+    let project = Project { id: id.clone(), name, path: path.clone(), created_at: ts };
+    // Auto-import legacy data from filesystem
+    import_legacy_sessions(&conn, &id, &path);
+    import_legacy_research(&conn, &id, &path);
     *state.current_project_id.lock().unwrap() = Some(id);
     Ok(project)
 }

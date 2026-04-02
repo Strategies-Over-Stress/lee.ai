@@ -15,6 +15,7 @@ const statusColors: Record<string, string> = {
 export default function Home() {
   const { project } = useProject();
   const [sessions, setSessions] = useState<SessionFull[]>([]);
+  const [filter, setFilter] = useState<string>("all");
   const [loading, setLoading] = useState(true);
 
   const refresh = () => {
@@ -42,11 +43,29 @@ export default function Home() {
   return (
     <div>
       <h1 className="text-2xl font-bold mb-2">Sessions</h1>
-      <p className="text-sm text-text-muted mb-6">
+      <p className="text-sm text-text-muted mb-4">
         Review and approve build scripts before execution.
       </p>
 
-      {sessions.length === 0 ? (
+      {/* Status filter */}
+      <div className="flex flex-wrap gap-2 mb-6">
+        {["all", "awaiting_review", "reviewing", "approved", "iterating", "done", "failed"].map((s) => (
+          <button
+            key={s}
+            onClick={() => setFilter(s)}
+            className={"text-xs px-3 py-1.5 rounded-lg border transition-colors cursor-pointer " +
+              (filter === s
+                ? (statusColors[s] || "text-text-primary bg-surface-light border-surface-light")
+                : "text-text-muted border-surface-light hover:border-accent/30")}
+          >
+            {s === "all" ? "All" : s.replace(/_/g, " ")}
+          </button>
+        ))}
+      </div>
+
+      {(() => {
+        const filtered = filter === "all" ? sessions : sessions.filter((s) => s.status === filter);
+        return filtered.length === 0 ? (
         <div className="text-center py-16 text-text-muted">
           <p className="mb-2">No sessions yet.</p>
           <p className="text-sm">
@@ -55,7 +74,7 @@ export default function Home() {
         </div>
       ) : (
         <div className="space-y-3">
-          {sessions.map((session) => {
+          {filtered.map((session) => {
             const commentCount = session.comments.length;
             return (
               <div
@@ -93,7 +112,8 @@ export default function Home() {
             );
           })}
         </div>
-      )}
+      );
+      })()}
     </div>
   );
 }
