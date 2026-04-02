@@ -1,7 +1,7 @@
 "use client";
 
-import { motion, useInView, animate } from "framer-motion";
-import { useRef, useState, useEffect } from "react";
+import { motion, useInView, animate, AnimatePresence } from "framer-motion";
+import { useRef, useState, useEffect, useCallback } from "react";
 
 function CountUp({ value }: { value: string }) {
   const ref = useRef(null);
@@ -46,6 +46,7 @@ const cases = [
     screenshots: [
       "/case-studies/lar-crystals.png",
       "/case-studies/lar-charms.png",
+      "/case-studies/lar-analytics.png",
     ],
     pain: [
       "$1,500+/mo in WordPress plugins and SaaS subscriptions",
@@ -94,10 +95,159 @@ const cases = [
   },
 ];
 
+function BrowserSlideshow({ screenshots, site, name }: { screenshots: string[]; site: string; name: string }) {
+  const [current, setCurrent] = useState(0);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const startTimer = useCallback(() => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    if (screenshots.length <= 1) return;
+    timerRef.current = setInterval(() => {
+      setCurrent((prev) => (prev + 1) % screenshots.length);
+    }, 4000);
+  }, [screenshots.length]);
+
+  useEffect(() => {
+    startTimer();
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, [startTimer]);
+
+  const goTo = (i: number) => {
+    setCurrent(i);
+    startTimer();
+  };
+
+  const domain = site.replace(/^https?:\/\//, "");
+
+  return (
+    <div className="rounded-xl overflow-hidden border border-gray-200 shadow-lg bg-white">
+      {/* Browser chrome */}
+      <div className="flex items-center gap-2 px-4 py-2.5 bg-gray-100 border-b border-gray-200">
+        <div className="flex gap-1.5">
+          <span className="w-3 h-3 rounded-full bg-red-400" />
+          <span className="w-3 h-3 rounded-full bg-yellow-400" />
+          <span className="w-3 h-3 rounded-full bg-green-400" />
+        </div>
+        <div className="flex-1 mx-3">
+          <div className="bg-white rounded-md px-3 py-1 text-xs font-mono text-gray-500 truncate border border-gray-200">
+            {domain}
+          </div>
+        </div>
+      </div>
+      {/* Screenshot area */}
+      <div className="relative aspect-[16/10] overflow-hidden bg-gray-50">
+        <AnimatePresence mode="wait">
+          <motion.img
+            key={screenshots[current]}
+            src={screenshots[current]}
+            alt={`${name} screenshot ${current + 1}`}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4 }}
+            className="absolute inset-0 w-full h-full object-cover object-top"
+          />
+        </AnimatePresence>
+      </div>
+      {/* Dots */}
+      {screenshots.length > 1 && (
+        <div className="flex justify-center gap-2 py-2.5 bg-gray-100 border-t border-gray-200">
+          {screenshots.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => goTo(i)}
+              className={"h-2 rounded-full transition-all cursor-pointer " +
+                (i === current ? "w-5 bg-accent" : "w-2 bg-gray-300 hover:bg-gray-400")}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ProblemResultToggle({ pain, results }: { pain: string[]; results: string[] }) {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-50px" });
+  const [showResult, setShowResult] = useState(false);
+  const hasAutoSwitched = useRef(false);
+
+  useEffect(() => {
+    if (!isInView || hasAutoSwitched.current) return;
+    const timer = setTimeout(() => {
+      setShowResult(true);
+      hasAutoSwitched.current = true;
+    }, 4000);
+    return () => clearTimeout(timer);
+  }, [isInView]);
+
+  return (
+    <div ref={ref}>
+      {/* Toggle */}
+      <div className="flex items-center gap-1 mb-5 bg-midnight/60 rounded-lg p-1 w-fit">
+        <button
+          onClick={() => setShowResult(false)}
+          className={"px-4 py-2 rounded-md text-xs font-mono uppercase tracking-wider transition-all cursor-pointer " +
+            (!showResult
+              ? "bg-rose/15 text-rose"
+              : "text-text-muted hover:text-text-secondary")}
+        >
+          Problem
+        </button>
+        <button
+          onClick={() => setShowResult(true)}
+          className={"px-4 py-2 rounded-md text-xs font-mono uppercase tracking-wider transition-all cursor-pointer " +
+            (showResult
+              ? "bg-emerald/15 text-emerald"
+              : "text-text-muted hover:text-text-secondary")}
+        >
+          Result
+        </button>
+      </div>
+
+      {/* Content */}
+      <AnimatePresence mode="wait">
+        {!showResult ? (
+          <motion.ul
+            key="pain"
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 10 }}
+            transition={{ duration: 0.25 }}
+            className="space-y-4"
+          >
+            {pain.map((item) => (
+              <li key={item} className="flex items-start gap-3">
+                <span className="text-rose mt-0.5 shrink-0 text-sm">&#10007;</span>
+                <span className="text-white/90 leading-relaxed">{item}</span>
+              </li>
+            ))}
+          </motion.ul>
+        ) : (
+          <motion.ul
+            key="results"
+            initial={{ opacity: 0, x: 10 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -10 }}
+            transition={{ duration: 0.25 }}
+            className="space-y-4"
+          >
+            {results.map((item) => (
+              <li key={item} className="flex items-start gap-3">
+                <span className="text-emerald mt-0.5 shrink-0 text-sm">&#10003;</span>
+                <span className="text-white/90 leading-relaxed">{item}</span>
+              </li>
+            ))}
+          </motion.ul>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 function CaseCard({ c, index }: { c: typeof cases[0]; index: number }) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-80px" });
-  const isReversed = index % 2 === 1;
 
   return (
     <motion.div
@@ -105,78 +255,53 @@ function CaseCard({ c, index }: { c: typeof cases[0]; index: number }) {
       initial={{ opacity: 0, y: 30 }}
       animate={isInView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.6 }}
-      className="rounded-2xl border border-surface-light bg-surface/50 overflow-hidden"
+      className="rounded-2xl border border-white/[0.08] overflow-hidden"
+      style={{ background: "linear-gradient(180deg, #222235 0%, #1c1c2e 100%)" }}
     >
-      <div className={"grid md:grid-cols-2 gap-0 " + (isReversed ? "md:direction-rtl" : "")}>
-        {/* Screenshots side */}
-        <div className={"p-6 sm:p-8 bg-midnight/50 " + (isReversed ? "md:order-2" : "")}>
-          <div className="flex items-center gap-3 mb-4">
-            <span className="text-xs font-mono text-accent uppercase tracking-wider">{c.industry}</span>
-          </div>
-          <div className="space-y-4">
-            {c.screenshots.map((src) => (
-              <div key={src} className="rounded-lg overflow-hidden border border-surface-light shadow-lg">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={src} alt={c.name} className="w-full h-auto" />
-              </div>
-            ))}
-          </div>
-          <a
-            href={c.site}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block mt-4 text-sm text-accent-bright hover:text-white font-mono transition-colors"
-          >
-            {c.site} &rarr;
-          </a>
+      {/* Header bar */}
+      <div className="px-6 sm:px-10 pt-8 pb-0 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <div>
+          <span className="text-xs font-mono text-accent uppercase tracking-wider">{c.industry}</span>
+          <h3 className="text-2xl sm:text-3xl font-bold mt-1 text-white">{c.name}</h3>
         </div>
+        <a
+          href={c.site}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-sm text-accent-bright hover:text-white font-mono transition-colors shrink-0"
+        >
+          Visit site &rarr;
+        </a>
+      </div>
 
-        {/* Story side */}
-        <div className={"p-6 sm:p-8 flex flex-col justify-center " + (isReversed ? "md:order-1" : "")}>
-          <h3 className="text-2xl sm:text-3xl font-bold mb-6">{c.name}</h3>
-
-          {/* Pain points */}
-          <div className="mb-6">
-            <span className="text-xs font-mono text-rose uppercase tracking-wider mb-3 block">The Problem</span>
-            <ul className="space-y-2">
-              {c.pain.map((item) => (
-                <li key={item} className="flex items-start gap-2 text-sm text-text-secondary">
-                  <span className="text-rose mt-0.5 shrink-0">&#10007;</span> {item}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Results */}
-          <div className="mb-6">
-            <span className="text-xs font-mono text-emerald uppercase tracking-wider mb-3 block">The Result</span>
-            <ul className="space-y-2">
-              {c.results.map((item) => (
-                <li key={item} className="flex items-start gap-2 text-sm text-text-secondary">
-                  <span className="text-emerald mt-0.5 shrink-0">&#10003;</span> {item}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Quote */}
-          <p className="text-accent-bright text-sm italic mb-6 border-l-2 border-accent/30 pl-4">
-            &ldquo;{c.quote}&rdquo;
-          </p>
-
-          {/* Stats */}
-          <div className="grid grid-cols-3 gap-4">
-            {c.stats.map((stat) => (
-              <div key={stat.label} className="text-center">
-                <div className="text-xl sm:text-2xl font-bold text-gradient">
-                  <CountUp value={stat.value} />
-                </div>
-                <div className="text-xs text-text-primary mt-1">{stat.label}</div>
-                <div className="text-xs text-text-muted">{stat.sub}</div>
-              </div>
-            ))}
-          </div>
+      {/* Browser mockup + Problem/Result side by side on desktop */}
+      <div className="grid md:grid-cols-5 gap-6 px-6 sm:px-10 py-8">
+        <div className="md:col-span-3">
+          <BrowserSlideshow screenshots={c.screenshots} site={c.site} name={c.name} />
         </div>
+        <div className="md:col-span-2 flex flex-col justify-center">
+          <ProblemResultToggle pain={c.pain} results={c.results} />
+        </div>
+      </div>
+
+      {/* Quote */}
+      <div className="px-6 sm:px-10 pb-8">
+        <p className="text-accent-bright/80 italic border-l-2 border-accent/20 pl-4 max-w-3xl leading-relaxed">
+          &ldquo;{c.quote}&rdquo;
+        </p>
+      </div>
+
+      {/* Stats bar */}
+      <div className="grid grid-cols-3 border-t border-white/[0.08]" style={{ background: "rgba(255,255,255,0.03)" }}>
+        {c.stats.map((stat) => (
+          <div key={stat.label} className="text-center py-7 border-r border-white/[0.08] last:border-r-0">
+            <div className="text-2xl sm:text-3xl font-bold text-gradient">
+              <CountUp value={stat.value} />
+            </div>
+            <div className="text-sm text-white/90 mt-1">{stat.label}</div>
+            <div className="text-xs text-white/40 mt-0.5">{stat.sub}</div>
+          </div>
+        ))}
       </div>
     </motion.div>
   );
@@ -185,6 +310,10 @@ function CaseCard({ c, index }: { c: typeof cases[0]; index: number }) {
 export default function CaseStudy() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const prev = () => setActiveIndex((i) => (i - 1 + cases.length) % cases.length);
+  const next = () => setActiveIndex((i) => (i + 1) % cases.length);
 
   return (
     <section id="proof" className="relative py-32 px-6" ref={ref}>
@@ -213,11 +342,52 @@ export default function CaseStudy() {
           </p>
         </motion.div>
 
-        {/* Case study cards — stacked */}
-        <div className="space-y-12">
+        {/* Carousel */}
+        <div className="relative">
+          {/* Prev / Next arrows */}
+          <button
+            onClick={prev}
+            className="absolute -left-4 sm:-left-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-surface border border-surface-light hover:border-accent/50 flex items-center justify-center transition-all cursor-pointer"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M15 18l-6-6 6-6" stroke="#818cf8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+          <button
+            onClick={next}
+            className="absolute -right-4 sm:-right-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-surface border border-surface-light hover:border-accent/50 flex items-center justify-center transition-all cursor-pointer"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M9 18l6-6-6-6" stroke="#818cf8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeIndex}
+              initial={{ opacity: 0, x: 40 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -40 }}
+              transition={{ duration: 0.35 }}
+            >
+              <CaseCard c={cases[activeIndex]} index={activeIndex} />
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        {/* Dots + counter */}
+        <div className="flex items-center justify-center gap-3 mt-8">
           {cases.map((c, i) => (
-            <CaseCard key={c.name} c={c} index={i} />
+            <button
+              key={c.name}
+              onClick={() => setActiveIndex(i)}
+              className={"h-2 rounded-full transition-all cursor-pointer " +
+                (i === activeIndex ? "w-8 bg-accent" : "w-2 bg-text-muted/30 hover:bg-text-muted/50")}
+            />
           ))}
+          <span className="text-xs text-text-muted font-mono ml-2">
+            {activeIndex + 1} / {cases.length}
+          </span>
         </div>
       </div>
     </section>
