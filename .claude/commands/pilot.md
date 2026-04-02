@@ -51,6 +51,8 @@ Example: `20260401-143022-add-contact-form`
       "comments": []
     }
   ],
+  "parent_branch": "REQUIRED — the branch this session was created from",
+  "target_branch": "REQUIRED — the branch changes should eventually merge into",
   "global_comments": [],
   "script": "build.py",
   "iteration": 1
@@ -119,12 +121,24 @@ If the user has also attached files directly in the prompt (as `--- Attached: fi
 
 Do NOT search the web for additional information — the research has already been done.
 
+## Branch requirements
+
+**ALWAYS ask the user for both branches before creating the session. NEVER assume or default.**
+
+- `parent_branch` — Ask: "What branch are you working from?" (the current branch they're on)
+- `target_branch` — Ask: "What branch should these changes merge into?"
+
+If the user provides them in the goal (e.g. "on branch feature/X, targeting main"), use those. Otherwise, ASK. Do not use `git branch --show-current` to silently fill these in — the user must confirm.
+
+Record both in session.json. The build script should NOT create or switch branches — that's handled by `/pilot-deploy`.
+
 ## After generating
 
 Tell the user:
 1. Brief summary of planned changes
-2. That the session is ready for review in the Pilot app
-3. To approve and execute when ready
+2. Parent and target branches recorded
+3. That the session is ready for review in the Pilot app
+4. To approve and execute when ready
 
 ## Jira ticket support
 
