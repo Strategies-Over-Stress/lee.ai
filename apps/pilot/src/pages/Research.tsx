@@ -35,6 +35,9 @@ export default function Research() {
   const [selected, setSelected] = useState<ResearchItem | null>(null);
   const [checked, setChecked] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
+  const [addingName, setAddingName] = useState<string | null>(null);
+  const [renamingId, setRenamingId] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState("");
 
   const refresh = () => {
     if (!project) return;
@@ -60,13 +63,20 @@ export default function Research() {
     await enqueueResearch(project.id, Array.from(checked));
   };
 
-  const handleAdd = async () => {
-    if (!project) return;
-    const name = prompt("Research file name (e.g. market-analysis.md):");
-    if (!name) return;
-    const item = await addResearch(project.id, name, "# " + name.replace(/\.md$/, "") + "\n\nAdd your research here.\n");
+  const handleAdd = async (name: string) => {
+    if (!project || !name.trim()) return;
+    const item = await addResearch(project.id, name.trim(), "# " + name.trim().replace(/\.md$/, "") + "\n\nAdd your research here.\n");
     setItems((prev) => [...prev, item]);
     setSelected(item);
+    setAddingName(null);
+  };
+
+  const handleRename = async (id: string, newName: string) => {
+    if (!newName.trim()) { setRenamingId(null); return; }
+    const updated = await renameResearch(id, newName.trim());
+    setItems((prev) => prev.map((r) => r.id === updated.id ? updated : r));
+    if (selected?.id === updated.id) setSelected(updated);
+    setRenamingId(null);
   };
 
   const handleDelete = async (id: string) => {
@@ -96,12 +106,31 @@ export default function Research() {
           </button>
         )}
 
-        <button
-          onClick={handleAdd}
-          className="w-full mb-4 px-3 py-2 text-sm text-text-muted hover:text-accent-bright border border-dashed border-surface-light hover:border-accent/30 rounded-lg transition-colors cursor-pointer"
-        >
-          + Add research file
-        </button>
+        {addingName !== null ? (
+          <div className="mb-4 flex gap-2">
+            <input
+              type="text"
+              autoFocus
+              value={addingName}
+              onChange={(e) => setAddingName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleAdd(addingName);
+                if (e.key === "Escape") setAddingName(null);
+              }}
+              placeholder="filename.md"
+              className="flex-1 bg-midnight border border-accent/50 rounded-lg px-3 py-2 text-sm text-text-primary placeholder:text-text-muted focus:outline-none"
+            />
+            <button onClick={() => handleAdd(addingName)} className="px-3 py-2 text-sm bg-accent hover:bg-accent-bright text-white rounded-lg cursor-pointer">Add</button>
+            <button onClick={() => setAddingName(null)} className="px-2 py-2 text-sm text-text-muted hover:text-text-secondary cursor-pointer">x</button>
+          </div>
+        ) : (
+          <button
+            onClick={() => setAddingName("")}
+            className="w-full mb-4 px-3 py-2 text-sm text-text-muted hover:text-accent-bright border border-dashed border-surface-light hover:border-accent/30 rounded-lg transition-colors cursor-pointer"
+          >
+            + Add research file
+          </button>
+        )}
 
         {items.length === 0 ? (
           <p className="text-sm text-text-muted">No research files yet.</p>
@@ -115,21 +144,29 @@ export default function Research() {
                   onChange={() => toggleCheck(item.id)}
                   className="accent-accent cursor-pointer flex-shrink-0"
                 />
-                <button
-                  onClick={() => setSelected(item)}
-                  onDoubleClick={async () => {
-                    const newName = prompt("Rename research file:", item.name);
-                    if (newName && newName !== item.name) {
-                      const updated = await renameResearch(item.id, newName);
-                      setItems((prev) => prev.map((r) => r.id === updated.id ? updated : r));
-                      if (selected?.id === updated.id) setSelected(updated);
-                    }
-                  }}
-                  className={"flex-1 text-left text-sm truncate cursor-pointer transition-colors " + (selected?.id === item.id ? "text-text-primary" : "text-text-secondary hover:text-text-primary")}
-                  title={item.name + " (double-click to rename)"}
-                >
-                  {item.name}
-                </button>
+                {renamingId === item.id ? (
+                  <input
+                    type="text"
+                    autoFocus
+                    value={renameValue}
+                    onChange={(e) => setRenameValue(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") handleRename(item.id, renameValue);
+                      if (e.key === "Escape") setRenamingId(null);
+                    }}
+                    onBlur={() => handleRename(item.id, renameValue)}
+                    className="flex-1 bg-midnight border border-accent/50 rounded px-2 py-0.5 text-sm text-text-primary focus:outline-none"
+                  />
+                ) : (
+                  <button
+                    onClick={() => setSelected(item)}
+                    onDoubleClick={() => { setRenamingId(item.id); setRenameValue(item.name); }}
+                    className={"flex-1 text-left text-sm truncate cursor-pointer transition-colors " + (selected?.id === item.id ? "text-text-primary" : "text-text-secondary hover:text-text-primary")}
+                    title={item.name + " (double-click to rename)"}
+                  >
+                    {item.name}
+                  </button>
+                )}
                 <button
                   onClick={() => handleDelete(item.id)}
                   className="text-text-muted hover:text-rose text-xs opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
