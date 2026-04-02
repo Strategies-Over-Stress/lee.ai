@@ -1,9 +1,8 @@
 import { Routes, Route, Link, useLocation } from "react-router-dom";
-import { useState, useEffect } from "react";
 import Home from "./pages/Home";
 import SessionDetail from "./pages/SessionDetail";
 import Research from "./pages/Research";
-import { getProjectRoot, setProjectRoot, pickFolder } from "./lib/ipc";
+import { ProjectProvider, useProject } from "./lib/ProjectContext";
 
 function Nav() {
   const location = useLocation();
@@ -29,39 +28,34 @@ function Nav() {
 }
 
 function ProjectSwitcher() {
-  const [root, setRoot] = useState("");
-
-  useEffect(() => {
-    getProjectRoot().then(setRoot);
-  }, []);
-
-  const handlePick = async () => {
-    const path = await pickFolder();
-    if (path) {
-      try {
-        const result = await setProjectRoot(path.replace(/\/$/, ""));
-        setRoot(result);
-        // Force full reload so sessions + research refresh from new project
-        window.location.reload();
-      } catch { /* ignore */ }
-    }
-  };
-
-  const shortRoot = root.replace(/^\/Users\/[^/]+\//, "~/");
+  const { project, projects, switchProject, addProject } = useProject();
 
   return (
-    <button
-      onClick={handlePick}
-      className="w-full text-left px-3 py-2 text-xs text-text-muted hover:text-accent-bright transition-colors font-mono truncate cursor-pointer"
-      title={"Project: " + root + "\nClick to switch"}
-    >
-      <span className="text-text-muted mr-1">&#128193;</span>
-      {shortRoot}
-    </button>
+    <div className="space-y-2">
+      <select
+        value={project?.id || ""}
+        onChange={(e) => switchProject(e.target.value)}
+        className="w-full bg-midnight border border-surface-light rounded-lg px-3 py-2 text-xs text-text-secondary font-mono cursor-pointer focus:outline-none focus:border-accent/50"
+      >
+        {projects.map((p) => (
+          <option key={p.id} value={p.id}>{p.name}</option>
+        ))}
+      </select>
+      <button
+        onClick={addProject}
+        className="w-full text-left px-3 py-1.5 text-xs text-text-muted hover:text-accent-bright transition-colors cursor-pointer"
+      >
+        + Add project
+      </button>
+    </div>
   );
 }
 
-export default function App() {
+function Layout() {
+  const { loading } = useProject();
+
+  if (loading) return <div className="flex items-center justify-center h-screen text-text-muted">Loading...</div>;
+
   return (
     <div className="flex h-screen">
       <aside className="w-56 flex-shrink-0 border-r border-surface-light bg-surface p-4 flex flex-col">
@@ -71,7 +65,7 @@ export default function App() {
         <div className="flex-1">
           <Nav />
         </div>
-        <div className="border-t border-surface-light pt-2">
+        <div className="border-t border-surface-light pt-3">
           <ProjectSwitcher />
         </div>
       </aside>
@@ -83,5 +77,13 @@ export default function App() {
         </Routes>
       </main>
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <ProjectProvider>
+      <Layout />
+    </ProjectProvider>
   );
 }

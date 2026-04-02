@@ -1,23 +1,25 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
-  Session,
+  SessionFull,
   getSession,
-  getScript,
-  getContext,
+  getBuildScript,
   addComment,
   deleteComment,
   deleteChange,
   approveSession,
   iterateSession,
-  onSessionsChanged,
+  listSessionVersions,
+  SessionVersion,
+  onDataChanged,
 } from "../lib/ipc";
+
+// ─── Syntax Highlighting ────────────────────────────────────────────────────
 
 const KW = /\b(import|export|from|const|let|var|function|async|await|return|if|else|class|interface|type|struct|fn|use|pub|mod|impl|enum|match|for|while|new|this|null|undefined|true|false|void|default|extends|implements|static|readonly|declare|as|in|of|typeof|instanceof|throw|try|catch|finally|break|continue|switch|case|yield|super)\b/;
 
 function highlightCode(text: string): React.ReactNode[] {
-  const lines = text.split("\n");
-  return lines.map((line, i) => (
+  return text.split("\n").map((line, i) => (
     <div key={i}>{highlightLine(line) || "\n"}</div>
   ));
 }
@@ -59,6 +61,8 @@ function renderDiff(text: string): React.ReactNode[] {
   });
 }
 
+// ─── Constants ──────────────────────────────────────────────────────────────
+
 const actionColors: Record<string, string> = {
   create: "text-emerald bg-emerald/10 border-emerald/20",
   edit: "text-amber bg-amber/10 border-amber/20",
@@ -70,22 +74,25 @@ const statusColors: Record<string, string> = {
   awaiting_review: "text-amber bg-amber/10 border-amber/20",
   reviewing: "text-accent-bright bg-accent/10 border-accent/20",
   approved: "text-emerald bg-emerald/10 border-emerald/20",
-  executing: "text-accent-bright bg-accent/10 border-accent/20",
+  iterating: "text-accent-bright bg-accent/10 border-accent/20",
   done: "text-emerald bg-emerald/10 border-emerald/20",
   failed: "text-rose bg-rose/10 border-rose/20",
 };
 
+// ─── Component ──────────────────────────────────────────────────────────────
+
 export default function SessionDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [session, setSession] = useState<Session | null>(null);
+  const [session, setSession] = useState<SessionFull | null>(null);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [commentInputs, setCommentInputs] = useState<Record<string, string>>({});
   const [globalComment, setGlobalComment] = useState("");
   const [scriptContent, setScriptContent] = useState<string | null>(null);
   const [showScript, setShowScript] = useState(false);
-  const [contextContent, setContextContent] = useState<string | null>(null);
   const [showContext, setShowContext] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
+  const [versions, setVersions] = useState<SessionVersion[]>([]);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
 
@@ -100,9 +107,8 @@ export default function SessionDetail() {
 
   useEffect(() => { fetchSession(); }, [fetchSession]);
 
-  // Live refresh when files change on disk
   useEffect(() => {
-    const unlisten = onSessionsChanged(() => fetchSession());
+    const unlisten = onDataChanged(() => fetchSession());
     return () => { unlisten.then((fn) => fn()); };
   }, [fetchSession]);
 
@@ -124,36 +130,40 @@ export default function SessionDetail() {
     else setGlobalComment("");
   };
 
-  const removeComment = async (changeId: string | null, commentId: string) => {
+  const removeComment = async (commentId: string) => {
     if (!id) return;
-    const updated = await deleteComment(id, changeId, commentId);
+    const updated = await deleteComment(id, commentId);
     setSession(updated);
   };
 
   const approve = async () => {
     if (!id) return;
-    const updated = await approveSession(id);
-    setSession(updated);
+    try {
+      const updated = await approveSession(id);
+      setSession(updated);
+    } catch (err) {
+      console.error("Approve failed:", err);
+    }
   };
 
   const toggleScript = async () => {
     if (!showScript && scriptContent === null && id) {
       try {
-        const content = await getScript(id);
+        const content = await getBuildScript(id);
         setScriptContent(content);
       } catch { /* ignore */ }
     }
     setShowScript((p) => !p);
   };
 
-  const toggleCtx = async () => {
-    if (!showContext && contextContent === null && id) {
+  const toggleHistory = async () => {
+    if (!showHistory && id) {
       try {
-        const content = await getContext(id);
-        setContextContent(content);
+        const v = await listSessionVersions(id);
+        setVersions(v);
       } catch { /* ignore */ }
     }
-    setShowContext((p) => !p);
+    setShowHistory((p) => !p);
   };
 
   const toggleSelect = (cid: string) => {
@@ -177,15 +187,16 @@ export default function SessionDetail() {
   if (loading) return <div className="text-text-muted">Loading...</div>;
   if (!session) return <div className="text-rose">Session not found</div>;
 
-  const totalComments =
-    session.changes.reduce((s, c) => s + c.comments.length, 0) +
-    session.global_comments.length;
+  // Separate global and change-specific comments
+  const globalComments = session.comments.filter((c) => !c.change_id);
+  const changeComments = (changeId: string) => session.comments.filter((c) => c.change_id === changeId);
+  const totalComments = session.comments.length;
 
   return (
     <div className="max-w-4xl">
       {/* Header */}
       <div className="mb-8">
-        <button onClick={() => navigate("/")} className="text-sm text-text-muted hover:text-text-secondary mb-4 block">
+        <button onClick={() => navigate("/")} className="text-sm text-text-muted hover:text-text-secondary mb-4 block cursor-pointer">
           &larr; All sessions
         </button>
         <h1 className="text-2xl font-bold mb-2">{session.goal}</h1>
@@ -196,26 +207,39 @@ export default function SessionDetail() {
           <span className="text-text-muted">
             Iteration {session.iteration} &middot; {session.changes.length} changes &middot; {totalComments} comments
           </span>
-          {session.ticket && <span className="text-accent-bright font-mono text-xs">{session.ticket}</span>}
+          {session.parent_branch && (
+            <span className="text-text-muted font-mono text-xs">{session.parent_branch}</span>
+          )}
           <div className="ml-auto flex gap-2">
             {session.context && (
-              <button onClick={toggleCtx} className="text-xs text-text-muted hover:text-text-secondary border border-surface-light rounded px-2 py-1">
+              <button onClick={() => setShowContext((p) => !p)} className="text-xs text-text-muted hover:text-text-secondary border border-surface-light rounded px-2 py-1 cursor-pointer">
                 {showContext ? "Hide context" : "View context"}
               </button>
             )}
-            <button onClick={toggleScript} className="text-xs text-text-muted hover:text-text-secondary border border-surface-light rounded px-2 py-1">
+            <button onClick={toggleScript} className="text-xs text-text-muted hover:text-text-secondary border border-surface-light rounded px-2 py-1 cursor-pointer">
               {showScript ? "Hide script" : "View script"}
+            </button>
+            <button onClick={toggleHistory} className="text-xs text-text-muted hover:text-text-secondary border border-surface-light rounded px-2 py-1 cursor-pointer">
+              {showHistory ? "Hide history" : "History"}
             </button>
           </div>
         </div>
+
+        {/* Failure reason */}
+        {session.failure_reason && (
+          <div className="mt-3 p-3 rounded-lg bg-rose/10 border border-rose/20">
+            <div className="text-xs text-rose font-semibold mb-1">Failure{session.failure_step ? ` at step ${session.failure_step}` : ""}</div>
+            <div className="text-sm text-rose/80">{session.failure_reason}</div>
+          </div>
+        )}
       </div>
 
       {/* Context viewer */}
-      {showContext && (
+      {showContext && session.context && (
         <div className="mb-8 border border-surface-light rounded-xl bg-surface overflow-hidden">
           <div className="px-4 py-2 border-b border-surface-light text-xs text-text-muted font-mono">Session Context &amp; Research</div>
           <pre className="p-4 text-xs font-mono text-text-secondary overflow-x-auto max-h-[32rem] whitespace-pre-wrap">
-            {contextContent || "Loading..."}
+            {session.context}
           </pre>
         </div>
       )}
@@ -223,98 +247,121 @@ export default function SessionDetail() {
       {/* Script viewer */}
       {showScript && (
         <div className="mb-8 border border-surface-light rounded-xl bg-surface overflow-hidden">
-          <div className="px-4 py-2 border-b border-surface-light text-xs text-text-muted font-mono">{session.script}</div>
+          <div className="px-4 py-2 border-b border-surface-light text-xs text-text-muted font-mono">build.py</div>
           <pre className="p-4 text-xs font-mono text-text-secondary overflow-x-auto max-h-[32rem]">
-            <code>{scriptContent || "Loading..."}</code>
+            <code>{scriptContent ? highlightCode(scriptContent) : "Loading..."}</code>
           </pre>
         </div>
       )}
 
+      {/* Version history */}
+      {showHistory && (
+        <div className="mb-8 border border-surface-light rounded-xl bg-surface overflow-hidden">
+          <div className="px-4 py-2 border-b border-surface-light text-xs text-text-muted font-mono">Version History</div>
+          <div className="p-4 space-y-2">
+            {versions.length === 0 ? (
+              <div className="text-sm text-text-muted">No version history yet.</div>
+            ) : versions.map((v) => (
+              <div key={v.id} className="flex items-center gap-3 text-sm">
+                <span className="font-mono text-text-muted text-xs">v{v.iteration}</span>
+                <span className={"text-xs px-2 py-0.5 rounded border " + (statusColors[v.status] || "text-text-muted")}>
+                  {v.status.replace(/_/g, " ")}
+                </span>
+                <span className="text-text-muted text-xs">{new Date(v.created_at).toLocaleString()}</span>
+                {v.failure_reason && <span className="text-rose text-xs truncate">{v.failure_reason}</span>}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Selection bar */}
       {selected.size > 0 && (
         <div className="mb-4 flex items-center gap-3 px-4 py-2 rounded-lg border border-rose/20 bg-rose/5">
           <span className="text-sm text-text-secondary">{selected.size} selected</span>
-          <button onClick={removeSelected} className="text-sm text-rose hover:text-rose/80 font-medium transition-colors">Delete selected</button>
-          <button onClick={() => setSelected(new Set())} className="text-sm text-text-muted hover:text-text-secondary transition-colors ml-auto">Clear</button>
+          <button onClick={removeSelected} className="text-sm text-rose hover:text-rose/80 font-medium transition-colors cursor-pointer">Delete selected</button>
+          <button onClick={() => setSelected(new Set())} className="text-sm text-text-muted hover:text-text-secondary transition-colors ml-auto cursor-pointer">Clear</button>
         </div>
       )}
 
       {/* Changes */}
       <div className="space-y-4 mb-8">
-        {session.changes.map((change) => (
-          <div key={change.id} className="border border-surface-light rounded-xl bg-surface overflow-hidden">
-            <div className="p-4 cursor-pointer hover:bg-surface-light/50 transition-colors" onClick={() => toggleExpand(change.id)}>
-              <div className="flex items-start gap-3">
-                <span className={"text-xs px-2 py-0.5 rounded border font-mono flex-shrink-0 " + (actionColors[change.action] || "")}>
-                  {change.action}
-                </span>
-                <div className="flex-1 min-w-0">
-                  <div className="font-mono text-sm text-text-primary truncate">{change.path}</div>
-                  <div className="text-sm text-text-secondary mt-1">{change.summary}</div>
-                </div>
-                <div className="flex items-center gap-2 text-text-muted text-xs flex-shrink-0">
-                  {change.comments.length > 0 && (
-                    <span className="text-accent-bright">{change.comments.length} comment{change.comments.length !== 1 ? "s" : ""}</span>
-                  )}
-                  {change.action === "run" && (
-                    <input type="checkbox" checked={selected.has(change.id)} onChange={() => toggleSelect(change.id)} onClick={(e) => e.stopPropagation()} className="accent-accent cursor-pointer" />
-                  )}
-                  <span className={"transition-transform inline-block " + (expanded.has(change.id) ? "rotate-90" : "")}>&#9654;</span>
+        {session.changes.map((change) => {
+          const cmts = changeComments(change.id);
+          return (
+            <div key={change.id} className="border border-surface-light rounded-xl bg-surface overflow-hidden">
+              <div className="p-4 cursor-pointer hover:bg-surface-light/50 transition-colors" onClick={() => toggleExpand(change.id)}>
+                <div className="flex items-start gap-3">
+                  <span className={"text-xs px-2 py-0.5 rounded border font-mono flex-shrink-0 " + (actionColors[change.action] || "")}>
+                    {change.action}
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-mono text-sm text-text-primary truncate">{change.path}</div>
+                    <div className="text-sm text-text-secondary mt-1">{change.summary}</div>
+                  </div>
+                  <div className="flex items-center gap-2 text-text-muted text-xs flex-shrink-0">
+                    {cmts.length > 0 && (
+                      <span className="text-accent-bright">{cmts.length} comment{cmts.length !== 1 ? "s" : ""}</span>
+                    )}
+                    {change.action === "run" && (
+                      <input type="checkbox" checked={selected.has(change.id)} onChange={() => toggleSelect(change.id)} onClick={(e) => e.stopPropagation()} className="accent-accent cursor-pointer" />
+                    )}
+                    <span className={"transition-transform inline-block " + (expanded.has(change.id) ? "rotate-90" : "")}>&#9654;</span>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {expanded.has(change.id) && (
-              <div className="border-t border-surface-light">
-                {change.details && (
-                  <div className="px-4 py-3 text-sm text-text-secondary border-b border-surface-light whitespace-pre-wrap">{change.details}</div>
-                )}
-                {change.snippet && (
-                  <div className="border-b border-surface-light">
-                    <div className="px-4 py-2 text-xs text-text-muted font-mono bg-surface-light/30">Preview</div>
-                    <pre className="px-4 py-3 text-xs font-mono overflow-x-auto"><code>{highlightCode(change.snippet || "")}</code></pre>
-                  </div>
-                )}
-                {(change.code || change.diff) && (
-                  <div className="border-b border-surface-light">
-                    <pre className="p-4 text-xs font-mono overflow-x-auto max-h-96"><code>{
-                      change.diff ? renderDiff(change.diff) : highlightCode(change.code || "")
-                    }</code></pre>
-                  </div>
-                )}
-                <div className="p-4 space-y-3">
-                  {change.comments.map((cmt) => (
-                    <div key={cmt.id} className="flex items-start gap-2 text-sm group">
-                      <span className="text-accent-bright mt-0.5 flex-shrink-0 font-mono text-xs">//</span>
-                      <span className="flex-1 text-text-primary">{cmt.text}</span>
-                      <button onClick={(e) => { e.stopPropagation(); removeComment(change.id, cmt.id); }} className="text-text-muted hover:text-rose text-xs opacity-0 group-hover:opacity-100 transition-opacity">remove</button>
+              {expanded.has(change.id) && (
+                <div className="border-t border-surface-light">
+                  {change.details && (
+                    <div className="px-4 py-3 text-sm text-text-secondary border-b border-surface-light whitespace-pre-wrap">{change.details}</div>
+                  )}
+                  {change.snippet && (
+                    <div className="border-b border-surface-light">
+                      <div className="px-4 py-2 text-xs text-text-muted font-mono bg-surface-light/30">Preview</div>
+                      <pre className="px-4 py-3 text-xs font-mono overflow-x-auto"><code>{highlightCode(change.snippet)}</code></pre>
                     </div>
-                  ))}
-                  <div className="flex gap-2">
-                    <input type="text" placeholder="Add a comment on this change..." value={commentInputs[change.id] || ""} onChange={(e) => setCommentInputs((p) => ({ ...p, [change.id]: e.target.value }))} onKeyDown={(e) => e.key === "Enter" && postComment(change.id)} onClick={(e) => e.stopPropagation()} className="flex-1 bg-midnight border border-surface-light rounded-lg px-3 py-2 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent/50" />
-                    <button onClick={(e) => { e.stopPropagation(); postComment(change.id); }} className="px-3 py-2 text-sm bg-surface-light hover:bg-accent/20 rounded-lg text-text-secondary hover:text-text-primary transition-colors">Comment</button>
+                  )}
+                  {(change.code || change.diff) && (
+                    <div className="border-b border-surface-light">
+                      <pre className="p-4 text-xs font-mono overflow-x-auto max-h-96"><code>{
+                        change.diff ? renderDiff(change.diff) : highlightCode(change.code || "")
+                      }</code></pre>
+                    </div>
+                  )}
+                  <div className="p-4 space-y-3">
+                    {cmts.map((cmt) => (
+                      <div key={cmt.id} className="flex items-start gap-2 text-sm group">
+                        <span className="text-accent-bright mt-0.5 flex-shrink-0 font-mono text-xs">//</span>
+                        <span className="flex-1 text-text-primary">{cmt.text}</span>
+                        <button onClick={(e) => { e.stopPropagation(); removeComment(cmt.id); }} className="text-text-muted hover:text-rose text-xs opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">remove</button>
+                      </div>
+                    ))}
+                    <div className="flex gap-2">
+                      <input type="text" placeholder="Add a comment on this change..." value={commentInputs[change.id] || ""} onChange={(e) => setCommentInputs((p) => ({ ...p, [change.id]: e.target.value }))} onKeyDown={(e) => e.key === "Enter" && postComment(change.id)} onClick={(e) => e.stopPropagation()} className="flex-1 bg-midnight border border-surface-light rounded-lg px-3 py-2 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent/50" />
+                      <button onClick={(e) => { e.stopPropagation(); postComment(change.id); }} className="px-3 py-2 text-sm bg-surface-light hover:bg-accent/20 rounded-lg text-text-secondary hover:text-text-primary transition-colors cursor-pointer">Comment</button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
-          </div>
-        ))}
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {/* Global feedback */}
       <div className="border border-surface-light rounded-xl bg-surface p-4 mb-8">
         <h3 className="font-semibold text-sm mb-3">General Feedback</h3>
-        {session.global_comments.map((cmt) => (
+        {globalComments.map((cmt) => (
           <div key={cmt.id} className="flex items-start gap-2 text-sm mb-3 group">
             <span className="text-accent-bright mt-0.5 flex-shrink-0 font-mono text-xs">//</span>
             <span className="flex-1 text-text-primary">{cmt.text}</span>
-            <button onClick={() => removeComment(null, cmt.id)} className="text-text-muted hover:text-rose text-xs opacity-0 group-hover:opacity-100 transition-opacity">remove</button>
+            <button onClick={() => removeComment(cmt.id)} className="text-text-muted hover:text-rose text-xs opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">remove</button>
           </div>
         ))}
         <div className="flex gap-2">
           <input type="text" placeholder="General feedback for this session..." value={globalComment} onChange={(e) => setGlobalComment(e.target.value)} onKeyDown={(e) => e.key === "Enter" && postComment(null)} className="flex-1 bg-midnight border border-surface-light rounded-lg px-3 py-2 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent/50" />
-          <button onClick={() => postComment(null)} className="px-3 py-2 text-sm bg-surface-light hover:bg-accent/20 rounded-lg text-text-secondary hover:text-text-primary transition-colors">Comment</button>
+          <button onClick={() => postComment(null)} className="px-3 py-2 text-sm bg-surface-light hover:bg-accent/20 rounded-lg text-text-secondary hover:text-text-primary transition-colors cursor-pointer">Comment</button>
         </div>
       </div>
 

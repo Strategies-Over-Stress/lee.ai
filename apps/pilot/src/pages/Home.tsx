@@ -1,28 +1,32 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { listSessions, onSessionsChanged, deleteSession, Session } from "../lib/ipc";
+import { listSessions, deleteSession, onDataChanged, SessionFull } from "../lib/ipc";
+import { useProject } from "../lib/ProjectContext";
 
 const statusColors: Record<string, string> = {
   awaiting_review: "text-amber bg-amber/10 border-amber/20",
   reviewing: "text-accent-bright bg-accent/10 border-accent/20",
   approved: "text-emerald bg-emerald/10 border-emerald/20",
-  executing: "text-accent-bright bg-accent/10 border-accent/20",
+  iterating: "text-accent-bright bg-accent/10 border-accent/20",
   done: "text-emerald bg-emerald/10 border-emerald/20",
   failed: "text-rose bg-rose/10 border-rose/20",
 };
 
 export default function Home() {
-  const [sessions, setSessions] = useState<Session[]>([]);
+  const { project } = useProject();
+  const [sessions, setSessions] = useState<SessionFull[]>([]);
   const [loading, setLoading] = useState(true);
+
   const refresh = () => {
-    listSessions().then((s) => { setSessions(s); setLoading(false); });
+    if (!project) return;
+    listSessions(project.id).then((s) => { setSessions(s); setLoading(false); });
   };
 
   useEffect(() => {
     refresh();
-    const unsub = onSessionsChanged(refresh);
+    const unsub = onDataChanged(refresh);
     return () => { unsub.then((fn) => fn()); };
-  }, []);
+  }, [project?.id]);
 
   const handleDelete = async (id: string) => {
     try {
@@ -52,9 +56,7 @@ export default function Home() {
       ) : (
         <div className="space-y-3">
           {sessions.map((session) => {
-            const totalComments =
-              session.changes.reduce((sum, c) => sum + c.comments.length, 0) +
-              session.global_comments.length;
+            const commentCount = session.comments.length;
             return (
               <div
                 key={session.id}
@@ -67,17 +69,20 @@ export default function Home() {
                   <div className="font-medium">{session.goal}</div>
                   <div className="text-sm text-text-muted mt-1">
                     {session.changes.length} change{session.changes.length !== 1 ? "s" : ""}
-                    {totalComments > 0 && " \u00b7 " + totalComments + " comment" + (totalComments !== 1 ? "s" : "")}
-                    {session.ticket && " \u00b7 " + session.ticket}
+                    {commentCount > 0 && " \u00b7 " + commentCount + " comment" + (commentCount !== 1 ? "s" : "")}
                     {" \u00b7 iteration " + session.iteration}
+                    {session.parent_branch && " \u00b7 " + session.parent_branch}
                   </div>
+                  {session.failure_reason && (
+                    <div className="text-xs text-rose mt-1 truncate">{session.failure_reason}</div>
+                  )}
                 </Link>
                 <div className="flex items-center gap-2 flex-shrink-0 ml-4">
                   <span className={"text-xs px-2 py-0.5 rounded border " + (statusColors[session.status] || "text-text-muted")}>
                     {session.status.replace(/_/g, " ")}
                   </span>
                   <button
-                    onClick={() => { handleDelete(session.id); }}
+                    onClick={() => handleDelete(session.id)}
                     className="text-text-muted hover:text-rose text-lg leading-none cursor-pointer px-2 py-1"
                     title="Delete session"
                   >

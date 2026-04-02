@@ -41,7 +41,8 @@ yarn-error.log*
 
 # pilot
 .pilot/sessions/
-.pilot/research/context.json
+.pilot/research/
+.pilot/workspace/
 
 # python
 __pycache__/
