@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { Project, listProjects, getOrCreateProject, setCurrentProject, pickFolder } from "./ipc";
+import { invoke } from "@tauri-apps/api/core";
 
 interface ProjectState {
   project: Project | null;
@@ -41,12 +42,14 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     const cleanPath = path.replace(/\/$/, "");
     const name = cleanPath.split("/").pop() || cleanPath;
 
-    // Check for pilot.json
-    try {
-      const resp = await fetch(""); // Can't read files from frontend — use invoke
-    } catch { /* ignore */ }
-
     const p = await getOrCreateProject(name, cleanPath);
+    // Explicitly import legacy data
+    try {
+      const result: string = await invoke("import_project_data", { projectId: p.id, projectPath: cleanPath });
+      console.log("Import result:", result);
+    } catch (err) {
+      console.error("Import failed:", err);
+    }
     setProjects((prev) => {
       if (prev.find((x) => x.id === p.id)) return prev;
       return [...prev, p];

@@ -606,6 +606,20 @@ fn list_session_versions(state: tauri::State<AppState>, session_id: String) -> R
 // ─── Utility Commands ───────────────────────────────────────────────────────
 
 #[tauri::command]
+fn import_project_data(state: tauri::State<AppState>, project_id: String, project_path: String) -> Result<String, String> {
+    let conn = state.db.lock().unwrap();
+    import_legacy_sessions(&conn, &project_id, &project_path);
+    import_legacy_research(&conn, &project_id, &project_path);
+    let session_count: i32 = conn.query_row(
+        "SELECT COUNT(*) FROM sessions WHERE project_id = ?", params![project_id], |r| r.get(0)
+    ).unwrap_or(0);
+    let research_count: i32 = conn.query_row(
+        "SELECT COUNT(*) FROM research WHERE project_id = ?", params![project_id], |r| r.get(0)
+    ).unwrap_or(0);
+    Ok(format!("Imported: {} sessions, {} research files", session_count, research_count))
+}
+
+#[tauri::command]
 fn pick_folder() -> Result<Option<String>, String> {
     let output = Command::new("osascript")
         .args(["-e", "POSIX path of (choose folder)"])
@@ -799,6 +813,7 @@ fn main() {
             list_session_versions,
             // Utility
             pick_folder,
+            import_project_data,
         ])
         .setup(|_app| {
             Ok(())
