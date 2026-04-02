@@ -5,27 +5,14 @@ import BillingReceipt from "./BillingReceipt";
 
 export default function Hero() {
   return (
-    <section className="relative pt-24 pb-16 flex items-center justify-center px-6">
+    <section className="relative pt-36 sm:pt-44 pb-16 flex items-center justify-center px-6">
       <div className="max-w-5xl mx-auto text-center z-10">
-        {/* Availability badge */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-surface-light bg-surface/50 backdrop-blur-sm mb-8"
-        >
-          <span className="w-2 h-2 rounded-full bg-emerald animate-pulse" />
-          <span className="text-sm font-mono text-text-secondary">
-            available for new engagements
-          </span>
-        </motion.div>
-
         {/* Main headline */}
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4 }}
-          className="text-5xl sm:text-7xl lg:text-8xl font-black tracking-tight leading-[0.95] mb-4 text-white"
+          className="relative z-10 text-5xl sm:text-7xl lg:text-8xl font-black tracking-tight leading-[0.95] mb-4 text-white"
         >
           Are you ready for
           <br />
@@ -42,13 +29,14 @@ export default function Hero() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 1.2 }}
-          className="text-2xl sm:text-3xl md:text-4xl text-white/80 font-light mb-10 max-w-3xl mx-auto"
+          className="text-2xl sm:text-3xl md:text-4xl text-white/80 font-light mb-16 max-w-3xl mx-auto"
         >
-          I build custom software that replaces your subscriptions &mdash;
-          guaranteed cheaper, or you don&apos;t pay.
+          I replace the generic tools you&apos;re overpaying for with software
+          built around your business &mdash; fully custom, fully yours,
+          at a fraction of the price.
           <br />
-          <span className="text-lg sm:text-xl text-white font-semibold mt-2 block">
-            So you can focus on building software that actually grows your business, not paying a monthly tariff.
+          <span className="text-lg sm:text-xl text-white font-semibold mt-10 block">
+            If it doesn&apos;t outperform what you have now, you don&apos;t pay.
           </span>
         </motion.p>
 
@@ -57,24 +45,26 @@ export default function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 1.5 }}
-          className="flex flex-col sm:flex-row gap-4 justify-center"
+          className="flex flex-col items-center gap-6 mt-4"
         >
-          <a
-            href="#assess"
-            className="group relative px-8 py-4 bg-accent hover:bg-accent-bright rounded-xl font-semibold text-lg transition-all duration-300 glow hover:scale-105"
-          >
-            Find out how much you&apos;re wasting
-            <span className="absolute inset-0 rounded-xl bg-accent/20 blur-xl group-hover:blur-2xl transition-all duration-300 -z-10" />
-          </a>
-          <a
-            href="#proof"
-            className="px-8 py-4 border border-surface-light hover:border-accent/50 rounded-xl font-semibold text-lg text-text-secondary hover:text-text-primary transition-all duration-300"
-          >
-            See the proof
-          </a>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <a
+              href="#assess"
+              className="group relative px-8 py-4 bg-accent hover:bg-accent-bright rounded-xl font-semibold text-lg transition-all duration-300 glow hover:scale-105"
+            >
+              Find out how much you&apos;re wasting
+              <span className="absolute inset-0 rounded-xl bg-accent/20 blur-xl group-hover:blur-2xl transition-all duration-300 -z-10" />
+            </a>
+            <a
+              href="#proof"
+              className="px-8 py-4 border border-surface-light hover:border-accent/50 rounded-xl font-semibold text-lg text-text-secondary hover:text-text-primary transition-all duration-300"
+            >
+              See the proof
+            </a>
+          </div>
           <a
             href="/build-not-buy"
-            className="px-8 py-4 text-accent-bright hover:text-white font-semibold text-lg transition-all duration-300"
+            className="text-sm text-accent-bright hover:text-white font-medium transition-all duration-300"
           >
             Read: Rebuilding the Wheel &rarr;
           </a>

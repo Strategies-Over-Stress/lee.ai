@@ -72,21 +72,71 @@ export default function BillingReceipt() {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, amount: 0.3 });
 
-  // Specialist line appears after all regular items
-  const specialistAppearDelay = 0.3 + lineItems.length * ITEM_STAGGER + COUNT_DURATION / 1000 + 0.6;
-  // Time when the total line should appear (after specialist has counted)
-  const totalAppearDelay = specialistAppearDelay + COUNT_DURATION / 1000 + 0.8;
-  // Time when the caution emoji should bounce in
-  const cautionDelay = totalAppearDelay + 0.8;
+  // Specialist line appears right after the last regular item
+  const specialistAppearDelay = 0.3 + lineItems.length * ITEM_STAGGER + 0.15;
+  // Total appears one stagger after specialist
+  const totalAppearDelay = specialistAppearDelay + ITEM_STAGGER + COUNT_DURATION / 1000;
+  // Caution emoji bounces in shortly after total
+  const cautionDelay = totalAppearDelay + 0.4;
 
   return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.8 }}
-      className="max-w-lg mx-auto rounded-2xl border border-gray-200 bg-white shadow-2xl shadow-accent/10 overflow-hidden mb-10"
-    >
+    <div ref={ref} className="relative max-w-lg mx-auto mb-10 overflow-visible py-16">
+      {/* Impact crater glow layers — clipped to bottom half so it doesn't cover header */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.3 }}
+        animate={isInView ? { opacity: 1, scale: 1 } : {}}
+        transition={{ duration: 1.2, ease: "easeOut" }}
+        className="absolute inset-0 pointer-events-none"
+        style={{ zIndex: 0 }}
+      >
+        {/* Outer glow — contained ambient */}
+        <div
+          className="absolute rounded-full"
+          style={{
+            inset: "-50px",
+            background: "radial-gradient(ellipse at center, rgba(239,68,68,0.4) 0%, rgba(249,115,22,0.2) 30%, rgba(239,68,68,0.08) 60%, transparent 80%)",
+            filter: "blur(25px)",
+          }}
+        />
+        {/* Mid ring — pulsing ember */}
+        <motion.div
+          animate={{ opacity: [0.6, 1, 0.6], scale: [1, 1.06, 1] }}
+          transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
+          className="absolute rounded-full"
+          style={{
+            inset: "-30px",
+            background: "radial-gradient(ellipse at center, rgba(249,115,22,0.5) 0%, rgba(239,68,68,0.25) 40%, transparent 70%)",
+            filter: "blur(15px)",
+          }}
+        />
+        {/* Inner core — hot white-orange center */}
+        <motion.div
+          animate={{ opacity: [0.7, 1, 0.7] }}
+          transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+          className="absolute rounded-full"
+          style={{
+            inset: "-10px",
+            background: "radial-gradient(ellipse at center, rgba(251,191,36,0.4) 0%, rgba(249,115,22,0.3) 30%, rgba(239,68,68,0.15) 60%, transparent 80%)",
+            filter: "blur(10px)",
+          }}
+        />
+        {/* Crack rings */}
+        <div className="absolute rounded-full border-2 border-red-500/20" style={{ inset: "-20px" }} />
+        <div className="absolute rounded-full border border-orange-500/15" style={{ inset: "-40px" }} />
+        <div className="absolute rounded-full border border-red-400/10" style={{ inset: "-55px" }} />
+      </motion.div>
+
+      {/* Card — drops in like impact */}
+      <motion.div
+        initial={{ opacity: 0, y: -60, scale: 0.9 }}
+        animate={isInView ? { opacity: 1, y: 0, scale: 1 } : {}}
+        transition={{
+          duration: 0.6,
+          ease: [0.22, 1, 0.36, 1],
+          scale: { duration: 0.4, ease: "easeOut" },
+        }}
+        className="relative z-10 rounded-2xl border border-gray-200 bg-white shadow-2xl shadow-red-500/20 overflow-hidden"
+      >
       {/* Header */}
       <div className="flex items-center gap-2 px-6 py-3 border-b border-gray-200 bg-gray-50">
         <span className="text-amber text-sm">&#9888;</span>
@@ -171,5 +221,6 @@ export default function BillingReceipt() {
         </motion.div>
       </div>
     </motion.div>
+    </div>
   );
 }

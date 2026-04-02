@@ -26,6 +26,14 @@ export default function ROICalculator() {
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-accent/10 mb-6">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="4" y="2" width="16" height="20" rx="2" stroke="#6366f1" strokeWidth="2"/>
+              <path d="M8 6h8M8 10h8M8 14h4" stroke="#6366f1" strokeWidth="2" strokeLinecap="round"/>
+              <circle cx="16" cy="16" r="2" fill="#6366f1"/>
+            </svg>
+          </div>
+          <br />
           <span className="font-mono text-accent text-sm tracking-widest uppercase">
             ROI Calculator
           </span>
