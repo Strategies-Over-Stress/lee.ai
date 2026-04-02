@@ -333,8 +333,11 @@ export default function SessionDetail() {
         ) : session.status === "done" ? (
           <div className="text-emerald text-sm">Session complete.</div>
         ) : session.status === "failed" ? (
-          <div className="text-rose text-sm">
-            Execution failed. Run <code className="font-mono bg-surface px-2 py-0.5 rounded">/pilot-run</code> to review errors.
+          <div className="flex items-center gap-3">
+            <button onClick={approve} className="px-6 py-2.5 bg-emerald hover:bg-emerald/90 text-white rounded-lg font-medium text-sm transition-colors cursor-pointer">
+              Re-approve
+            </button>
+            <span className="text-rose text-sm">Execution failed</span>
           </div>
         ) : (
           <div className="flex items-center gap-3">
