@@ -210,6 +210,10 @@ sos-jira list --status "To Do" --type epic
 
 # Comment
 sos-jira comment RICH-1 "## Update\n\nFinished the **hero rewrite**."
+
+# Create Project
+sos-jira create-project -k PILOT -n "Pilot Development"
+sos-jira create-project -k CRM -n "CRM Platform" -t software --template kanban
 ```
 
 ### Markdown → ADF
