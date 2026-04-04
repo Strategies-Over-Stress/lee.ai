@@ -93,6 +93,33 @@ const cases = [
       { value: "3 wks", label: "Time to build", sub: "SEC-compliant" },
     ],
   },
+  {
+    name: "ThePenthouseKitchen.com",
+    site: "https://thepenthousekitchen.com",
+    industry: "High-End Private Chef / Catering",
+    screenshots: [
+      "/case-studies/penthouse-kitchen-hero.png",
+      "/case-studies/penthouse-kitchen-menu.png",
+    ],
+    pain: [
+      "Postponing launch was costing more than building it",
+      "High-end Miami clients waiting with no way to book",
+      "Trying to figure out the tech on his own",
+      "No online presence to match the caliber of his food",
+    ],
+    results: [
+      "Full site live within 24 hours",
+      "Online booking, menu showcase, and event pages from day one",
+      "Brand presence that matches the premium experience",
+      "Serving high-end clients immediately — no more lost revenue",
+    ],
+    quote: "A high-end Miami chef was losing money every day he didn\u2019t launch. We got him from zero to fully operational in 24 hours — bookings, menu, events, all of it.",
+    stats: [
+      { value: "24hrs", label: "Time to launch", sub: "from zero to live" },
+      { value: "$0", label: "Revenue lost", sub: "after launch day" },
+      { value: "100%", label: "Online presence", sub: "booking + menu + events" },
+    ],
+  },
 ];
 
 function BrowserSlideshow({ screenshots, site, name }: { screenshots: string[]; site: string; name: string }) {
