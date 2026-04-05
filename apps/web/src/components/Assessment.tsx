@@ -6,58 +6,58 @@ import { motion, AnimatePresence } from "framer-motion";
 interface Question {
   id: string;
   question: string;
-  options: { label: string; value: string; score: number }[];
+  options: { label: string; value: string; score: number; wasteFactor: number }[];
 }
 
 const questions: Question[] = [
   {
-    id: "deploy",
-    question: "How do you deploy changes to production?",
+    id: "subs",
+    question: "How many software subscriptions does your business pay for monthly?",
     options: [
-      { label: "FTP / manual file uploads", value: "ftp", score: 0 },
-      { label: "SSH in and git pull", value: "ssh", score: 1 },
-      { label: "CI/CD pipeline with staging", value: "cicd", score: 3 },
-      { label: "We don't have a process", value: "none", score: 0 },
+      { label: "1-3", value: "few", score: 3, wasteFactor: 100 },
+      { label: "4-8", value: "some", score: 2, wasteFactor: 400 },
+      { label: "9-15", value: "many", score: 1, wasteFactor: 900 },
+      { label: "16+", value: "lots", score: 0, wasteFactor: 1500 },
     ],
   },
   {
-    id: "testing",
-    question: "How do you catch bugs before they reach customers?",
+    id: "usage",
+    question: "How many of those do you actually use every week?",
     options: [
-      { label: "We click around and hope for the best", value: "manual", score: 0 },
-      { label: "Manual QA checklist", value: "checklist", score: 1 },
-      { label: "Automated test suites", value: "automated", score: 3 },
-      { label: "Customers find them for us", value: "customers", score: 0 },
+      { label: "All of them", value: "all", score: 3, wasteFactor: 0 },
+      { label: "Most", value: "most", score: 2, wasteFactor: 200 },
+      { label: "About half", value: "half", score: 1, wasteFactor: 400 },
+      { label: "Honestly, a few", value: "few", score: 0, wasteFactor: 600 },
     ],
   },
   {
-    id: "speed",
-    question: "How long does a typical feature take to ship?",
+    id: "trapped",
+    question: "Have you ever kept paying for a subscription because canceling felt too risky or too much hassle?",
     options: [
-      { label: "Days", value: "days", score: 3 },
-      { label: "Weeks", value: "weeks", score: 2 },
-      { label: "Months", value: "months", score: 1 },
-      { label: "We've stopped counting", value: "never", score: 0 },
+      { label: "No, I’m on top of it", value: "no", score: 3, wasteFactor: 0 },
+      { label: "Once or twice", value: "once", score: 2, wasteFactor: 100 },
+      { label: "Yes, more than I’d like to admit", value: "yes", score: 1, wasteFactor: 300 },
+      { label: "I don’t track this closely enough to know", value: "unknown", score: 0, wasteFactor: 400 },
     ],
   },
   {
     id: "ai",
-    question: "How is AI integrated into your development workflow?",
+    question: "Have you or your team tried using AI to build or automate something?",
     options: [
-      { label: "Our devs use Copilot / ChatGPT sometimes", value: "basic", score: 1 },
-      { label: "We have AI-augmented development processes", value: "augmented", score: 3 },
-      { label: "We've been meaning to look into it", value: "planning", score: 0 },
-      { label: "What do you mean?", value: "none", score: 0 },
+      { label: "Yes and it went well", value: "success", score: 3, wasteFactor: 0 },
+      { label: "Yes but it didn’t work out", value: "failed", score: 1, wasteFactor: 200 },
+      { label: "No but I’m curious", value: "curious", score: 2, wasteFactor: 100 },
+      { label: "No and I’m skeptical", value: "skeptical", score: 1, wasteFactor: 50 },
     ],
   },
   {
-    id: "team",
-    question: "What's your current engineering situation?",
+    id: "lockin",
+    question: "If a vendor you rely on doubled their price tomorrow, what would you do?",
     options: [
-      { label: "No technical team — I need one", value: "none", score: 0 },
-      { label: "Small team, moving too slow", value: "slow", score: 1 },
-      { label: "Outsourced devs, quality is inconsistent", value: "outsourced", score: 0 },
-      { label: "Good team, want to 10x with AI", value: "good", score: 2 },
+      { label: "We’d be fine — we own our critical systems", value: "fine", score: 3, wasteFactor: 0 },
+      { label: "We’d find alternatives quickly", value: "scramble", score: 2, wasteFactor: 100 },
+      { label: "We’d manage but it would hurt", value: "manage", score: 1, wasteFactor: 200 },
+      { label: "Panic — we’re completely locked in", value: "panic", score: 0, wasteFactor: 400 },
     ],
   },
 ];
@@ -70,45 +70,38 @@ interface ResultProfile {
 }
 
 function getResult(score: number): ResultProfile {
-  if (score <= 4) {
+  if (score <= 5) {
     return {
-      title: "Ground Zero",
-      description:
-        "Your tech stack needs a complete transformation. The good news? This is exactly where I do my best work. I've taken businesses from zero infrastructure to production-grade systems with CI/CD, automated testing, and AI-augmented workflows.",
-      recommendation:
-        "A full technical transformation engagement. We'll rebuild your foundation with modern architecture, automated deployments, and AI workflows from day one.",
+      title: "Your business is on a subscription treadmill",
+      description: "You’re spending thousands per year on tools that don’t fully serve you, and you’re locked into vendors who know it. The good news: this is exactly the situation where my guarantee kicks in.",
+      recommendation: "A full software review. Let’s map where your money goes and what we can own instead.",
       color: "text-rose",
     };
   }
-  if (score <= 8) {
+  if (score <= 10) {
     return {
-      title: "Ready to Level Up",
-      description:
-        "You have some foundation in place, but you're leaving massive efficiency gains on the table. AI-first workflows could cut your delivery time by 5-10x while improving code quality.",
-      recommendation:
-        "A focused modernization sprint. We'll identify your biggest bottlenecks and systematically eliminate them with AI-augmented processes.",
+      title: "You’re overpaying — but you’re close to breaking free",
+      description: "You’ve got some pieces in place, but you’re still bleeding money on software that doesn’t fully serve your needs. A focused engagement could eliminate most of that waste permanently.",
+      recommendation: "A targeted build. We replace your most expensive, least useful subscriptions first.",
       color: "text-amber",
     };
   }
   return {
-    title: "Optimization Territory",
-    description:
-      "You're already ahead of most teams. But there's a difference between using AI tools and having AI-native workflows baked into your entire development lifecycle.",
-    recommendation:
-      "A strategic AI workflow integration. We'll embed AI collaboration patterns into your architecture, documentation, and deployment processes.",
+    title: "You’re ahead of the game",
+    description: "Your stack is in decent shape, but there’s still room to own more and rent less. The next level is full ownership.",
+    recommendation: "A strategic upgrade. We identify the remaining subscriptions worth replacing.",
     color: "text-emerald",
   };
 }
 
 export default function Assessment() {
   const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, number>>({});
+  const [answers, setAnswers] = useState<Record<string, { score: number; waste: number }>>({});
   const [showResult, setShowResult] = useState(false);
 
-  const handleAnswer = (questionId: string, score: number) => {
-    const newAnswers = { ...answers, [questionId]: score };
+  const handleAnswer = (questionId: string, score: number, wasteFactor: number) => {
+    const newAnswers = { ...answers, [questionId]: { score, waste: wasteFactor } };
     setAnswers(newAnswers);
-
     if (currentQuestion < questions.length - 1) {
       setTimeout(() => setCurrentQuestion(currentQuestion + 1), 300);
     } else {
@@ -116,7 +109,8 @@ export default function Assessment() {
     }
   };
 
-  const totalScore = Object.values(answers).reduce((sum, s) => sum + s, 0);
+  const totalScore = Object.values(answers).reduce((sum, a) => sum + a.score, 0);
+  const totalWaste = Object.values(answers).reduce((sum, a) => sum + a.waste, 0);
   const result = getResult(totalScore);
   const progress = ((currentQuestion + (showResult ? 1 : 0)) / questions.length) * 100;
 
@@ -136,25 +130,46 @@ export default function Assessment() {
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
+          {/* Assessment icon */}
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-accent/10 mb-6">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" stroke="#6366f1" strokeWidth="2" strokeLinecap="round"/>
+              <rect x="9" y="3" width="6" height="4" rx="1" stroke="#6366f1" strokeWidth="2"/>
+              <path d="M9 12l2 2 4-4" stroke="#10b981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
+          <br />
           <span className="font-mono text-accent text-sm tracking-widest uppercase">
             Interactive Assessment
           </span>
-          <h2 className="text-4xl sm:text-5xl font-bold mt-4">
-            Is your business ready?
+          <h2 className="text-4xl sm:text-5xl font-bold mt-4 text-gray-900">
+            Is your software stack costing you?
           </h2>
-          <p className="text-text-secondary mt-4 text-lg">
+          <p className="text-gray-600 mt-4 text-lg">
             5 questions. 60 seconds. Find out where you stand.
           </p>
         </motion.div>
 
         {/* Progress bar */}
-        <div className="h-1 bg-surface-light rounded-full mb-12 overflow-hidden">
+        <div className="h-1 bg-gray-200 rounded-full mb-8 overflow-hidden">
           <motion.div
             className="h-full bg-gradient-to-r from-accent to-emerald rounded-full"
             animate={{ width: `${progress}%` }}
             transition={{ duration: 0.5 }}
           />
         </div>
+
+        {/* Waste counter */}
+        {Object.keys(answers).length > 0 && !showResult && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-right mb-4"
+          >
+            <span className="text-xs text-text-muted">Estimated monthly waste: </span>
+            <span className="text-sm font-mono font-bold text-rose">${totalWaste.toLocaleString()}/mo</span>
+          </motion.div>
+        )}
 
         {/* Question area */}
         <div className="min-h-[400px] relative">
@@ -175,19 +190,16 @@ export default function Assessment() {
                     {questions[currentQuestion].question}
                   </h3>
                 </div>
-
                 <div className="space-y-3">
                   {questions[currentQuestion].options.map((option) => (
                     <motion.button
                       key={option.value}
                       whileHover={{ scale: 1.02, x: 8 }}
                       whileTap={{ scale: 0.98 }}
-                      onClick={() =>
-                        handleAnswer(questions[currentQuestion].id, option.score)
-                      }
-                      className="w-full text-left p-5 rounded-xl border border-surface-light bg-surface hover:border-accent/50 hover:bg-surface-light transition-all duration-200 group"
+                      onClick={() => handleAnswer(questions[currentQuestion].id, option.score, option.wasteFactor)}
+                      className="w-full text-left p-5 rounded-xl border border-gray-200 bg-gray-50 hover:border-accent/50 hover:bg-accent/5 transition-all duration-200 group cursor-pointer"
                     >
-                      <span className="text-text-secondary group-hover:text-text-primary transition-colors">
+                      <span className="text-gray-700 group-hover:text-gray-900 transition-colors">
                         {option.label}
                       </span>
                     </motion.button>
@@ -202,46 +214,31 @@ export default function Assessment() {
                 transition={{ duration: 0.5 }}
                 className="text-center"
               >
-                {/* Score visualization */}
-                <div className="mb-8">
+                <div className="mb-6">
                   <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ type: "spring", delay: 0.2 }}
-                    className="inline-flex items-center justify-center w-24 h-24 rounded-full border-4 border-accent glow"
+                    className="inline-flex flex-col items-center"
                   >
-                    <span className="text-3xl font-bold text-gradient">
-                      {totalScore}
-                    </span>
+                    <span className="text-4xl font-bold text-rose">${totalWaste.toLocaleString()}/mo</span>
+                    <span className="text-text-muted text-sm mt-1">estimated waste</span>
                   </motion.div>
-                  <div className="text-text-muted text-sm mt-2">/ 15</div>
                 </div>
 
-                <h3 className={`text-3xl font-bold ${result.color} mb-4`}>
-                  {result.title}
-                </h3>
-                <p className="text-text-secondary text-lg mb-8 max-w-xl mx-auto">
-                  {result.description}
-                </p>
+                <h3 className={"text-3xl font-bold mb-4 " + result.color}>{result.title}</h3>
+                <p className="text-text-secondary text-lg mb-8 max-w-xl mx-auto">{result.description}</p>
 
                 <div className="p-6 rounded-xl border border-accent/20 bg-accent/5 mb-8">
-                  <h4 className="font-semibold text-accent-bright mb-2">
-                    My recommendation:
-                  </h4>
+                  <h4 className="font-semibold text-accent-bright mb-2">My recommendation:</h4>
                   <p className="text-text-secondary">{result.recommendation}</p>
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <a
-                    href="#contact"
-                    className="px-8 py-4 bg-accent hover:bg-accent-bright rounded-xl font-semibold text-lg transition-all duration-300 glow hover:scale-105"
-                  >
+                  <a href="#contact" className="px-8 py-4 bg-accent hover:bg-accent-bright rounded-xl font-semibold text-lg transition-all duration-300 glow hover:scale-105">
                     Let&apos;s talk
                   </a>
-                  <button
-                    onClick={reset}
-                    className="px-8 py-4 border border-surface-light hover:border-accent/50 rounded-xl font-semibold text-text-secondary hover:text-text-primary transition-all duration-300"
-                  >
+                  <button onClick={reset} className="px-8 py-4 border border-surface-light hover:border-accent/50 rounded-xl font-semibold text-text-secondary hover:text-text-primary transition-all duration-300 cursor-pointer">
                     Retake assessment
                   </button>
                 </div>

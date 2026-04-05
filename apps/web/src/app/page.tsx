@@ -1,50 +1,61 @@
 "use client";
 
+import Navbar from "@/components/Navbar";
 import ParticleField from "@/components/ParticleField";
 import Hero from "@/components/Hero";
 import CaseStudy from "@/components/CaseStudy";
+import Guarantee from "@/components/Guarantee";
 import Differentiator from "@/components/Differentiator";
 import Assessment from "@/components/Assessment";
+import ROICalculator from "@/components/ROICalculator";
 import Process from "@/components/Process";
 import Contact from "@/components/Contact";
 
 export default function Home() {
   return (
-    <main className="relative grid-bg">
-      <ParticleField />
+    <main className="relative">
+      <Navbar />
 
-      <div className="relative z-10">
-        <Hero />
-
-        {/* Divider */}
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="h-px bg-gradient-to-r from-transparent via-accent/20 to-transparent" />
+      {/* Hero — dark with particles */}
+      <div className="relative grid-bg">
+        <ParticleField />
+        <div className="relative z-10">
+          <Hero />
         </div>
+      </div>
 
+      {/* Case Study — white background */}
+      <div className="bg-white text-gray-900">
         <CaseStudy />
+      </div>
 
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="h-px bg-gradient-to-r from-transparent via-accent/20 to-transparent" />
-        </div>
+      {/* Guarantee — emerald gradient */}
+      <div className="bg-gradient-to-b from-emerald-950 via-emerald-900/80 to-midnight">
+        <Guarantee />
+      </div>
 
+      {/* Differentiator — dark with accent tint */}
+      <div className="bg-gradient-to-b from-midnight via-accent/[0.04] to-midnight">
         <Differentiator />
+      </div>
 
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="h-px bg-gradient-to-r from-transparent via-accent/20 to-transparent" />
-        </div>
-
+      {/* Assessment — white background */}
+      <div className="bg-white text-gray-900">
         <Assessment />
+      </div>
 
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="h-px bg-gradient-to-r from-transparent via-accent/20 to-transparent" />
-        </div>
+      {/* ROI Calculator — blue gradient */}
+      <div className="bg-gradient-to-b from-accent-900/30 via-accent/10 to-midnight">
+        <ROICalculator />
+      </div>
 
+      {/* Process — dark */}
+      <div className="bg-surface">
         <Process />
+      </div>
 
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="h-px bg-gradient-to-r from-transparent via-accent/20 to-transparent" />
-        </div>
-
+      {/* Contact — bright blue gradient */}
+      <div className="bg-gradient-to-b from-accent/20 via-accent/10 to-midnight">
         <Contact />
       </div>
     </main>
