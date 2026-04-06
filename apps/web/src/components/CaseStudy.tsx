@@ -412,10 +412,10 @@ export default function CaseStudy() {
               key={c.name}
               onClick={() => setActiveIndex(i)}
               className={"h-2.5 rounded-full transition-all cursor-pointer " +
-                (i === activeIndex ? "w-8 bg-accent shadow-[0_0_8px_rgba(99,102,241,0.3)]" : "w-2.5 bg-white/20 hover:bg-white/35")}
+                (i === activeIndex ? "w-8 bg-accent shadow-[0_0_8px_rgba(99,102,241,0.3)]" : "w-2.5 bg-accent/30 hover:bg-accent/50")}
             />
           ))}
-          <span className="text-xs text-white/50 font-mono ml-2">
+          <span className="text-xs text-text-muted font-mono ml-2">
             {activeIndex + 1} / {cases.length}
           </span>
         </div>
