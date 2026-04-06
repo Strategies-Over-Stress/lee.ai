@@ -25,10 +25,8 @@ function CountUp({ value }: { value: string }) {
       onUpdate: (v) => {
         if (numeric >= 100) {
           setDisplay(prefix + Math.round(v).toLocaleString() + valueSuffix);
-        } else if (numeric >= 1) {
-          setDisplay(prefix + Math.round(v) + valueSuffix);
         } else {
-          setDisplay(prefix + v.toFixed(1) + valueSuffix);
+          setDisplay(prefix + Math.round(v) + valueSuffix);
         }
       },
     });
@@ -211,13 +209,13 @@ function ProblemResultToggle({ pain, results }: { pain: string[]; results: strin
   return (
     <div ref={ref}>
       {/* Toggle */}
-      <div className="flex items-center gap-1 mb-5 bg-midnight/60 rounded-lg p-1 w-fit">
+      <div className="flex items-center gap-1 mb-5 bg-midnight/80 rounded-lg p-1 w-fit border border-white/[0.12]">
         <button
           onClick={() => setShowResult(false)}
           className={"px-4 py-2 rounded-md text-xs font-mono uppercase tracking-wider transition-all cursor-pointer " +
             (!showResult
-              ? "bg-rose/15 text-rose"
-              : "text-text-muted hover:text-text-secondary")}
+              ? "bg-rose/15 text-rose shadow-[0_0_8px_rgba(244,63,94,0.15)]"
+              : "text-white/50 hover:text-white/70 hover:bg-white/[0.04]")}
         >
           Problem
         </button>
@@ -225,8 +223,8 @@ function ProblemResultToggle({ pain, results }: { pain: string[]; results: strin
           onClick={() => setShowResult(true)}
           className={"px-4 py-2 rounded-md text-xs font-mono uppercase tracking-wider transition-all cursor-pointer " +
             (showResult
-              ? "bg-emerald/15 text-emerald"
-              : "text-text-muted hover:text-text-secondary")}
+              ? "bg-emerald/15 text-emerald shadow-[0_0_8px_rgba(16,185,129,0.15)]"
+              : "text-white/50 hover:text-white/70 hover:bg-white/[0.04]")}
         >
           Result
         </button>
@@ -282,8 +280,8 @@ function CaseCard({ c, index }: { c: typeof cases[0]; index: number }) {
       initial={{ opacity: 0, y: 30 }}
       animate={isInView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.6 }}
-      className="rounded-2xl border border-white/[0.08] overflow-hidden"
-      style={{ background: "linear-gradient(180deg, #222235 0%, #1c1c2e 100%)" }}
+      className="rounded-2xl border border-white/[0.16] overflow-hidden shadow-[0_0_40px_rgba(99,102,241,0.10),0_4px_24px_rgba(0,0,0,0.4)]"
+      style={{ background: "linear-gradient(180deg, #24243a 0%, #1c1c2e 100%)" }}
     >
       {/* Header bar */}
       <div className="px-6 sm:px-10 pt-8 pb-0 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
@@ -295,7 +293,7 @@ function CaseCard({ c, index }: { c: typeof cases[0]; index: number }) {
           href={c.site}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-sm text-accent-bright hover:text-white font-mono transition-colors shrink-0"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-accent/15 border border-accent/30 text-sm text-accent-bright hover:bg-accent/25 hover:text-white hover:border-accent/50 hover:shadow-[0_0_12px_rgba(99,102,241,0.2)] font-mono transition-all shrink-0"
         >
           Visit site &rarr;
         </a>
@@ -312,23 +310,28 @@ function CaseCard({ c, index }: { c: typeof cases[0]; index: number }) {
       </div>
 
       {/* Quote */}
-      <div className="px-6 sm:px-10 pb-8">
-        <p className="text-accent-bright/80 italic border-l-2 border-accent/20 pl-4 max-w-3xl leading-relaxed">
-          &ldquo;{c.quote}&rdquo;
-        </p>
+      <div className="mx-6 sm:mx-10 pb-8 pt-2 border-t border-white/[0.08]">
+        <div className="bg-accent/[0.07] rounded-xl px-7 py-6 border border-accent/[0.12]">
+          <p className="text-white/85 italic border-l-4 border-accent pl-5 max-w-3xl leading-relaxed text-base">
+            &ldquo;{c.quote}&rdquo;
+          </p>
+        </div>
       </div>
 
       {/* Stats bar */}
-      <div className="grid grid-cols-3 border-t border-white/[0.08]" style={{ background: "rgba(255,255,255,0.03)" }}>
-        {c.stats.map((stat) => (
-          <div key={stat.label} className="text-center py-7 border-r border-white/[0.08] last:border-r-0">
-            <div className="text-2xl sm:text-3xl font-bold text-gradient">
-              <CountUp value={stat.value} />
+      <div className="relative">
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/40 to-transparent" />
+        <div className="grid grid-cols-3 border-t border-white/[0.10]" style={{ background: "linear-gradient(180deg, rgba(99,102,241,0.10) 0%, rgba(99,102,241,0.04) 100%)" }}>
+          {c.stats.map((stat) => (
+            <div key={stat.label} className="text-center py-7 border-r border-white/[0.08] last:border-r-0">
+              <div className="text-2xl sm:text-3xl font-bold text-gradient">
+                <CountUp value={stat.value} />
+              </div>
+              <div className="text-sm text-white/90 mt-1 font-medium">{stat.label}</div>
+              <div className="text-xs text-white/45 mt-0.5">{stat.sub}</div>
             </div>
-            <div className="text-sm text-white/90 mt-1">{stat.label}</div>
-            <div className="text-xs text-white/40 mt-0.5">{stat.sub}</div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </motion.div>
   );
@@ -374,18 +377,18 @@ export default function CaseStudy() {
           {/* Prev / Next arrows */}
           <button
             onClick={prev}
-            className="absolute -left-4 sm:-left-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-surface border border-surface-light hover:border-accent/50 flex items-center justify-center transition-all cursor-pointer"
+            className="absolute -left-4 sm:-left-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-surface border border-white/[0.18] hover:border-accent/70 hover:bg-accent/15 hover:shadow-[0_0_16px_rgba(99,102,241,0.25)] flex items-center justify-center transition-all cursor-pointer shadow-[0_2px_12px_rgba(0,0,0,0.4)]"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <path d="M15 18l-6-6 6-6" stroke="#818cf8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M15 18l-6-6 6-6" stroke="#a5b4fc" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </button>
           <button
             onClick={next}
-            className="absolute -right-4 sm:-right-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-surface border border-surface-light hover:border-accent/50 flex items-center justify-center transition-all cursor-pointer"
+            className="absolute -right-4 sm:-right-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-surface border border-white/[0.18] hover:border-accent/70 hover:bg-accent/15 hover:shadow-[0_0_16px_rgba(99,102,241,0.25)] flex items-center justify-center transition-all cursor-pointer shadow-[0_2px_12px_rgba(0,0,0,0.4)]"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <path d="M9 18l6-6-6-6" stroke="#818cf8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M9 18l6-6-6-6" stroke="#a5b4fc" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </button>
 
@@ -408,8 +411,8 @@ export default function CaseStudy() {
             <button
               key={c.name}
               onClick={() => setActiveIndex(i)}
-              className={"h-2 rounded-full transition-all cursor-pointer " +
-                (i === activeIndex ? "w-8 bg-accent" : "w-2 bg-text-muted/30 hover:bg-text-muted/50")}
+              className={"h-2.5 rounded-full transition-all cursor-pointer " +
+                (i === activeIndex ? "w-8 bg-accent shadow-[0_0_8px_rgba(99,102,241,0.3)]" : "w-2.5 bg-accent/30 hover:bg-accent/50")}
             />
           ))}
           <span className="text-xs text-text-muted font-mono ml-2">
