@@ -41,6 +41,16 @@ const questions: Question[] = [
     ],
   },
   {
+    id: "headcount",
+    question: "How many people manage your software tools?",
+    options: [
+      { label: "Just me", value: "one", score: 3, wasteFactor: 0 },
+      { label: "2-3 people", value: "few", score: 2, wasteFactor: 200 },
+      { label: "4-6 people", value: "several", score: 1, wasteFactor: 500 },
+      { label: "7+ people (or I'm not sure)", value: "many", score: 0, wasteFactor: 800 },
+    ],
+  },
+  {
     id: "ai",
     question: "Have you or your team tried using AI to build or automate something?",
     options: [
@@ -70,7 +80,7 @@ interface ResultProfile {
 }
 
 function getResult(score: number): ResultProfile {
-  if (score <= 5) {
+  if (score <= 6) {
     return {
       title: "Your business is on a subscription treadmill",
       description: "You’re spending thousands per year on tools that don’t fully serve you, and you’re locked into vendors who know it. The good news: this is exactly the situation where my guarantee kicks in.",
@@ -78,7 +88,7 @@ function getResult(score: number): ResultProfile {
       color: "text-rose",
     };
   }
-  if (score <= 10) {
+  if (score <= 12) {
     return {
       title: "You’re overpaying — but you’re close to breaking free",
       description: "You’ve got some pieces in place, but you’re still bleeding money on software that doesn’t fully serve your needs. A focused engagement could eliminate most of that waste permanently.",
@@ -146,7 +156,7 @@ export default function Assessment() {
             Is your software stack costing you?
           </h2>
           <p className="text-gray-600 mt-4 text-lg">
-            5 questions. 60 seconds. Find out where you stand.
+            6 questions. 60 seconds. Find out where you stand.
           </p>
         </motion.div>
 

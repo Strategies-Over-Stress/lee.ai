@@ -31,9 +31,9 @@ export default function Hero() {
           transition={{ duration: 0.8, delay: 1.2 }}
           className="text-2xl sm:text-3xl md:text-4xl text-white/80 font-light mb-16 max-w-3xl mx-auto"
         >
-          I replace the generic tools you&apos;re overpaying for with software
-          built around your business &mdash; fully custom, fully yours,
-          at a fraction of the price.
+          I find the waste hiding in your tech stack, cut it,
+          and build replacements you actually own &mdash; powered by AI
+          most companies can&apos;t harness alone.
           <br />
           <span className="text-lg sm:text-xl text-white font-semibold mt-10 block">
             If it doesn&apos;t outperform what you have now, you don&apos;t pay.

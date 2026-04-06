@@ -7,7 +7,7 @@ import CaseStudy from "@/components/CaseStudy";
 import Guarantee from "@/components/Guarantee";
 import Differentiator from "@/components/Differentiator";
 import Assessment from "@/components/Assessment";
-import ROICalculator from "@/components/ROICalculator";
+
 import Process from "@/components/Process";
 import Contact from "@/components/Contact";
 
@@ -42,11 +42,6 @@ export default function Home() {
       {/* Assessment — white background */}
       <div className="bg-white text-gray-900">
         <Assessment />
-      </div>
-
-      {/* ROI Calculator — blue gradient */}
-      <div className="bg-gradient-to-b from-accent-900/30 via-accent/10 to-midnight">
-        <ROICalculator />
       </div>
 
       {/* Process — dark */}
