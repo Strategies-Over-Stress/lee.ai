@@ -50,3 +50,6 @@ __pycache__/
 
 # rust / tauri
 apps/pilot/src-tauri/target/
+
+# assessment data
+apps/web/data/
