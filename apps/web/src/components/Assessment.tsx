@@ -82,24 +82,24 @@ interface ResultProfile {
 function getResult(score: number): ResultProfile {
   if (score <= 6) {
     return {
-      title: "Your business is on a subscription treadmill",
-      description: "You’re spending thousands per year on tools that don’t fully serve you, and you’re locked into vendors who know it. The good news: this is exactly the situation where my guarantee kicks in.",
-      recommendation: "A full software review. Let’s map where your money goes and what we can own instead.",
+      title: "There’s massive untapped potential here",
+      description: "You’re spending thousands on tools that don’t fully serve you — but more importantly, AI could transform the way your business operates. This is exactly the situation where a focused engagement creates the most value.",
+      recommendation: "A full discovery call. Let’s map what AI can automate, streamline, and build for your business.",
       color: "text-rose",
     };
   }
   if (score <= 12) {
     return {
-      title: "You’re overpaying — but you’re close to breaking free",
-      description: "You’ve got some pieces in place, but you’re still bleeding money on software that doesn’t fully serve your needs. A focused engagement could eliminate most of that waste permanently.",
-      recommendation: "A targeted build. We replace your most expensive, least useful subscriptions first.",
+      title: "You’re close — AI can take you the rest of the way",
+      description: "You’ve got some pieces in place, but there’s significant room to harness AI for faster workflows, better tools, and real competitive advantage. A focused engagement could unlock that potential.",
+      recommendation: "A targeted build. We identify your highest-impact opportunities and start building.",
       color: "text-amber",
     };
   }
   return {
     title: "You’re ahead of the game",
-    description: "Your stack is in decent shape, but there’s still room to own more and rent less. The next level is full ownership.",
-    recommendation: "A strategic upgrade. We identify the remaining subscriptions worth replacing.",
+    description: "Your stack is in solid shape. The next level is leveraging AI to build custom tools that give you an edge your competitors can’t buy off the shelf.",
+    recommendation: "A strategic session. Let’s find where AI can create your next competitive advantage.",
     color: "text-emerald",
   };
 }
@@ -153,10 +153,10 @@ export default function Assessment() {
             Interactive Assessment
           </span>
           <h2 className="text-4xl sm:text-5xl font-bold mt-4 text-gray-900">
-            Is your software stack costing you?
+            Ready to see what AI can actually do for your business?
           </h2>
           <p className="text-gray-600 mt-4 text-lg">
-            6 questions. 60 seconds. Find out where you stand.
+            6 questions. 60 seconds. Find out how much potential you&apos;re leaving on the table.
           </p>
         </motion.div>
 

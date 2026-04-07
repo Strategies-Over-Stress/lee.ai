@@ -31,9 +31,10 @@ export default function Hero() {
           transition={{ duration: 0.8, delay: 1.2 }}
           className="text-2xl sm:text-3xl md:text-4xl text-white/80 font-light mb-16 max-w-3xl mx-auto"
         >
-          I find the waste hiding in your tech stack, cut it,
-          and build replacements you actually own &mdash; powered by AI
-          most companies can&apos;t harness alone.
+          A senior Software Engineer turned AI Consultant &mdash; I automate
+          your business with AI. No useless subscriptions that don&apos;t deliver.
+          For a fraction of the price. Solutions you{" "}
+          <span className="text-gradient font-semibold">own</span>, not rent.
           <br />
           <span className="text-lg sm:text-xl text-white font-semibold mt-10 block">
             If it doesn&apos;t outperform what you have now, you don&apos;t pay.
@@ -52,7 +53,7 @@ export default function Hero() {
               href="#assess"
               className="group relative px-8 py-4 bg-accent hover:bg-accent-bright rounded-xl font-semibold text-lg transition-all duration-300 glow hover:scale-105"
             >
-              Find out how much you&apos;re wasting
+              See what AI can do for you
               <span className="absolute inset-0 rounded-xl bg-accent/20 blur-xl group-hover:blur-2xl transition-all duration-300 -z-10" />
             </a>
             <a

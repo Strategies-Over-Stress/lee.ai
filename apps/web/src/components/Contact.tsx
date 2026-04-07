@@ -22,22 +22,22 @@ export default function Contact() {
             Let&apos;s Build
           </span>
           <h2 className="text-4xl sm:text-6xl font-bold mt-4 mb-6">
-            Ready to{" "}
-            <span className="text-gradient">stop renting software?</span>
+            Ready to see what{" "}
+            <span className="text-gradient">AI can do for your business?</span>
           </h2>
           <p className="text-text-secondary text-lg mb-4 max-w-2xl mx-auto">
-            I take on 1-2 clients at a time so every engagement gets my full attention. Start with a free software cost review &mdash; 30 minutes to find out where your money&apos;s actually going.
+            I take on 1-2 clients at a time so every engagement gets my full attention. Start with a free 30-minute call &mdash; let me show you what&apos;s possible when AI is applied the right way.
           </p>
 
           {/* Guarantee reminder */}
           <p className="text-emerald font-semibold mb-8">
-            Remember: if it&apos;s not cheaper AND better, you don&apos;t pay.
+            If it doesn&apos;t outperform what you have now, you don&apos;t pay.
           </p>
 
           {/* Risk reversal */}
           <div className="flex flex-wrap justify-center gap-6 mb-12 text-sm text-text-muted">
             <span className="flex items-center gap-2">
-              <span className="text-emerald">&#10003;</span> Month-to-month, cancel anytime
+              <span className="text-emerald">&#10003;</span> Bi-weekly, cancel anytime
             </span>
             <span className="flex items-center gap-2">
               <span className="text-emerald">&#10003;</span> You own all the code
