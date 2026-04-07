@@ -46,7 +46,11 @@ function QuoteCarousel() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto mb-12">
+    <div
+      className="max-w-3xl mx-auto mb-12"
+      onMouseEnter={() => { if (timerRef.current) clearInterval(timerRef.current); }}
+      onMouseLeave={() => startTimer()}
+    >
       <div className="min-h-[200px] relative">
         <AnimatePresence mode="wait">
           <motion.div
