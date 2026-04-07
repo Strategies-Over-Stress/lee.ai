@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 
 const links = [
   { label: "Home", href: "/" },
@@ -32,9 +33,15 @@ export default function Navbar() {
           : "bg-transparent")
       }
     >
-      <div className="max-w-6xl mx-auto px-6 flex items-center justify-between h-16">
-        <a href="/" className="font-bold text-lg text-white">
-          Rich Lee
+      <div className="max-w-6xl mx-auto px-6 flex items-center justify-between h-28 py-4">
+        <a href="/" className="flex items-center gap-2">
+          <Image
+            src="/notsaas-logo.png"
+            alt="NotSaaS"
+            width={80}
+            height={80}
+            className=""
+          />
         </a>
 
         {/* Desktop nav */}

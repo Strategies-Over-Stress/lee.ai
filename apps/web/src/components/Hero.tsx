@@ -31,9 +31,10 @@ export default function Hero() {
           transition={{ duration: 0.8, delay: 1.2 }}
           className="text-2xl sm:text-3xl md:text-4xl text-white/80 font-light mb-16 max-w-3xl mx-auto"
         >
-          I replace the generic tools you&apos;re overpaying for with software
-          built around your business &mdash; fully custom, fully yours,
-          at a fraction of the price.
+          Tired of tools that overpromise? I cut through the AI noise
+          and build what works &mdash; at a fraction of the cost.
+          <br />
+          <span className="text-gradient font-semibold">Results you own</span>, not rent.
           <br />
           <span className="text-lg sm:text-xl text-white font-semibold mt-10 block">
             If it doesn&apos;t outperform what you have now, you don&apos;t pay.
@@ -52,7 +53,7 @@ export default function Hero() {
               href="#assess"
               className="group relative px-8 py-4 bg-accent hover:bg-accent-bright rounded-xl font-semibold text-lg transition-all duration-300 glow hover:scale-105"
             >
-              Find out how much you&apos;re wasting
+              See what AI can do for you
               <span className="absolute inset-0 rounded-xl bg-accent/20 blur-xl group-hover:blur-2xl transition-all duration-300 -z-10" />
             </a>
             <a
@@ -78,10 +79,10 @@ export default function Hero() {
           className="mt-12 grid grid-cols-2 sm:grid-cols-4 gap-6 max-w-3xl mx-auto"
         >
           {[
-            { value: "$1,500+", label: "Wasted on average", sub: "on SaaS every month" },
-            { value: "47%", label: "Of licenses go unused", sub: "that\u2019s your money" },
-            { value: "80-95%", label: "Of AI projects fail", sub: "without guidance" },
-            { value: "$0/mo", label: "Your cost after we build", sub: "you own it forever" },
+            { value: "$18K+", label: "Avg. annual savings", sub: "per client engagement" },
+            { value: "24hrs", label: "Fastest time to launch", sub: "from zero to live" },
+            { value: "100%", label: "Guarantee", sub: "outperforms or it\u2019s free" },
+            { value: "10+", label: "Years of engineering", sub: "backing every build" },
           ].map((stat) => (
             <div key={stat.label} className="text-center">
               <div className="text-2xl sm:text-3xl font-bold text-gradient">

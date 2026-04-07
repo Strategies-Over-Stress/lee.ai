@@ -58,7 +58,7 @@ const cases = [
       "Every feature those plugins provided — customized for her",
       "Fully integrated — no more paying to access her own data",
     ],
-    quote: "She rebuilt the wheel — and it rolls better. Dumped $1,500+/mo in WordPress plugins and SaaS products, got a site that's faster, more beautiful, with every feature custom-built for her business.",
+    quote: "I spotted $1,500+/mo in plugin bloat she didn\u2019t know she was carrying. Ripped it all out, rebuilt every feature custom, and delivered a site that\u2019s faster, cheaper, and actually hers.",
     stats: [
       { value: "$30K", label: "Revenue month", sub: "zero downtime" },
       { value: "10x", label: "Faster page loads", sub: "30s → 3s" },
@@ -84,7 +84,7 @@ const cases = [
       "SEC-compliant from the architecture up",
       "Saved $4,000+ in annual expenses",
     ],
-    quote: "Dominique rebuilt the wheel — and saved $4,000+ a year doing it. Her CRM is compliant, self-hosted, and will never send her another invoice.",
+    quote: "Dominique was paying $4,000+/year for a CRM she barely used. I identified the waste, designed a replacement around her exact workflow, and built it SEC-compliant from the ground up. She\u2019ll never get another invoice.",
     stats: [
       { value: "$4K+", label: "Annual savings", sub: "vs previous subscriptions" },
       { value: "100%", label: "Feature fit", sub: "her exact workflow" },
@@ -111,7 +111,7 @@ const cases = [
       "Brand presence that matches the premium experience",
       "Serving high-end clients immediately — no more lost revenue",
     ],
-    quote: "A high-end Miami chef was losing money every day he didn\u2019t launch. We got him from zero to fully operational in 24 hours — bookings, menu, events, all of it.",
+    quote: "I saw the problem immediately: a premium chef with no online presence was bleeding revenue every day he waited. I scoped the entire build myself and had him live in 24 hours \u2014 bookings, menu, events, all of it.",
     stats: [
       { value: "24hrs", label: "Time to launch", sub: "from zero to live" },
       { value: "$0", label: "Revenue lost", sub: "after launch day" },

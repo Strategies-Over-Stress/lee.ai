@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const businessArticle = `It’s Time to Rebuild the Wheel
 
-You already know the feeling. Another month, another stack of software subscriptions auto-renewing. Salesforce. QuickBooks. Zapier. Mailchimp. Slack. That project management tool nobody actually uses but someone signed up for in 2023.
+You already know the feeling. Another month, another stack of software subscriptions auto-renewing. Salesforce. QuickBooks. Mailchimp. Slack. That project management tool nobody actually uses but someone signed up for in 2023.
 
 They told you “don’t reinvent the wheel” — just subscribe to someone else’s. But their wheel costs you $1,500/month, does 60% of what you need, and they raise the price every year. Maybe it’s time to rebuild the wheel. One that actually fits your car.
 
@@ -140,7 +140,7 @@ export default function BuildNotBuy() {
 
         {/* CTA */}
         <div className="mt-20 text-center border-t border-surface-light pt-16">
-          <h3 className="text-2xl font-bold mb-4">Ready to stop renting software?</h3>
+          <h3 className="text-2xl font-bold mb-4">Ready to see what AI can actually do for your business?</h3>
           <p className="text-text-secondary mb-8">If it&apos;s not cheaper AND better &mdash; you don&apos;t pay.</p>
           <a
             href="/#contact"

@@ -32,15 +32,15 @@ export default function ParticleField() {
     };
 
     const createParticles = () => {
-      const count = Math.floor((canvas.width * canvas.height) / 15000);
+      const count = Math.floor((canvas.width * canvas.height) / 8000);
       particles = Array.from({ length: count }, () => ({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        vx: (Math.random() - 0.5) * 0.3,
-        vy: (Math.random() - 0.5) * 0.3,
-        size: Math.random() * 2 + 0.5,
-        opacity: Math.random() * 0.5 + 0.1,
-        hue: Math.random() > 0.5 ? 239 : 160, // indigo or emerald
+        vx: (Math.random() - 0.5) * 0.15,
+        vy: (Math.random() - 0.5) * 0.15,
+        size: Math.random() * 1.5 + 0.5,
+        opacity: Math.random() * 0.6 + 0.2,
+        hue: 239,
       }));
     };
 
@@ -48,24 +48,32 @@ export default function ParticleField() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       particles.forEach((p, i) => {
-        // Mouse interaction
+        // Mouse interaction — draw connections to cursor
         const dx = mouse.x - p.x;
         const dy = mouse.y - p.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
 
-        if (dist < 150) {
-          const force = (150 - dist) / 150;
-          p.vx -= (dx / dist) * force * 0.02;
-          p.vy -= (dy / dist) * force * 0.02;
-          p.opacity = Math.min(0.8, p.opacity + force * 0.3);
+        if (dist < 200) {
+          const force = (200 - dist) / 200;
+          p.vx += (dx / dist) * force * 0.005;
+          p.vy += (dy / dist) * force * 0.005;
+          p.opacity = Math.min(0.9, p.opacity + force * 0.2);
+
+          // Line to cursor
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(mouse.x, mouse.y);
+          ctx.strokeStyle = `hsla(239, 70%, 75%, ${0.04 * force})`;
+          ctx.lineWidth = 0.3;
+          ctx.stroke();
         } else {
-          p.opacity += (0.2 - p.opacity) * 0.01;
+          p.opacity += ((Math.random() * 0.4 + 0.2) - p.opacity) * 0.005;
         }
 
         p.x += p.vx;
         p.y += p.vy;
-        p.vx *= 0.99;
-        p.vy *= 0.99;
+        p.vx *= 0.998;
+        p.vy *= 0.998;
 
         // Wrap around
         if (p.x < 0) p.x = canvas.width;
@@ -73,22 +81,23 @@ export default function ParticleField() {
         if (p.y < 0) p.y = canvas.height;
         if (p.y > canvas.height) p.y = 0;
 
-        // Draw particle
+        // Draw star
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = `hsla(${p.hue}, 80%, 70%, ${p.opacity})`;
+        ctx.fillStyle = `hsla(239, 60%, 80%, ${p.opacity})`;
         ctx.fill();
 
-        // Draw connections
+        // Draw constellation lines to nearby stars
         for (let j = i + 1; j < particles.length; j++) {
           const p2 = particles[j];
           const d = Math.sqrt((p.x - p2.x) ** 2 + (p.y - p2.y) ** 2);
-          if (d < 100) {
+          if (d < 150) {
+            const lineOpacity = 0.12 * (1 - d / 150);
             ctx.beginPath();
             ctx.moveTo(p.x, p.y);
             ctx.lineTo(p2.x, p2.y);
-            ctx.strokeStyle = `hsla(239, 80%, 70%, ${0.08 * (1 - d / 100)})`;
-            ctx.lineWidth = 0.5;
+            ctx.strokeStyle = `hsla(239, 50%, 75%, ${lineOpacity})`;
+            ctx.lineWidth = 0.4;
             ctx.stroke();
           }
         }
@@ -123,7 +132,7 @@ export default function ParticleField() {
     <canvas
       ref={canvasRef}
       className="fixed inset-0 pointer-events-none z-0"
-      style={{ opacity: 0.6 }}
+      style={{ opacity: 0.7 }}
     />
   );
 }

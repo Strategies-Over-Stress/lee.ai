@@ -22,7 +22,9 @@ const stepIcons: Record<string, React.ReactNode> = {
   ),
   "04": (
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.778 7.778 5.5 5.5 0 017.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" stroke="#6366f1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="#6366f1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <circle cx="9" cy="7" r="4" stroke="#6366f1" strokeWidth="2"/>
+      <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="#6366f1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   ),
 };
@@ -48,9 +50,9 @@ const steps = [
   },
   {
     number: "04",
-    title: "Handoff",
-    description: "You own everything. No monthly fees. No lock-in. No renewal notices. Ever. I’m available if you want to keep building \u2014 but you’ll never need me to keep the lights on.",
-    detail: "Your code. Your servers. Your freedom.",
+    title: "Partnership",
+    description: "You own everything we build \u2014 but I don\u2019t disappear. I keep auditing, keep finding waste, keep building. The relationship doesn\u2019t end at delivery. It evolves into ongoing leverage.",
+    detail: "Continuous improvement. No end date.",
   },
 ];
 
