@@ -80,7 +80,7 @@ export default function BillingReceipt() {
   const cautionDelay = totalAppearDelay + 0.4;
 
   return (
-    <div ref={ref} className="relative max-w-lg mx-auto mb-10 overflow-visible py-16">
+    <div ref={ref} className="relative max-w-lg mx-auto mb-10 overflow-hidden md:overflow-visible py-16">
       {/* Impact crater glow layers — clipped to bottom half so it doesn't cover header */}
       <motion.div
         initial={{ opacity: 0, scale: 0.3 }}

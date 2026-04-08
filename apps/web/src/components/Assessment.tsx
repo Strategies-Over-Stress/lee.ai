@@ -350,18 +350,12 @@ export default function Assessment() {
                   </div>
 
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    {assessmentId ? (
-                      <button
-                        onClick={() => setPhase("consultation")}
-                        className="px-8 py-4 bg-accent hover:bg-accent-bright rounded-xl font-semibold text-lg text-white transition-all duration-300 shadow-lg shadow-accent/25 hover:shadow-accent/40 hover:scale-105 cursor-pointer"
-                      >
-                        Book a free consultation
-                      </button>
-                    ) : (
-                      <a href="#contact" className="px-8 py-4 bg-accent hover:bg-accent-bright rounded-xl font-semibold text-lg text-white transition-all duration-300 shadow-lg shadow-accent/25 hover:shadow-accent/40 hover:scale-105">
-                        Let&apos;s talk
-                      </a>
-                    )}
+                    <button
+                      onClick={() => setPhase("consultation")}
+                      className="px-8 py-4 bg-accent hover:bg-accent-bright rounded-xl font-semibold text-lg text-white transition-all duration-300 shadow-lg shadow-accent/25 hover:shadow-accent/40 hover:scale-105 cursor-pointer"
+                    >
+                      Book a free consultation
+                    </button>
                     <button onClick={reset} className="px-8 py-4 border border-gray-300 hover:border-accent rounded-xl font-semibold text-gray-600 hover:text-accent transition-all duration-300 cursor-pointer">
                       Retake assessment
                     </button>

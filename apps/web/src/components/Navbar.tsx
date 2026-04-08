@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 
@@ -13,34 +13,45 @@ const links = [
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
+  const [hidden, setHidden] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const lastScrollY = useRef(0);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 50);
-    window.addEventListener("scroll", onScroll);
+    const onScroll = () => {
+      const y = window.scrollY;
+      setScrolled(y > 50);
+      if (y > lastScrollY.current && y > 100) {
+        setHidden(true);
+      } else {
+        setHidden(false);
+      }
+      lastScrollY.current = y;
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   return (
     <motion.nav
       initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
+      animate={{ opacity: 1, y: hidden && !menuOpen ? "-100%" : 0 }}
+      transition={{ duration: 0.3 }}
       className={
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-300 " +
+        "fixed top-0 left-0 right-0 z-50 transition-colors duration-300 " +
         (scrolled || menuOpen
           ? "bg-midnight/95 backdrop-blur-md border-b border-surface-light"
           : "bg-transparent")
       }
     >
-      <div className="max-w-6xl mx-auto px-6 flex items-center justify-between h-28 py-4">
+      <div className="max-w-6xl mx-auto px-6 flex items-center justify-between h-16 sm:h-28 py-2 sm:py-4">
         <a href="/" className="flex items-center gap-2">
           <Image
             src="/notsaas-logo.png"
             alt="NotSaaS"
             width={80}
             height={80}
-            className=""
+            className="w-12 h-12 sm:w-20 sm:h-20"
           />
         </a>
 

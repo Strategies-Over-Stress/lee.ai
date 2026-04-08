@@ -130,11 +130,24 @@ export default function Differentiator() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={isInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.4, delay: 0.2 + index * 0.1 }}
+                data-accordion
                 className={"rounded-xl border transition-all duration-300 overflow-hidden " +
                   (isOpen ? "border-accent/50 bg-accent/5 glow" : "border-surface-light bg-surface hover:border-accent/20")}
               >
                 <button
-                  onClick={() => setOpenId(isOpen ? null : feature.id)}
+                  onClick={(e) => {
+                    const newId = isOpen ? null : feature.id;
+                    setOpenId(newId);
+                    if (newId) {
+                      const target = (e.currentTarget as HTMLElement).closest('[data-accordion]');
+                      setTimeout(() => {
+                        if (target) {
+                          const y = target.getBoundingClientRect().top + window.scrollY - 20;
+                          window.scrollTo({ top: y, behavior: 'smooth' });
+                        }
+                      }, 350);
+                    }
+                  }}
                   className="w-full text-left p-5 cursor-pointer flex items-start justify-between gap-4"
                 >
                   <div className="flex items-start gap-3">
