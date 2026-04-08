@@ -24,7 +24,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Case Study — white background */}
+      {/* Case Study — light background */}
       <div className="bg-white text-gray-900">
         <CaseStudy />
       </div>
