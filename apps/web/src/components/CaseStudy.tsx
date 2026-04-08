@@ -284,24 +284,24 @@ function CaseCard({ c, index }: { c: typeof cases[0]; index: number }) {
       style={{ background: "linear-gradient(180deg, #24243a 0%, #1c1c2e 100%)" }}
     >
       {/* Header bar */}
-      <div className="px-6 sm:px-10 pt-8 pb-0 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+      <div className="px-4 sm:px-6 md:px-10 pt-5 md:pt-8 pb-0 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <div>
           <span className="text-xs font-mono text-accent uppercase tracking-wider">{c.industry}</span>
-          <h3 className="text-2xl sm:text-3xl font-bold mt-1 text-white">{c.name}</h3>
+          <h3 className="text-xl sm:text-2xl md:text-3xl font-bold mt-1 text-white">{c.name}</h3>
         </div>
         <a
           href={c.site}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-accent/15 border border-accent/30 text-sm text-accent-bright hover:bg-accent/25 hover:text-white hover:border-accent/50 hover:shadow-[0_0_12px_rgba(99,102,241,0.2)] font-mono transition-all shrink-0"
+          className="inline-flex items-center gap-2 px-4 py-2 md:px-5 md:py-2.5 rounded-lg bg-accent/15 border border-accent/30 text-sm text-accent-bright hover:bg-accent/25 hover:text-white hover:border-accent/50 hover:shadow-[0_0_12px_rgba(99,102,241,0.2)] font-mono transition-all shrink-0"
         >
           Visit site &rarr;
         </a>
       </div>
 
       {/* Browser mockup + Problem/Result side by side on desktop */}
-      <div className="grid md:grid-cols-5 gap-6 px-6 sm:px-10 py-8">
-        <div className="md:col-span-3">
+      <div className="grid md:grid-cols-5 gap-4 md:gap-6 px-4 sm:px-6 md:px-10 py-5 md:py-8">
+        <div className="hidden md:block md:col-span-3">
           <BrowserSlideshow screenshots={c.screenshots} site={c.site} name={c.name} />
         </div>
         <div className="md:col-span-2 flex flex-col justify-center">
@@ -309,26 +309,26 @@ function CaseCard({ c, index }: { c: typeof cases[0]; index: number }) {
         </div>
       </div>
 
-      {/* Quote */}
-      <div className="mx-6 sm:mx-10 pb-8 pt-2 border-t border-white/[0.08]">
-        <div className="bg-accent/[0.07] rounded-xl px-7 py-6 border border-accent/[0.12]">
-          <p className="text-white/85 italic border-l-4 border-accent pl-5 max-w-3xl leading-relaxed text-base">
+      {/* Quote — more prominent on mobile since browser mockup is hidden */}
+      <div className="mx-4 sm:mx-6 md:mx-10 pb-6 md:pb-8 pt-2 border-t border-white/[0.08]">
+        <div className="bg-accent/[0.07] rounded-xl px-5 py-5 md:px-7 md:py-6 border border-accent/[0.12]">
+          <p className="text-white/90 md:text-white/85 italic border-l-4 border-accent pl-4 md:pl-5 max-w-3xl leading-relaxed text-[15px] md:text-base">
             &ldquo;{c.quote}&rdquo;
           </p>
         </div>
       </div>
 
-      {/* Stats bar */}
+      {/* Stats bar — compact single row on mobile */}
       <div className="relative">
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/40 to-transparent" />
         <div className="grid grid-cols-3 border-t border-white/[0.10]" style={{ background: "linear-gradient(180deg, rgba(99,102,241,0.10) 0%, rgba(99,102,241,0.04) 100%)" }}>
           {c.stats.map((stat) => (
-            <div key={stat.label} className="text-center py-7 border-r border-white/[0.08] last:border-r-0">
-              <div className="text-2xl sm:text-3xl font-bold text-gradient">
+            <div key={stat.label} className="text-center py-3 md:py-7 border-r border-white/[0.08] last:border-r-0">
+              <div className="text-lg md:text-3xl font-bold text-gradient">
                 <CountUp value={stat.value} />
               </div>
-              <div className="text-sm text-white/90 mt-1 font-medium">{stat.label}</div>
-              <div className="text-xs text-white/45 mt-0.5">{stat.sub}</div>
+              <div className="text-xs md:text-sm text-white/90 mt-0.5 md:mt-1 font-medium">{stat.label}</div>
+              <div className="hidden md:block text-xs text-white/45 mt-0.5">{stat.sub}</div>
             </div>
           ))}
         </div>
@@ -346,13 +346,13 @@ export default function CaseStudy() {
   const next = () => setActiveIndex((i) => (i + 1) % cases.length);
 
   return (
-    <section id="proof" className="relative py-32 px-6" ref={ref}>
+    <section id="proof" className="relative py-16 md:py-32 px-4 md:px-6" ref={ref}>
       <div className="max-w-6xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          className="text-center mb-8 md:mb-16"
         >
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-accent/10 mb-6">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -374,10 +374,10 @@ export default function CaseStudy() {
 
         {/* Carousel */}
         <div className="relative">
-          {/* Prev / Next arrows */}
+          {/* Prev / Next arrows — hidden on mobile, swipe used instead */}
           <button
             onClick={prev}
-            className="absolute -left-4 sm:-left-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-surface border border-white/[0.18] hover:border-accent/70 hover:bg-accent/15 hover:shadow-[0_0_16px_rgba(99,102,241,0.25)] flex items-center justify-center transition-all cursor-pointer shadow-[0_2px_12px_rgba(0,0,0,0.4)]"
+            className="absolute -left-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-surface border border-white/[0.18] hover:border-accent/70 hover:bg-accent/15 hover:shadow-[0_0_16px_rgba(99,102,241,0.25)] hidden md:flex items-center justify-center transition-all cursor-pointer shadow-[0_2px_12px_rgba(0,0,0,0.4)]"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
               <path d="M15 18l-6-6 6-6" stroke="#a5b4fc" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -385,7 +385,7 @@ export default function CaseStudy() {
           </button>
           <button
             onClick={next}
-            className="absolute -right-4 sm:-right-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-surface border border-white/[0.18] hover:border-accent/70 hover:bg-accent/15 hover:shadow-[0_0_16px_rgba(99,102,241,0.25)] flex items-center justify-center transition-all cursor-pointer shadow-[0_2px_12px_rgba(0,0,0,0.4)]"
+            className="absolute -right-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-surface border border-white/[0.18] hover:border-accent/70 hover:bg-accent/15 hover:shadow-[0_0_16px_rgba(99,102,241,0.25)] hidden md:flex items-center justify-center transition-all cursor-pointer shadow-[0_2px_12px_rgba(0,0,0,0.4)]"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
               <path d="M9 18l6-6-6-6" stroke="#a5b4fc" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -399,6 +399,18 @@ export default function CaseStudy() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -40 }}
               transition={{ duration: 0.35 }}
+              drag="x"
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={0.3}
+              onDragEnd={(_e, info) => {
+                const swipeThreshold = 50;
+                if (info.offset.x < -swipeThreshold) {
+                  next();
+                } else if (info.offset.x > swipeThreshold) {
+                  prev();
+                }
+              }}
+              style={{ touchAction: "pan-y" }}
             >
               <CaseCard c={cases[activeIndex]} index={activeIndex} />
             </motion.div>
