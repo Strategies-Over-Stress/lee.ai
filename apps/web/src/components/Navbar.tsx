@@ -11,21 +11,43 @@ const links = [
   { label: "Contact", href: "#contact" },
 ];
 
+const SCROLL_DEAD_ZONE = 15;
+
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [hidden, setHidden] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const lastScrollY = useRef(0);
+  const scrollDelta = useRef(0);
 
   useEffect(() => {
     const onScroll = () => {
       const y = window.scrollY;
       setScrolled(y > 50);
-      if (y > lastScrollY.current && y > 100) {
-        setHidden(true);
-      } else {
+
+      const delta = y - lastScrollY.current;
+
+      if (y <= 100) {
         setHidden(false);
+        scrollDelta.current = 0;
+      } else {
+        // Reset accumulator on direction change
+        if (
+          (delta > 0 && scrollDelta.current < 0) ||
+          (delta < 0 && scrollDelta.current > 0)
+        ) {
+          scrollDelta.current = delta;
+        } else {
+          scrollDelta.current += delta;
+        }
+
+        if (scrollDelta.current > SCROLL_DEAD_ZONE) {
+          setHidden(true);
+        } else if (scrollDelta.current < -SCROLL_DEAD_ZONE) {
+          setHidden(false);
+        }
       }
+
       lastScrollY.current = y;
     };
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -33,12 +55,17 @@ export default function Navbar() {
   }, []);
 
   return (
+    <div
+      className={`fixed top-0 left-0 right-0 z-50 will-change-transform transition-transform duration-300 ease-out ${
+        hidden && !menuOpen ? "-translate-y-full" : "translate-y-0"
+      }`}
+    >
     <motion.nav
       initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: hidden && !menuOpen ? "-100%" : 0 }}
+      animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
       className={
-        "fixed top-0 left-0 right-0 z-50 transition-colors duration-300 " +
+        "transition-colors duration-300 " +
         (scrolled || menuOpen
           ? "bg-midnight/95 backdrop-blur-md border-b border-surface-light"
           : "bg-transparent")
@@ -130,5 +157,6 @@ export default function Navbar() {
         )}
       </AnimatePresence>
     </motion.nav>
+    </div>
   );
 }
