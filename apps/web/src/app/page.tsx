@@ -1,5 +1,3 @@
-"use client";
-
 import Navbar from "@/components/Navbar";
 import ParticleField from "@/components/ParticleField";
 import Hero from "@/components/Hero";

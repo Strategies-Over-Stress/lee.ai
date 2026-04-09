@@ -1,5 +1,12 @@
 import Database from "better-sqlite3";
+import crypto from "crypto";
 import path from "path";
+
+const IP_SALT = process.env.IP_SALT || "lee-ai-ip-hash-salt-v1";
+
+export function hashIp(ip: string): string {
+  return crypto.createHmac("sha256", IP_SALT).update(ip).digest("hex");
+}
 
 let db: Database.Database | null = null;
 

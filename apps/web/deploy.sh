@@ -1,6 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
+# Prerequisite: run ssh-keyscan $DO_SVR_IP >> ~/.ssh/known_hosts
+
 # ─────────────────────────────────────────────────────────
 # Deploy lee.ai/apps/web to DigitalOcean
 #
@@ -71,13 +73,13 @@ if [ ! -d "$STANDALONE" ]; then
 fi
 
 # Ensure persistent data dir exists (separate per env)
-ssh -o StrictHostKeyChecking=no "${SERVER}" "
+ssh "${SERVER}" "
   mkdir -p /srv/sites/notsaas.net/shared/data-${ENV}
 "
 
 # Sync standalone build (exclude data dir — DB lives in shared/)
 rsync -az --delete --force \
-  -e "ssh -o StrictHostKeyChecking=no" \
+  -e "ssh" \
   --exclude 'data' \
   "$STANDALONE/" \
   "${SERVER}:${DEPLOY_DIR}/"
@@ -85,27 +87,28 @@ rsync -az --delete --force \
 # Sync static assets + public into the nested app dir (monorepo standalone structure)
 APP_DIR="${DEPLOY_DIR}/apps/web"
 rsync -az \
-  -e "ssh -o StrictHostKeyChecking=no" \
+  -e "ssh" \
   "$SCRIPT_DIR/.next/static/" \
   "${SERVER}:${APP_DIR}/.next/static/"
 
 if [ -d "$SCRIPT_DIR/public" ]; then
   rsync -az \
-    -e "ssh -o StrictHostKeyChecking=no" \
+    -e "ssh" \
     "$SCRIPT_DIR/public/" \
     "${SERVER}:${APP_DIR}/public/"
 fi
 
 # Symlink shared data dir into the app's working directory
-ssh -o StrictHostKeyChecking=no "${SERVER}" "
+ssh "${SERVER}" "
   ln -sfn /srv/sites/notsaas.net/shared/data-${ENV} ${DEPLOY_DIR}/apps/web/data
+  chmod 600 /srv/sites/notsaas.net/shared/data-${ENV}/assessments.db 2>/dev/null || true
 "
 
 echo "Sync complete."
 
 # ─── 3. Start/Restart ───────────────────────────────────
 echo "[3/4] Starting ${PM2_NAME}..."
-ssh -o StrictHostKeyChecking=no "${SERVER}" "
+ssh "${SERVER}" "
   cd ${DEPLOY_DIR}/apps/web
   if pm2 describe ${PM2_NAME} > /dev/null 2>&1; then
     PORT=${PORT} pm2 restart ${PM2_NAME} --update-env
@@ -123,7 +126,7 @@ echo "PM2 process running."
 # ─── 4. Verify ──────────────────────────────────────────
 echo "[4/4] Verifying..."
 sleep 3
-STATUS=$(ssh -o StrictHostKeyChecking=no "${SERVER}" \
+STATUS=$(ssh "${SERVER}" \
   "curl -so /dev/null -w '%{http_code}' --max-time 5 http://localhost:${PORT}/ 2>/dev/null")
 
 if [ "$STATUS" = "200" ]; then

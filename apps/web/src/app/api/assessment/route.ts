@@ -1,27 +1,45 @@
 import { NextRequest, NextResponse } from "next/server";
 import { v4 as uuidv4 } from "uuid";
-import { insertAssessment } from "@/lib/db";
+import { z } from "zod";
+import { insertAssessment, hashIp } from "@/lib/db";
+
+const assessmentSchema = z.object({
+  answers: z.record(z.string(), z.unknown()).refine(
+    (val) => JSON.stringify(val).length <= 51200,
+    { message: "Payload too large" }
+  ),
+  totalScore: z.number().int().min(0).max(100),
+  potentialRevenue: z.number().min(0).max(1000000),
+  resultProfile: z.object({
+    title: z.string(),
+    color: z.string(),
+  }).passthrough(),
+  contactInfo: z.unknown().optional(),
+});
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { answers, totalScore, potentialRevenue, resultProfile } = body;
+    const parsed = assessmentSchema.safeParse(body);
 
-    if (!answers || totalScore === undefined || potentialRevenue === undefined || !resultProfile) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    if (!parsed.success) {
+      return NextResponse.json({ error: "Invalid request data" }, { status: 400 });
     }
 
+    const { answers, totalScore, potentialRevenue, resultProfile } = parsed.data;
+
     const id = uuidv4();
-    const ipAddress = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
+    const rawIp = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
       ?? request.headers.get("x-real-ip")
       ?? null;
+    const ipAddress = rawIp ? hashIp(rawIp) : null;
 
     insertAssessment({
       id,
       answers: JSON.stringify(answers),
       totalScore,
       potentialRevenue,
-      resultProfile,
+      resultProfile: JSON.stringify(resultProfile),
       ipAddress,
     });
 
