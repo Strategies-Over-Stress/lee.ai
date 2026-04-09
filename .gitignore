@@ -53,3 +53,15 @@ apps/pilot/src-tauri/target/
 
 # assessment data
 apps/web/data/
+
+# pm agent state
+.pm/
+
+# playwright mcp cache
+.playwright-mcp/
+
+# typescript build info
+*.tsbuildinfo
+
+# local notes
+notes.md
