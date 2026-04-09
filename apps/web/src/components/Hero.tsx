@@ -1,11 +1,49 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { animate } from "framer-motion";
 import BillingReceipt from "./BillingReceipt";
+
+function CountUp({ value, start }: { value: string; start: boolean }) {
+  const [display, setDisplay] = useState("0");
+  const hasAnimated = useRef(false);
+
+  useEffect(() => {
+    if (!start || hasAnimated.current) return;
+    hasAnimated.current = true;
+    const numeric = parseFloat(value.replace(/[^0-9.]/g, ""));
+    const prefix = value.match(/^[^0-9]*/)?.[0] || "";
+    const valueSuffix = value.match(/[^0-9.]*$/)?.[0] || "";
+    if (isNaN(numeric)) { setDisplay(value); return; }
+
+    const controls = animate(0, numeric, {
+      duration: 1.5,
+      ease: "easeOut",
+      onUpdate: (v) => {
+        if (numeric >= 100) {
+          setDisplay(prefix + Math.round(v).toLocaleString() + valueSuffix);
+        } else {
+          setDisplay(prefix + Math.round(v) + valueSuffix);
+        }
+      },
+    });
+    return () => controls.stop();
+  }, [value, start]);
+
+  return <span>{display}</span>;
+}
 
 const SLIDE_COUNT = 4;
 const SWIPE_THRESHOLD = 50;
+
+// Auto-advance delays per slide (ms) — slide 1 (receipt) waits for onComplete callback
+const SLIDE_DELAYS: Record<number, number> = {
+  0: 3000,   // Hook — 3s to read
+  // 1: controlled by BillingReceipt onComplete
+  2: 6000,   // Solution — 6s to read
+  // 3: no auto-advance (final slide)
+};
 
 const stats = [
   { value: "$18K+", label: "Avg. annual savings", sub: "per client engagement" },
@@ -14,19 +52,16 @@ const stats = [
   { value: "10+", label: "Years of engineering", sub: "backing every build" },
 ];
 
-const slideVariants = {
-  enter: (direction: number) => ({
-    x: direction > 0 ? "100%" : "-100%",
+const fadeVariants = {
+  enter: {
     opacity: 0,
-  }),
+  },
   center: {
-    x: 0,
     opacity: 1,
   },
-  exit: (direction: number) => ({
-    x: direction > 0 ? "-100%" : "100%",
+  exit: {
     opacity: 0,
-  }),
+  },
 };
 
 function DotIndicators({
@@ -56,57 +91,56 @@ function DotIndicators({
   );
 }
 
-function SwipeHint() {
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ delay: 1.5 }}
-      className="flex items-center justify-center gap-2 text-text-muted text-sm"
-    >
-      <motion.span
-        animate={{ x: [-3, 3, -3] }}
-        transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
-      >
-        &larr;
-      </motion.span>
-      <span>Swipe</span>
-      <motion.span
-        animate={{ x: [3, -3, 3] }}
-        transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
-      >
-        &rarr;
-      </motion.span>
-    </motion.div>
-  );
-}
 
 function MobileCarousel() {
-  const [[slideIndex, direction], setSlide] = useState([0, 0]);
+  const [slideIndex, setSlideIndex] = useState(0);
+  const autoAdvanceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const userInteracted = useRef(false);
 
   const goTo = useCallback(
     (index: number) => {
       if (index < 0 || index >= SLIDE_COUNT || index === slideIndex) return;
-      setSlide([index, index > slideIndex ? 1 : -1]);
+      userInteracted.current = true;
+      if (autoAdvanceRef.current) clearTimeout(autoAdvanceRef.current);
+      setSlideIndex(index);
     },
     [slideIndex]
   );
 
+  const next = useCallback(() => {
+    if (slideIndex < SLIDE_COUNT - 1) {
+      setSlideIndex(slideIndex + 1);
+    }
+  }, [slideIndex]);
+
+  // Auto-advance for timed slides (0 and 2)
+  useEffect(() => {
+    if (userInteracted.current) return;
+    const delay = SLIDE_DELAYS[slideIndex];
+    if (delay) {
+      autoAdvanceRef.current = setTimeout(next, delay);
+      return () => { if (autoAdvanceRef.current) clearTimeout(autoAdvanceRef.current); };
+    }
+  }, [slideIndex, next]);
+
+  // BillingReceipt completion triggers next slide
+  const handleReceiptComplete = useCallback(() => {
+    if (!userInteracted.current && slideIndex === 1) {
+      next();
+    }
+  }, [slideIndex, next]);
+
   const handleDragEnd = useCallback(
     (_: unknown, info: { offset: { x: number }; velocity: { x: number } }) => {
+      userInteracted.current = true;
+      if (autoAdvanceRef.current) clearTimeout(autoAdvanceRef.current);
       const { offset, velocity } = info;
       const swipe = Math.abs(offset.x) * velocity.x;
 
       if (offset.x < -SWIPE_THRESHOLD || swipe < -1000) {
-        // Swiped left → next slide
-        if (slideIndex < SLIDE_COUNT - 1) {
-          setSlide([slideIndex + 1, 1]);
-        }
+        if (slideIndex < SLIDE_COUNT - 1) setSlideIndex(slideIndex + 1);
       } else if (offset.x > SWIPE_THRESHOLD || swipe > 1000) {
-        // Swiped right → previous slide
-        if (slideIndex > 0) {
-          setSlide([slideIndex - 1, -1]);
-        }
+        if (slideIndex > 0) setSlideIndex(slideIndex - 1);
       }
     },
     [slideIndex]
@@ -115,15 +149,14 @@ function MobileCarousel() {
   return (
     <section className="relative md:hidden min-h-[100dvh] flex flex-col overflow-hidden">
       <div className="flex-1 relative">
-        <AnimatePresence initial={false} custom={direction} mode="popLayout">
+        <AnimatePresence initial={false} mode="wait">
           <motion.div
             key={slideIndex}
-            custom={direction}
-            variants={slideVariants}
+            variants={fadeVariants}
             initial="enter"
             animate="center"
             exit="exit"
-            transition={{ duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
+            transition={{ duration: 0.6, ease: "easeInOut" }}
             drag="x"
             dragConstraints={{ left: 0, right: 0 }}
             dragElastic={0.15}
@@ -131,7 +164,7 @@ function MobileCarousel() {
             className="absolute inset-0 flex items-center justify-center px-6 touch-pan-y"
           >
             {slideIndex === 0 && <SlideHook />}
-            {slideIndex === 1 && <SlidePain />}
+            {slideIndex === 1 && <SlidePain onComplete={handleReceiptComplete} />}
             {slideIndex === 2 && <SlideSolution />}
             {slideIndex === 3 && <SlideProof />}
           </motion.div>
@@ -145,7 +178,6 @@ function MobileCarousel() {
           total={SLIDE_COUNT}
           onDotClick={goTo}
         />
-        {slideIndex === 0 && <SwipeHint />}
       </div>
     </section>
   );
@@ -168,10 +200,10 @@ function SlideHook() {
   );
 }
 
-function SlidePain() {
+function SlidePain({ onComplete }: { onComplete?: () => void }) {
   return (
     <div className="w-full z-10">
-      <BillingReceipt />
+      <BillingReceipt onComplete={onComplete} />
     </div>
   );
 }
@@ -197,21 +229,30 @@ function SlideSolution() {
         <span className="text-gradient font-semibold">Results you own</span>
         <span className="text-white/80 font-light">, not rent.</span>
       </motion.p>
-      <motion.p
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.5 }}
-        className="text-lg text-white font-semibold"
-      >
-        If it doesn&apos;t outperform what you have now, you don&apos;t pay.
-      </motion.p>
     </div>
   );
 }
 
 function SlideProof() {
+  const [countStarted, setCountStarted] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setCountStarted(true), 700);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <div className="text-center z-10 w-full max-w-md mx-auto">
+      {/* Guarantee */}
+      <motion.p
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="text-xl font-bold mb-8"
+      >
+        If it doesn&apos;t outperform what you have now,{" "}
+        <span className="text-gradient">you don&apos;t pay.</span>
+      </motion.p>
       {/* Stats */}
       <motion.div
         initial={{ opacity: 0 }}
@@ -221,7 +262,7 @@ function SlideProof() {
       >
         {stats.map((stat) => (
           <div key={stat.label} className="text-center">
-            <div className="text-2xl font-bold text-gradient">{stat.value}</div>
+            <div className="text-2xl font-bold text-gradient"><CountUp value={stat.value} start={countStarted} /></div>
             <div className="text-xs text-text-primary mt-1">{stat.label}</div>
             <div className="text-xs text-text-muted mt-0.5">{stat.sub}</div>
           </div>
