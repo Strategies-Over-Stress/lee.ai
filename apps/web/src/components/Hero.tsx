@@ -147,7 +147,7 @@ function MobileCarousel() {
   );
 
   return (
-    <section className="relative md:hidden min-h-[100dvh] flex flex-col overflow-hidden">
+    <section className="relative md:hidden min-h-[100dvh] flex flex-col overflow-hidden pt-20">
       <div className="flex-1 relative">
         <AnimatePresence initial={false} mode="wait">
           <motion.div
