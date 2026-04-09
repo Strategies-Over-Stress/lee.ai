@@ -68,7 +68,7 @@ function TotalPrice({ startDelay, shouldStart }: { startDelay: number; shouldSta
   );
 }
 
-export default function BillingReceipt() {
+export default function BillingReceipt({ onComplete }: { onComplete?: () => void } = {}) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, amount: 0.3 });
 
@@ -78,6 +78,14 @@ export default function BillingReceipt() {
   const totalAppearDelay = specialistAppearDelay + ITEM_STAGGER + COUNT_DURATION / 1000;
   // Caution emoji bounces in shortly after total
   const cautionDelay = totalAppearDelay + 0.4;
+  // Total animation completion time
+  const completionTime = totalAppearDelay + COUNT_DURATION / 1000 + 1.0;
+
+  useEffect(() => {
+    if (!isInView || !onComplete) return;
+    const timer = setTimeout(onComplete, completionTime * 1000);
+    return () => clearTimeout(timer);
+  }, [isInView, onComplete, completionTime]);
 
   return (
     <div ref={ref} className="relative max-w-lg mx-auto mb-10 overflow-hidden md:overflow-visible py-16">

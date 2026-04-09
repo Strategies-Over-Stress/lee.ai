@@ -96,13 +96,13 @@ export default function Differentiator() {
   const [openId, setOpenId] = useState<string | null>(features[0].id);
 
   return (
-    <section className="relative py-32 px-6 bg-accent/[0.02]" ref={ref}>
+    <section className="relative py-16 md:py-32 px-4 md:px-6 bg-accent/[0.02]" ref={ref}>
       <div className="max-w-6xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          className="text-center mb-8 md:mb-16"
         >
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-accent/10 mb-6">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -113,7 +113,7 @@ export default function Differentiator() {
           <span className="font-mono text-accent text-sm tracking-widest uppercase">
             Why This Is Different
           </span>
-          <h2 className="text-4xl sm:text-5xl font-bold mt-4">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mt-3 md:mt-4">
             Not another subscription
           </h2>
           <p className="text-text-secondary mt-4 text-lg max-w-2xl mx-auto">
@@ -142,7 +142,8 @@ export default function Differentiator() {
                       const target = (e.currentTarget as HTMLElement).closest('[data-accordion]');
                       setTimeout(() => {
                         if (target) {
-                          const y = target.getBoundingClientRect().top + window.scrollY - 20;
+                          const navHeight = window.innerWidth < 768 ? 64 : 112;
+                          const y = target.getBoundingClientRect().top + window.scrollY - navHeight - 16;
                           window.scrollTo({ top: y, behavior: 'smooth' });
                         }
                       }, 350);
@@ -176,7 +177,7 @@ export default function Differentiator() {
                       <div className="px-5 pb-6">
                         {/* Giant stat */}
                         <div className="mb-6">
-                          <div className="text-5xl sm:text-6xl font-black text-gradient">{feature.stat}</div>
+                          <div className="text-4xl sm:text-5xl md:text-6xl font-black text-gradient">{feature.stat}</div>
                           <div className="text-sm text-white/50 mt-2">{feature.statLabel}</div>
                         </div>
 
