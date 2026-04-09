@@ -35,9 +35,14 @@ function checkRateLimit(ip: string, path: string): { allowed: boolean; retryAfte
   const config = RATE_LIMITS[path];
   if (!config) return { allowed: true };
 
-  requestCounter++;
-  if (requestCounter % 100 === 0) {
+  // Cleanup on every request if over capacity, otherwise periodic
+  if (rateLimitStore.size >= MAX_STORE_SIZE) {
     cleanupExpiredEntries();
+  } else {
+    requestCounter++;
+    if (requestCounter % 100 === 0) {
+      cleanupExpiredEntries();
+    }
   }
 
   const key = `${ip}:${path}`;
@@ -45,6 +50,10 @@ function checkRateLimit(ip: string, path: string): { allowed: boolean; retryAfte
   const entry = rateLimitStore.get(key);
 
   if (!entry || now >= entry.resetAt) {
+    // Reject new entries if still at capacity after cleanup (active abuse)
+    if (!entry && rateLimitStore.size >= MAX_STORE_SIZE) {
+      return { allowed: false, retryAfterSeconds: 60 };
+    }
     rateLimitStore.set(key, { count: 1, resetAt: now + config.windowMs });
     return { allowed: true };
   }
