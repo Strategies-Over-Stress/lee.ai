@@ -167,8 +167,29 @@ sos-feature status
 ### Branching Convention
 
 - **`main`** — stable, production-ready. All PRs merge here. Never commit directly.
+- **`staging`** — pre-production testing. Merged from main, deployed via `deploy.sh staging`.
+- **`production`** — live production. Release tags are merged here before deploying via `deploy.sh production`.
 - **`feature/RICH-{N}-description`** — feature branches tied to Jira tickets.
 - Branch names are auto-generated from ticket summary: `feature/RICH-5-add-risk-reversal-to-contact`
+
+### Release & Deploy Flow
+
+```
+main (all PRs merge here)
+  ↓  git tag YYYY-MM-DD
+  ↓  git checkout production && git merge YYYY-MM-DD
+  ↓  bash apps/web/deploy.sh production
+```
+
+1. **Tag the release** on main with the date: `git tag 2026-04-09`
+2. **Merge the tag** into `production`: `git checkout production && git merge 2026-04-09`
+3. **Deploy**: `bash apps/web/deploy.sh production`
+
+For staging (pre-production testing):
+```
+git checkout staging && git merge main && git push origin staging
+bash apps/web/deploy.sh staging
+```
 
 ### Ticket Status ↔ Git State
 
