@@ -161,6 +161,7 @@ export default function Assessment() {
     const potential = Math.round(monthlyRevenue * (pct / 100));
     const result = getResult(score);
 
+    setError(null);
     try {
       const res = await fetch("/api/assessment", {
         method: "POST",
@@ -173,6 +174,11 @@ export default function Assessment() {
           timeSpentMs: Date.now() - startTime.current,
         }),
       });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error || "Something went wrong. Please try again.");
+        return;
+      }
       const data = await res.json();
       if (data.id) setAssessmentId(data.id);
     } catch {
@@ -184,6 +190,7 @@ export default function Assessment() {
     e.preventDefault();
     if (!assessmentId) return;
     setSubmitting(true);
+    setError(null);
     try {
       const res = await fetch("/api/consultation", {
         method: "POST",
@@ -193,8 +200,16 @@ export default function Assessment() {
           ...consultationForm,
         }),
       });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error || "Something went wrong. Please try again.");
+        return;
+      }
       const data = await res.json();
-      if (data.success) setPhase("confirmed");
+      if (data.success) {
+        setError(null);
+        setPhase("confirmed");
+      }
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {
@@ -216,6 +231,7 @@ export default function Assessment() {
     setAnswers({});
     setPhase("quiz");
     setAssessmentId(null);
+    setError(null);
     setConsultationForm({ name: "", email: "", phone: "", preferredTime: "", businessDescription: "" });
     startTime.current = Date.now();
   };

@@ -2,7 +2,15 @@ import Database from "better-sqlite3";
 import crypto from "crypto";
 import path from "path";
 
-const IP_SALT = process.env.IP_SALT || "lee-ai-ip-hash-salt-v1";
+function resolveIpSalt(): string {
+  const configuredSalt = process.env.IP_SALT?.trim();
+  if (configuredSalt) return configuredSalt;
+  if (process.env.NODE_ENV !== "production") return crypto.randomBytes(32).toString("hex");
+  console.warn("[WARN] IP_SALT not set — using random salt. Set IP_SALT env var for consistent IP hashing.");
+  return crypto.randomBytes(32).toString("hex");
+}
+
+const IP_SALT = resolveIpSalt();
 
 export function hashIp(ip: string): string {
   return crypto.createHmac("sha256", IP_SALT).update(ip).digest("hex");

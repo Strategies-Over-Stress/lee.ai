@@ -12,8 +12,14 @@ const consultationSchema = z.object({
 });
 
 export async function POST(request: NextRequest) {
+  let body: unknown;
   try {
-    const body = await request.json();
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+  }
+
+  try {
     const parsed = consultationSchema.safeParse(body);
 
     if (!parsed.success) {
@@ -40,7 +46,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Failed to update assessment" }, { status: 500 });
     }
 
-    console.log(`[CONSULTATION] New request from ${email} (assessment: ${assessmentId})`);
+    console.log(`[CONSULTATION] New request received (assessment: ${assessmentId})`);
 
     return NextResponse.json({ success: true, assessmentId });
   } catch {

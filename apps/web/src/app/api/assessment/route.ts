@@ -11,15 +11,21 @@ const assessmentSchema = z.object({
   totalScore: z.number().int().min(0).max(100),
   potentialRevenue: z.number().min(0).max(1000000),
   resultProfile: z.object({
-    title: z.string(),
-    color: z.string(),
-  }).passthrough(),
+    title: z.string().max(200),
+    color: z.string().max(50),
+  }).strict(),
   contactInfo: z.unknown().optional(),
 });
 
 export async function POST(request: NextRequest) {
+  let body: unknown;
   try {
-    const body = await request.json();
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+  }
+
+  try {
     const parsed = assessmentSchema.safeParse(body);
 
     if (!parsed.success) {

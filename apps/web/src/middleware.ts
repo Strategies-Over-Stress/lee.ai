@@ -7,6 +7,7 @@ interface RateLimitEntry {
   resetAt: number;
 }
 
+const MAX_STORE_SIZE = 10000;
 const rateLimitStore = new Map<string, RateLimitEntry>();
 let requestCounter = 0;
 
@@ -22,11 +23,17 @@ function cleanupExpiredEntries() {
       rateLimitStore.delete(key);
     }
   }
+  // LRU eviction if store exceeds max size
+  if (rateLimitStore.size > MAX_STORE_SIZE) {
+    const entries = [...rateLimitStore.entries()].sort((a, b) => a[1].resetAt - b[1].resetAt);
+    const toRemove = entries.slice(0, rateLimitStore.size - MAX_STORE_SIZE);
+    for (const [key] of toRemove) rateLimitStore.delete(key);
+  }
 }
 
-function checkRateLimit(ip: string, path: string): boolean {
+function checkRateLimit(ip: string, path: string): { allowed: boolean; retryAfterSeconds?: number } {
   const config = RATE_LIMITS[path];
-  if (!config) return true;
+  if (!config) return { allowed: true };
 
   requestCounter++;
   if (requestCounter % 100 === 0) {
@@ -39,11 +46,12 @@ function checkRateLimit(ip: string, path: string): boolean {
 
   if (!entry || now >= entry.resetAt) {
     rateLimitStore.set(key, { count: 1, resetAt: now + config.windowMs });
-    return true;
+    return { allowed: true };
   }
 
   entry.count++;
-  return entry.count <= config.max;
+  if (entry.count <= config.max) return { allowed: true };
+  return { allowed: false, retryAfterSeconds: Math.ceil((entry.resetAt - now) / 1000) };
 }
 
 // --- CSRF Protection ---
@@ -54,7 +62,7 @@ const ALLOWED_ORIGINS = [
   "https://www.notsaas.net",
   "http://localhost:3000",
   "http://localhost:3001",
-].filter(Boolean);
+].filter(Boolean).map((url) => url!.replace(/\/+$/, "").toLowerCase());
 
 function checkCsrf(request: NextRequest): boolean {
   const origin = request.headers.get("origin");
@@ -63,14 +71,13 @@ function checkCsrf(request: NextRequest): boolean {
   if (!origin) {
     const referer = request.headers.get("referer");
     const secFetchSite = request.headers.get("sec-fetch-site");
-    // Browser requests always have sec-fetch-site; its absence indicates a non-browser context
     if (!referer && !secFetchSite) return true;
-    // same-origin browser requests are allowed
     if (secFetchSite === "same-origin") return true;
     return false;
   }
 
-  return ALLOWED_ORIGINS.some((allowed) => origin === allowed);
+  const normalizedOrigin = origin.replace(/\/+$/, "").toLowerCase();
+  return ALLOWED_ORIGINS.some((allowed) => normalizedOrigin === allowed);
 }
 
 // --- Middleware ---
@@ -90,11 +97,15 @@ export function middleware(request: NextRequest) {
       const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
         ?? request.headers.get("x-real-ip")
         ?? "unknown";
+      const { allowed, retryAfterSeconds } = checkRateLimit(ip, pathname);
 
-      if (!checkRateLimit(ip, pathname)) {
+      if (!allowed) {
         return NextResponse.json(
           { error: "Too many requests. Please try again later." },
-          { status: 429 }
+          {
+            status: 429,
+            headers: retryAfterSeconds ? { "Retry-After": String(retryAfterSeconds) } : {},
+          }
         );
       }
     }
