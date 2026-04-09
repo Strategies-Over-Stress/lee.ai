@@ -60,10 +60,7 @@ export default function Navbar() {
         hidden && !menuOpen ? "-translate-y-full" : "translate-y-0"
       }`}
     >
-    <motion.nav
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
+    <nav
       className={
         "transition-colors duration-300 " +
         (scrolled || menuOpen
@@ -156,7 +153,7 @@ export default function Navbar() {
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.nav>
+    </nav>
     </div>
   );
 }
