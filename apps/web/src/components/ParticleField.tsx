@@ -1,108 +1,129 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface Particle {
   x: number;
   y: number;
   vx: number;
   vy: number;
-  size: number;
-  opacity: number;
-  hue: number;
 }
 
-export default function ParticleField() {
+interface Props {
+  count?: number;
+  mobileCount?: number;
+  opacity?: number;
+}
+
+export default function ParticleField({ count = 60, mobileCount = 20, opacity = 1 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
+    const ro = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        setIsMobile(entry.contentRect.width < 640);
+      }
+    });
+    ro.observe(canvas);
+
+    return () => ro.disconnect();
+  }, []);
+
+  const activeCount = isMobile ? mobileCount : count;
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    let animationId: number;
+    let animId: number;
     let particles: Particle[] = [];
 
     const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
     };
 
-    const createParticles = () => {
-      const count = Math.floor((canvas.width * canvas.height) / 8000);
-      particles = Array.from({ length: count }, () => ({
+    const init = () => {
+      resize();
+      particles = Array.from({ length: activeCount }, () => ({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        vx: (Math.random() - 0.5) * 0.15,
-        vy: (Math.random() - 0.5) * 0.15,
-        size: Math.random() * 1.5 + 0.5,
-        opacity: Math.random() * 0.6 + 0.2,
-        hue: 239,
+        vx: (Math.random() - 0.5) * 0.6,
+        vy: (Math.random() - 0.5) * 0.6,
       }));
     };
 
     const draw = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      particles.forEach((p, i) => {
-        p.opacity += ((Math.random() * 0.4 + 0.2) - p.opacity) * 0.005;
-
+      for (const p of particles) {
         p.x += p.vx;
         p.y += p.vy;
-        p.vx *= 0.998;
-        p.vy *= 0.998;
-
-        // Wrap around
         if (p.x < 0) p.x = canvas.width;
         if (p.x > canvas.width) p.x = 0;
         if (p.y < 0) p.y = canvas.height;
         if (p.y > canvas.height) p.y = 0;
+      }
 
-        // Draw star
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = `hsla(239, 60%, 80%, ${p.opacity})`;
-        ctx.fill();
-
-        // Draw constellation lines to nearby stars
+      // Constellation lines
+      const maxDist = 130;
+      for (let i = 0; i < particles.length; i++) {
         for (let j = i + 1; j < particles.length; j++) {
-          const p2 = particles[j];
-          const d = Math.sqrt((p.x - p2.x) ** 2 + (p.y - p2.y) ** 2);
-          if (d < 150) {
-            const lineOpacity = 0.12 * (1 - d / 150);
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < maxDist) {
+            const lineOpacity = (1 - dist / maxDist) * 0.15 * opacity;
             ctx.beginPath();
-            ctx.moveTo(p.x, p.y);
-            ctx.lineTo(p2.x, p2.y);
-            ctx.strokeStyle = `hsla(239, 50%, 75%, ${lineOpacity})`;
-            ctx.lineWidth = 0.4;
+            ctx.strokeStyle = `rgba(99,102,241,${lineOpacity})`;
+            ctx.lineWidth = 0.8;
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
             ctx.stroke();
           }
         }
-      });
+      }
 
-      animationId = requestAnimationFrame(draw);
+      // Dots
+      for (const p of particles) {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 1.5, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(99,102,241,${0.5 * opacity})`;
+        ctx.fill();
+      }
+
+      animId = requestAnimationFrame(draw);
     };
 
-    resize();
-    createParticles();
+    init();
     draw();
 
-    const handleResize = () => { resize(); createParticles(); };
-    window.addEventListener("resize", handleResize);
+    const ro = new ResizeObserver(() => { resize(); });
+    ro.observe(canvas);
 
     return () => {
-      cancelAnimationFrame(animationId);
-      window.removeEventListener("resize", handleResize);
+      cancelAnimationFrame(animId);
+      ro.disconnect();
     };
-  }, []);
+  }, [activeCount, opacity]);
 
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 pointer-events-none z-0"
-      style={{ opacity: 0.7, willChange: "transform" }}
+      style={{
+        position: "absolute",
+        inset: 0,
+        width: "100%",
+        height: "100%",
+        pointerEvents: "none",
+        display: "block",
+      }}
     />
   );
 }
