@@ -17,9 +17,7 @@ export default function Home() {
       {/* Hero — dark with particles */}
       <div className="relative grid-bg">
         <ParticleField />
-        <div className="relative z-10">
-          <Hero />
-        </div>
+        <Hero />
       </div>
 
       {/* Case Study — light background */}
