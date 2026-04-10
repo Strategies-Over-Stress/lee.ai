@@ -12,11 +12,11 @@ import Contact from "@/components/Contact";
 export default function Home() {
   return (
     <main className="relative">
+      <ParticleField />
       <Navbar />
 
       {/* Hero — dark with particles */}
       <div className="relative grid-bg">
-        <ParticleField />
         <Hero />
       </div>
 
