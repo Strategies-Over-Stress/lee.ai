@@ -32,6 +32,7 @@ export default function Navbar() {
       style={{
         transform: hidden && !menuOpen ? "translateY(-100%)" : "translateY(0)",
         transition: "transform 0.3s ease",
+        willChange: "transform",
       }}
     >
       <div className="max-w-6xl mx-auto px-6 flex items-center justify-between h-16 sm:h-28 py-2 sm:py-4">
