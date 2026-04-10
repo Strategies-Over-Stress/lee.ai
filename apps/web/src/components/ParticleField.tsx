@@ -24,15 +24,10 @@ export default function ParticleField() {
 
     let animationId: number;
     let particles: Particle[] = [];
-    let mouse = { x: -1000, y: -1000 };
-    let scrolling = false;
-    let scrollTimeout: ReturnType<typeof setTimeout>;
 
     const resize = () => {
-      const parent = canvas.parentElement;
-      if (!parent) return;
-      canvas.width = parent.clientWidth;
-      canvas.height = parent.clientHeight;
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
     };
 
     const createParticles = () => {
@@ -52,27 +47,7 @@ export default function ParticleField() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       particles.forEach((p, i) => {
-        // Mouse interaction — draw connections to cursor
-        const dx = mouse.x - p.x;
-        const dy = mouse.y - p.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-
-        if (dist < 200) {
-          const force = (200 - dist) / 200;
-          p.vx += (dx / dist) * force * 0.005;
-          p.vy += (dy / dist) * force * 0.005;
-          p.opacity = Math.min(0.9, p.opacity + force * 0.2);
-
-          // Line to cursor
-          ctx.beginPath();
-          ctx.moveTo(p.x, p.y);
-          ctx.lineTo(mouse.x, mouse.y);
-          ctx.strokeStyle = `hsla(239, 70%, 75%, ${0.04 * force})`;
-          ctx.lineWidth = 0.3;
-          ctx.stroke();
-        } else {
-          p.opacity += ((Math.random() * 0.4 + 0.2) - p.opacity) * 0.005;
-        }
+        p.opacity += ((Math.random() * 0.4 + 0.2) - p.opacity) * 0.005;
 
         p.x += p.vx;
         p.y += p.vy;
@@ -110,47 +85,24 @@ export default function ParticleField() {
       animationId = requestAnimationFrame(draw);
     };
 
-    const handleMouseMove = (e: MouseEvent) => {
-      const rect = canvas.getBoundingClientRect();
-      mouse.x = e.clientX - rect.left;
-      mouse.y = e.clientY - rect.top;
-    };
-
-    const handleScroll = () => {
-      if (!scrolling) {
-        scrolling = true;
-        cancelAnimationFrame(animationId);
-      }
-      clearTimeout(scrollTimeout);
-      scrollTimeout = setTimeout(() => {
-        scrolling = false;
-        draw();
-      }, 150);
-    };
-
     resize();
     createParticles();
     draw();
 
     const handleResize = () => { resize(); createParticles(); };
     window.addEventListener("resize", handleResize);
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("scroll", handleScroll, { passive: true });
 
     return () => {
       cancelAnimationFrame(animationId);
-      clearTimeout(scrollTimeout);
       window.removeEventListener("resize", handleResize);
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("scroll", handleScroll);
     };
   }, []);
 
   return (
     <canvas
       ref={canvasRef}
-      className="absolute inset-0 pointer-events-none z-0"
-      style={{ opacity: 0.7 }}
+      className="fixed inset-0 pointer-events-none z-0"
+      style={{ opacity: 0.7, willChange: "transform" }}
     />
   );
 }

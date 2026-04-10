@@ -15,7 +15,7 @@ export default function Home() {
       <Navbar />
 
       {/* Hero — dark with particles */}
-      <div className="relative overflow-hidden grid-bg">
+      <div className="relative grid-bg">
         <ParticleField />
         <div className="relative z-10">
           <Hero />
