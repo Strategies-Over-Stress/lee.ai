@@ -16,10 +16,11 @@ const RATE_LIMITS: Record<string, { max: number; windowMs: number }> = {
 };
 
 function getClientIp(request: NextRequest): string {
-  return request.headers.get("cf-connecting-ip")
-    ?? request.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
-    ?? request.headers.get("x-real-ip")
-    ?? "unknown";
+  // Only trust CF headers if the request actually came through Cloudflare
+  const cfRay = request.headers.get("cf-ray");
+  const cfConnectingIp = request.headers.get("cf-connecting-ip");
+  if (cfRay && cfConnectingIp) return cfConnectingIp;
+  return "unknown";
 }
 
 function cleanupExpiredEntries() {
@@ -35,10 +36,23 @@ function cleanupExpiredEntries() {
   }
 }
 
+function evictOldest() {
+  let oldestKey: string | null = null;
+  let oldestReset = Infinity;
+  for (const [key, entry] of rateLimitStore) {
+    if (entry.resetAt < oldestReset) {
+      oldestReset = entry.resetAt;
+      oldestKey = key;
+    }
+  }
+  if (oldestKey) rateLimitStore.delete(oldestKey);
+}
+
 function checkRateLimit(ip: string, path: string): { allowed: boolean; retryAfterSeconds?: number } {
   const config = RATE_LIMITS[path];
   if (!config) return { allowed: true };
 
+  // Cleanup expired entries when at capacity
   if (rateLimitStore.size >= MAX_STORE_SIZE) {
     cleanupExpiredEntries();
   }
@@ -48,8 +62,9 @@ function checkRateLimit(ip: string, path: string): { allowed: boolean; retryAfte
   const entry = rateLimitStore.get(key);
 
   if (!entry || now >= entry.resetAt) {
+    // Evict oldest to make room for new entry
     if (!entry && rateLimitStore.size >= MAX_STORE_SIZE) {
-      return { allowed: false, retryAfterSeconds: 60 };
+      evictOldest();
     }
     rateLimitStore.set(key, { count: 1, resetAt: now + config.windowMs });
     return { allowed: true };
