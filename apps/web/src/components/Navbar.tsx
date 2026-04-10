@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 
@@ -11,66 +11,28 @@ const links = [
   { label: "Contact", href: "#contact" },
 ];
 
-const SCROLL_DEAD_ZONE = 15;
-
 export default function Navbar() {
-  const navRef = useRef<HTMLDivElement>(null);
-  const lastScrollY = useRef(0);
-  const scrollDelta = useRef(0);
-  const isHidden = useRef(false);
-  const isScrolled = useRef(false);
+  const [hidden, setHidden] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const lastScrollY = useRef(0);
 
   useEffect(() => {
-    const el = navRef.current;
-    if (!el) return;
-
     const onScroll = () => {
       const y = window.scrollY;
-
-      // Background — direct classList toggle, zero React
-      const nowScrolled = y > 50;
-      if (nowScrolled !== isScrolled.current) {
-        isScrolled.current = nowScrolled;
-        el.classList.toggle("nav-scrolled", nowScrolled);
-      }
-
-      // Hide/show — direct style.transform, zero React
-      const delta = y - lastScrollY.current;
-      let nowHidden = isHidden.current;
-
-      if (y <= 100) {
-        nowHidden = false;
-        scrollDelta.current = 0;
-      } else {
-        if (
-          (delta > 0 && scrollDelta.current < 0) ||
-          (delta < 0 && scrollDelta.current > 0)
-        ) {
-          scrollDelta.current = delta;
-        } else {
-          scrollDelta.current += delta;
-        }
-        if (scrollDelta.current > SCROLL_DEAD_ZONE) nowHidden = true;
-        else if (scrollDelta.current < -SCROLL_DEAD_ZONE) nowHidden = false;
-      }
-
-      if (nowHidden !== isHidden.current) {
-        isHidden.current = nowHidden;
-        el.style.transform = nowHidden ? "translateY(-100%)" : "translateY(0)";
-      }
-
+      setHidden(y > lastScrollY.current && y > 100);
       lastScrollY.current = y;
     };
-
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   return (
-    <div
-      ref={navRef}
-      className="fixed top-0 left-0 right-0 z-50 transition-transform duration-300 ease-out bg-midnight/85 backdrop-blur-md border-b border-surface-light/80"
+    <nav
+      className="fixed top-0 left-0 right-0 z-50 bg-midnight/85 backdrop-blur-md border-b border-surface-light/80"
+      style={{
+        transform: hidden && !menuOpen ? "translateY(-100%)" : "translateY(0)",
+        transition: "transform 0.3s ease",
+      }}
     >
       <div className="max-w-6xl mx-auto px-6 flex items-center justify-between h-16 sm:h-28 py-2 sm:py-4">
         <a href="/" className="flex items-center gap-2">
@@ -157,6 +119,6 @@ export default function Navbar() {
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </nav>
   );
 }
