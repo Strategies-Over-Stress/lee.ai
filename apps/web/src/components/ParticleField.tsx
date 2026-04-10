@@ -15,7 +15,7 @@ interface Props {
   opacity?: number;
 }
 
-export default function ParticleField({ count = 60, mobileCount = 20, opacity = 1 }: Props) {
+export default function ParticleField({ count = 120, mobileCount = 40, opacity = 0.7 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -45,8 +45,8 @@ export default function ParticleField({ count = 60, mobileCount = 20, opacity = 
     let particles: Particle[] = [];
 
     const resize = () => {
-      canvas.width = canvas.offsetWidth;
-      canvas.height = canvas.offsetHeight;
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
     };
 
     const init = () => {
@@ -104,26 +104,20 @@ export default function ParticleField({ count = 60, mobileCount = 20, opacity = 
     init();
     draw();
 
-    const ro = new ResizeObserver(() => { resize(); });
-    ro.observe(canvas);
+    const handleResize = () => { init(); };
+    window.addEventListener("resize", handleResize);
 
     return () => {
       cancelAnimationFrame(animId);
-      ro.disconnect();
+      window.removeEventListener("resize", handleResize);
     };
   }, [activeCount, opacity]);
 
   return (
     <canvas
       ref={canvasRef}
-      style={{
-        position: "absolute",
-        inset: 0,
-        width: "100%",
-        height: "100%",
-        pointerEvents: "none",
-        display: "block",
-      }}
+      className="fixed inset-0 pointer-events-none z-0"
+      style={{ opacity: 1, willChange: "transform" }}
     />
   );
 }
