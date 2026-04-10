@@ -70,17 +70,7 @@ export default function Navbar() {
   return (
     <div
       ref={navRef}
-      className="nav-bg"
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 50,
-        transform: "translateY(0)",
-        transition: "transform 300ms ease-out, background-color 300ms, border-color 300ms",
-        willChange: "transform",
-      }}
+      className="fixed top-0 left-0 right-0 z-50 transition-transform duration-300 ease-out bg-midnight/85 backdrop-blur-md border-b border-surface-light/80"
     >
       <div className="max-w-6xl mx-auto px-6 flex items-center justify-between h-16 sm:h-28 py-2 sm:py-4">
         <a href="/" className="flex items-center gap-2">
