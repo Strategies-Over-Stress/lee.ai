@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 
@@ -19,46 +19,76 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const lastScrollY = useRef(0);
   const scrollDelta = useRef(0);
+  const isHidden = useRef(false);
+  const isScrolled = useRef(false);
+  const rafId = useRef<number>(0);
+
+  const handleScroll = useCallback(() => {
+    const y = window.scrollY;
+
+    // Only update scrolled state when it actually changes
+    const nowScrolled = y > 50;
+    if (nowScrolled !== isScrolled.current) {
+      isScrolled.current = nowScrolled;
+      setScrolled(nowScrolled);
+    }
+
+    const delta = y - lastScrollY.current;
+
+    let nowHidden = isHidden.current;
+    if (y <= 100) {
+      nowHidden = false;
+      scrollDelta.current = 0;
+    } else {
+      if (
+        (delta > 0 && scrollDelta.current < 0) ||
+        (delta < 0 && scrollDelta.current > 0)
+      ) {
+        scrollDelta.current = delta;
+      } else {
+        scrollDelta.current += delta;
+      }
+
+      if (scrollDelta.current > SCROLL_DEAD_ZONE) {
+        nowHidden = true;
+      } else if (scrollDelta.current < -SCROLL_DEAD_ZONE) {
+        nowHidden = false;
+      }
+    }
+
+    // Only update hidden state when it actually changes
+    if (nowHidden !== isHidden.current) {
+      isHidden.current = nowHidden;
+      setHidden(nowHidden);
+    }
+
+    lastScrollY.current = y;
+  }, []);
 
   useEffect(() => {
     const onScroll = () => {
-      const y = window.scrollY;
-      setScrolled(y > 50);
-
-      const delta = y - lastScrollY.current;
-
-      if (y <= 100) {
-        setHidden(false);
-        scrollDelta.current = 0;
-      } else {
-        // Reset accumulator on direction change
-        if (
-          (delta > 0 && scrollDelta.current < 0) ||
-          (delta < 0 && scrollDelta.current > 0)
-        ) {
-          scrollDelta.current = delta;
-        } else {
-          scrollDelta.current += delta;
-        }
-
-        if (scrollDelta.current > SCROLL_DEAD_ZONE) {
-          setHidden(true);
-        } else if (scrollDelta.current < -SCROLL_DEAD_ZONE) {
-          setHidden(false);
-        }
-      }
-
-      lastScrollY.current = y;
+      cancelAnimationFrame(rafId.current);
+      rafId.current = requestAnimationFrame(handleScroll);
     };
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      cancelAnimationFrame(rafId.current);
+    };
+  }, [handleScroll]);
 
   return (
     <div
-      className={`fixed top-0 left-0 right-0 z-50 will-change-transform transition-transform duration-300 ease-out ${
-        hidden && !menuOpen ? "-translate-y-full" : "translate-y-0"
-      }`}
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 50,
+        transform: hidden && !menuOpen ? "translateY(-100%)" : "translateY(0)",
+        transition: "transform 300ms ease-out",
+        willChange: "transform",
+      }}
     >
     <nav
       className={
