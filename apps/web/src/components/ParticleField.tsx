@@ -27,8 +27,10 @@ export default function ParticleField() {
     let mouse = { x: -1000, y: -1000 };
 
     const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      const parent = canvas.parentElement;
+      if (!parent) return;
+      canvas.width = parent.clientWidth;
+      canvas.height = parent.clientHeight;
     };
 
     const createParticles = () => {
@@ -107,8 +109,9 @@ export default function ParticleField() {
     };
 
     const handleMouseMove = (e: MouseEvent) => {
-      mouse.x = e.clientX;
-      mouse.y = e.clientY;
+      const rect = canvas.getBoundingClientRect();
+      mouse.x = e.clientX - rect.left;
+      mouse.y = e.clientY - rect.top;
     };
 
     resize();
@@ -131,7 +134,7 @@ export default function ParticleField() {
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 pointer-events-none z-0"
+      className="absolute inset-0 pointer-events-none z-0"
       style={{ opacity: 0.7 }}
     />
   );

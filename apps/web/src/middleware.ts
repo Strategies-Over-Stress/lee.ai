@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
+export const runtime = "nodejs";
+
 // --- Rate Limiting (in-memory, per-IP — backup for Cloudflare edge rules) ---
 
 interface RateLimitEntry {
