@@ -267,13 +267,12 @@ function HeroCarousel() {
   return (
     <section className="relative min-h-[100dvh] flex flex-col overflow-hidden pt-20 md:pt-36 lg:pt-44">
       <div className="flex-1 relative">
-        <AnimatePresence initial={false} mode="wait">
+        <AnimatePresence mode="wait">
           <motion.div
             key={slideIndex}
-            variants={fadeVariants}
-            initial="enter"
-            animate="center"
-            exit="exit"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             transition={{ duration: 0.6, ease: "easeInOut" }}
             drag="x"
             dragConstraints={{ left: 0, right: 0 }}
