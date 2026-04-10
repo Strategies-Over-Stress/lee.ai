@@ -51,7 +51,7 @@ function QuoteCarousel() {
       onMouseEnter={() => { if (timerRef.current) clearInterval(timerRef.current); }}
       onMouseLeave={() => startTimer()}
     >
-      <div className="h-[420px] sm:h-[280px] md:h-[240px] relative overflow-hidden flex items-center">
+      <div className="relative overflow-hidden flex items-center">
         <AnimatePresence mode="wait">
           <motion.div
             key={current}
