@@ -265,7 +265,7 @@ function HeroCarousel() {
   );
 
   return (
-    <section className="relative min-h-[100dvh] flex flex-col overflow-hidden pt-20 md:pt-36 lg:pt-44">
+    <section className="relative min-h-screen flex flex-col overflow-hidden pt-20 md:pt-36 lg:pt-44">
       <div className="flex-1 relative">
         <AnimatePresence mode="wait">
           <motion.div
