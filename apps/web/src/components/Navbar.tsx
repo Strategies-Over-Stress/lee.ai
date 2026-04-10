@@ -28,7 +28,7 @@ export default function Navbar() {
 
   return (
     <nav
-      className="fixed top-0 left-0 right-0 z-50 bg-midnight/85 backdrop-blur-md border-b border-surface-light/80"
+      className="fixed top-0 left-0 right-0 z-50 bg-midnight/95 border-b border-surface-light/80"
       style={{
         transform: hidden && !menuOpen ? "translateY(-100%)" : "translateY(0)",
         transition: "transform 0.3s ease",
