@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 
@@ -14,89 +14,73 @@ const links = [
 const SCROLL_DEAD_ZONE = 15;
 
 export default function Navbar() {
-  const [scrolled, setScrolled] = useState(false);
-  const [hidden, setHidden] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
+  const navRef = useRef<HTMLDivElement>(null);
   const lastScrollY = useRef(0);
   const scrollDelta = useRef(0);
   const isHidden = useRef(false);
   const isScrolled = useRef(false);
-  const rafId = useRef<number>(0);
-
-  const handleScroll = useCallback(() => {
-    const y = window.scrollY;
-
-    // Only update scrolled state when it actually changes
-    const nowScrolled = y > 50;
-    if (nowScrolled !== isScrolled.current) {
-      isScrolled.current = nowScrolled;
-      setScrolled(nowScrolled);
-    }
-
-    const delta = y - lastScrollY.current;
-
-    let nowHidden = isHidden.current;
-    if (y <= 100) {
-      nowHidden = false;
-      scrollDelta.current = 0;
-    } else {
-      if (
-        (delta > 0 && scrollDelta.current < 0) ||
-        (delta < 0 && scrollDelta.current > 0)
-      ) {
-        scrollDelta.current = delta;
-      } else {
-        scrollDelta.current += delta;
-      }
-
-      if (scrollDelta.current > SCROLL_DEAD_ZONE) {
-        nowHidden = true;
-      } else if (scrollDelta.current < -SCROLL_DEAD_ZONE) {
-        nowHidden = false;
-      }
-    }
-
-    // Only update hidden state when it actually changes
-    if (nowHidden !== isHidden.current) {
-      isHidden.current = nowHidden;
-      setHidden(nowHidden);
-    }
-
-    lastScrollY.current = y;
-  }, []);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
+    const el = navRef.current;
+    if (!el) return;
+
     const onScroll = () => {
-      cancelAnimationFrame(rafId.current);
-      rafId.current = requestAnimationFrame(handleScroll);
+      const y = window.scrollY;
+
+      // Background — direct classList toggle, zero React
+      const nowScrolled = y > 50;
+      if (nowScrolled !== isScrolled.current) {
+        isScrolled.current = nowScrolled;
+        el.classList.toggle("nav-scrolled", nowScrolled);
+      }
+
+      // Hide/show — direct style.transform, zero React
+      const delta = y - lastScrollY.current;
+      let nowHidden = isHidden.current;
+
+      if (y <= 100) {
+        nowHidden = false;
+        scrollDelta.current = 0;
+      } else {
+        if (
+          (delta > 0 && scrollDelta.current < 0) ||
+          (delta < 0 && scrollDelta.current > 0)
+        ) {
+          scrollDelta.current = delta;
+        } else {
+          scrollDelta.current += delta;
+        }
+        if (scrollDelta.current > SCROLL_DEAD_ZONE) nowHidden = true;
+        else if (scrollDelta.current < -SCROLL_DEAD_ZONE) nowHidden = false;
+      }
+
+      if (nowHidden !== isHidden.current) {
+        isHidden.current = nowHidden;
+        el.style.transform = nowHidden ? "translateY(-100%)" : "translateY(0)";
+      }
+
+      lastScrollY.current = y;
     };
+
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      cancelAnimationFrame(rafId.current);
-    };
-  }, [handleScroll]);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
     <div
+      ref={navRef}
+      className="nav-bg"
       style={{
         position: "fixed",
         top: 0,
         left: 0,
         right: 0,
         zIndex: 50,
-        transform: hidden && !menuOpen ? "translateY(-100%)" : "translateY(0)",
-        transition: "transform 300ms ease-out",
+        transform: "translateY(0)",
+        transition: "transform 300ms ease-out, background-color 300ms, border-color 300ms",
         willChange: "transform",
       }}
-    >
-    <nav
-      className={
-        "transition-colors duration-300 " +
-        (scrolled || menuOpen
-          ? "bg-midnight/95 backdrop-blur-md border-b border-surface-light"
-          : "bg-transparent")
-      }
     >
       <div className="max-w-6xl mx-auto px-6 flex items-center justify-between h-16 sm:h-28 py-2 sm:py-4">
         <a href="/" className="flex items-center gap-2">
@@ -183,7 +167,6 @@ export default function Navbar() {
           </motion.div>
         )}
       </AnimatePresence>
-    </nav>
     </div>
   );
 }

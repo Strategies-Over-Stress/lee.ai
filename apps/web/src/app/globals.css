@@ -69,6 +69,19 @@ body {
   animation: blink 1s step-end infinite;
 }
 
+/* Navbar */
+.nav-bg {
+  background-color: transparent;
+  border-bottom: 1px solid transparent;
+  backdrop-filter: none;
+}
+.nav-scrolled {
+  background-color: rgba(10, 10, 15, 0.95);
+  border-bottom-color: var(--color-surface-light);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
