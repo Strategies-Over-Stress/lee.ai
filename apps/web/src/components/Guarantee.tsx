@@ -26,6 +26,8 @@ const quotes = [
 
 function QuoteCarousel() {
   const [current, setCurrent] = useState(0);
+  const [maxHeight, setMaxHeight] = useState<number | undefined>(undefined);
+  const measureRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const startTimer = useCallback(() => {
@@ -40,6 +42,21 @@ function QuoteCarousel() {
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [startTimer]);
 
+  useEffect(() => {
+    const measure = () => {
+      if (!measureRef.current) return;
+      const children = measureRef.current.children;
+      let tallest = 0;
+      for (let i = 0; i < children.length; i++) {
+        tallest = Math.max(tallest, (children[i] as HTMLElement).offsetHeight);
+      }
+      setMaxHeight(tallest);
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, []);
+
   const goTo = (i: number) => {
     setCurrent(i);
     startTimer();
@@ -51,7 +68,18 @@ function QuoteCarousel() {
       onMouseEnter={() => { if (timerRef.current) clearInterval(timerRef.current); }}
       onMouseLeave={() => startTimer()}
     >
-      <div className="relative overflow-hidden flex items-center">
+      {/* Hidden measurement container */}
+      <div ref={measureRef} aria-hidden className="absolute opacity-0 pointer-events-none" style={{ width: "100%", maxWidth: "48rem" }}>
+        {quotes.map((q, i) => (
+          <div key={i} className="text-center">
+            <blockquote className="text-xl sm:text-2xl font-light leading-relaxed italic">
+              &ldquo;{q.text}&rdquo;
+            </blockquote>
+            <p className="mt-6 text-sm tracking-wide uppercase">&mdash; {q.name}</p>
+          </div>
+        ))}
+      </div>
+      <div className="relative overflow-hidden flex items-center" style={maxHeight ? { height: maxHeight } : undefined}>
         <AnimatePresence mode="wait">
           <motion.div
             key={current}
