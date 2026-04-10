@@ -25,6 +25,8 @@ export default function ParticleField() {
     let animationId: number;
     let particles: Particle[] = [];
     let mouse = { x: -1000, y: -1000 };
+    let scrolling = false;
+    let scrollTimeout: ReturnType<typeof setTimeout>;
 
     const resize = () => {
       const parent = canvas.parentElement;
@@ -114,20 +116,33 @@ export default function ParticleField() {
       mouse.y = e.clientY - rect.top;
     };
 
+    const handleScroll = () => {
+      if (!scrolling) {
+        scrolling = true;
+        cancelAnimationFrame(animationId);
+      }
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        scrolling = false;
+        draw();
+      }, 150);
+    };
+
     resize();
     createParticles();
     draw();
 
-    window.addEventListener("resize", () => {
-      resize();
-      createParticles();
-    });
+    const handleResize = () => { resize(); createParticles(); };
+    window.addEventListener("resize", handleResize);
     window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("scroll", handleScroll, { passive: true });
 
     return () => {
       cancelAnimationFrame(animationId);
-      window.removeEventListener("resize", resize);
+      clearTimeout(scrollTimeout);
+      window.removeEventListener("resize", handleResize);
       window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("scroll", handleScroll);
     };
   }, []);
 

@@ -73,33 +73,31 @@ if [ ! -d "$STANDALONE" ]; then
 fi
 
 # Ensure persistent data dir exists (separate per env)
-ssh "${SERVER}" "
+ssh -o StrictHostKeyChecking=no "${SERVER}" "
   mkdir -p /srv/sites/notsaas.net/shared/data-${ENV}
 "
 
-# Sync standalone build (exclude data dir — DB lives in shared/)
-rsync -az --delete --force \
-  -e "ssh" \
-  --exclude 'data' \
-  "$STANDALONE/" \
-  "${SERVER}:${DEPLOY_DIR}/"
+# Pack standalone + static + public into one tar, transfer, extract
+echo "  Packing build..."
+PACK_DIR=$(mktemp -d)
+cp -a "$STANDALONE/." "$PACK_DIR/"
+mkdir -p "$PACK_DIR/apps/web/.next"
+cp -a "$SCRIPT_DIR/.next/static" "$PACK_DIR/apps/web/.next/static"
+[ -d "$SCRIPT_DIR/public" ] && cp -a "$SCRIPT_DIR/public" "$PACK_DIR/apps/web/public"
+tar czf /tmp/notsaas-deploy.tar.gz -C "$PACK_DIR" --exclude='data' .
+rm -rf "$PACK_DIR"
 
-# Sync static assets + public into the nested app dir (monorepo standalone structure)
-APP_DIR="${DEPLOY_DIR}/apps/web"
-rsync -az \
-  -e "ssh" \
-  "$SCRIPT_DIR/.next/static/" \
-  "${SERVER}:${APP_DIR}/.next/static/"
-
-if [ -d "$SCRIPT_DIR/public" ]; then
-  rsync -az \
-    -e "ssh" \
-    "$SCRIPT_DIR/public/" \
-    "${SERVER}:${APP_DIR}/public/"
-fi
+echo "  Transferring $(du -h /tmp/notsaas-deploy.tar.gz | cut -f1)..."
+scp -o StrictHostKeyChecking=no /tmp/notsaas-deploy.tar.gz "${SERVER}:/tmp/notsaas-deploy.tar.gz"
+ssh -o StrictHostKeyChecking=no "${SERVER}" "
+  rm -rf ${DEPLOY_DIR}/*
+  tar xzf /tmp/notsaas-deploy.tar.gz -C ${DEPLOY_DIR}/
+  rm /tmp/notsaas-deploy.tar.gz
+"
+rm /tmp/notsaas-deploy.tar.gz
 
 # Symlink shared data dir into the app's working directory
-ssh "${SERVER}" "
+ssh -o StrictHostKeyChecking=no "${SERVER}" "
   ln -sfn /srv/sites/notsaas.net/shared/data-${ENV} ${DEPLOY_DIR}/apps/web/data
   chmod 600 /srv/sites/notsaas.net/shared/data-${ENV}/assessments.db 2>/dev/null || true
 "
@@ -108,7 +106,7 @@ echo "Sync complete."
 
 # ─── 3. Start/Restart ───────────────────────────────────
 echo "[3/4] Starting ${PM2_NAME}..."
-ssh "${SERVER}" "
+ssh -o StrictHostKeyChecking=no "${SERVER}" "
   cd ${DEPLOY_DIR}/apps/web
   if pm2 describe ${PM2_NAME} > /dev/null 2>&1; then
     PORT=${PORT} pm2 restart ${PM2_NAME} --update-env
@@ -126,7 +124,7 @@ echo "PM2 process running."
 # ─── 4. Verify ──────────────────────────────────────────
 echo "[4/4] Verifying..."
 sleep 3
-STATUS=$(ssh "${SERVER}" \
+STATUS=$(ssh -o StrictHostKeyChecking=no "${SERVER}" \
   "curl -so /dev/null -w '%{http_code}' --max-time 5 http://localhost:${PORT}/ 2>/dev/null")
 
 if [ "$STATUS" = "200" ]; then
