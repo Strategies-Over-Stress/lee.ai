@@ -21,7 +21,7 @@ const questions: Question[] = [
   {
     id: "revenue",
     question: "What's your business's approximate monthly revenue?",
-    disclaimer: "This helps us estimate your potential — your answers stay private.",
+    disclaimer: "This helps us estimate your potential — your answers stay private. We collect anonymized usage data to prevent abuse.",
     options: [
       { label: "Under $10K", value: "under10k", score: 2, potentialPct: 0 },
       { label: "$10K – $50K", value: "10k-50k", score: 2, potentialPct: 0 },
@@ -131,6 +131,7 @@ export default function Assessment() {
   const [phase, setPhase] = useState<Phase>("quiz");
   const [assessmentId, setAssessmentId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [consultationForm, setConsultationForm] = useState({
     name: "",
     email: "",
@@ -160,6 +161,7 @@ export default function Assessment() {
     const potential = Math.round(monthlyRevenue * (pct / 100));
     const result = getResult(score);
 
+    setError(null);
     try {
       const res = await fetch("/api/assessment", {
         method: "POST",
@@ -168,14 +170,19 @@ export default function Assessment() {
           answers: finalAnswers,
           totalScore: score,
           potentialRevenue: potential,
-          resultProfile: result.title,
+          resultProfile: { title: result.title, color: result.color },
           timeSpentMs: Date.now() - startTime.current,
         }),
       });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error || "Something went wrong. Please try again.");
+        return;
+      }
       const data = await res.json();
       if (data.id) setAssessmentId(data.id);
     } catch {
-      // Assessment still shows results even if save fails
+      setError("Something went wrong. Please try again.");
     }
   };
 
@@ -183,6 +190,7 @@ export default function Assessment() {
     e.preventDefault();
     if (!assessmentId) return;
     setSubmitting(true);
+    setError(null);
     try {
       const res = await fetch("/api/consultation", {
         method: "POST",
@@ -192,10 +200,18 @@ export default function Assessment() {
           ...consultationForm,
         }),
       });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error || "Something went wrong. Please try again.");
+        return;
+      }
       const data = await res.json();
-      if (data.success) setPhase("confirmed");
+      if (data.success) {
+        setError(null);
+        setPhase("confirmed");
+      }
     } catch {
-      // Silently handle — user can retry
+      setError("Something went wrong. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -215,6 +231,7 @@ export default function Assessment() {
     setAnswers({});
     setPhase("quiz");
     setAssessmentId(null);
+    setError(null);
     setConsultationForm({ name: "", email: "", phone: "", preferredTime: "", businessDescription: "" });
     startTime.current = Date.now();
   };
@@ -275,6 +292,13 @@ export default function Assessment() {
               <span className="text-xs text-gray-400">Potential monthly value: </span>
               <span className="text-sm font-mono font-bold text-emerald">${totalPotential.toLocaleString()}/mo</span>
             </motion.div>
+          )}
+
+          {/* Error message */}
+          {error && (
+            <div className="mb-4 p-3 rounded-lg bg-rose/10 border border-rose/20 text-rose text-sm">
+              {error}
+            </div>
           )}
 
           {/* Question area */}

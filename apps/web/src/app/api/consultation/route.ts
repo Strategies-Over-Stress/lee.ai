@@ -1,14 +1,32 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { updateConsultation, getAssessment } from "@/lib/db";
 
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
-    const { assessmentId, name, email, phone, preferredTime, businessDescription } = body;
+const consultationSchema = z.object({
+  assessmentId: z.string().uuid(),
+  name: z.string().min(1).max(200),
+  email: z.string().email().max(254),
+  phone: z.string().max(20).optional(),
+  preferredTime: z.string().min(1).max(100),
+  businessDescription: z.string().min(1).max(5000),
+});
 
-    if (!assessmentId || !name || !email || !preferredTime || !businessDescription) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+export async function POST(request: NextRequest) {
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+  }
+
+  try {
+    const parsed = consultationSchema.safeParse(body);
+
+    if (!parsed.success) {
+      return NextResponse.json({ error: "Invalid request data" }, { status: 400 });
     }
+
+    const { assessmentId, name, email, phone, preferredTime, businessDescription } = parsed.data;
 
     const assessment = getAssessment(assessmentId);
     if (!assessment) {
@@ -27,6 +45,8 @@ export async function POST(request: NextRequest) {
     if (!updated) {
       return NextResponse.json({ error: "Failed to update assessment" }, { status: 500 });
     }
+
+    console.log(`[CONSULTATION] New request received (assessment: ${assessmentId})`);
 
     return NextResponse.json({ success: true, assessmentId });
   } catch {
