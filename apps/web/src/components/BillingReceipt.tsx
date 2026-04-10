@@ -78,8 +78,8 @@ export default function BillingReceipt({ onComplete }: { onComplete?: () => void
   const totalAppearDelay = specialistAppearDelay + ITEM_STAGGER + COUNT_DURATION / 1000;
   // Caution emoji bounces in shortly after total
   const cautionDelay = totalAppearDelay + 0.4;
-  // Total animation completion time
-  const completionTime = totalAppearDelay + COUNT_DURATION / 1000 + 1.0;
+  // Total animation completion time + 2.5s pause for user to absorb
+  const completionTime = totalAppearDelay + COUNT_DURATION / 1000 + 1.0 + 2.5;
 
   useEffect(() => {
     if (!isInView || !onComplete) return;
