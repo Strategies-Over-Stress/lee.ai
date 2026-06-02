@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { updateConsultation, getAssessment } from "@/lib/db";
+import { sendLeadNotification } from "@/lib/email";
 
 const consultationSchema = z.object({
   assessmentId: z.string().uuid(),
@@ -47,6 +48,20 @@ export async function POST(request: NextRequest) {
     }
 
     console.log(`[CONSULTATION] New request received (assessment: ${assessmentId})`);
+
+    // Email the lead. Non-blocking: the lead is already saved, so a send
+    // failure must not turn into a failed submission for the visitor.
+    const sent = await sendLeadNotification({
+      name,
+      email,
+      phone: phone || null,
+      preferredTime,
+      businessDescription,
+      assessment,
+    });
+    if (!sent) {
+      console.error(`[CONSULTATION] Lead saved but notification email failed (assessment: ${assessmentId})`);
+    }
 
     return NextResponse.json({ success: true, assessmentId });
   } catch {
