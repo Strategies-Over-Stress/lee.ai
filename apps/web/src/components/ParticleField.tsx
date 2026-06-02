@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 interface Particle {
   x: number;
@@ -17,32 +17,21 @@ interface Props {
 
 export default function ParticleField({ count = 120, mobileCount = 40, opacity = 0.7 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ro = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        setIsMobile(entry.contentRect.width < 640);
-      }
-    });
-    ro.observe(canvas);
+    // Honor reduced-motion: skip the animation loop entirely.
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
 
-    return () => ro.disconnect();
-  }, []);
-
-  const activeCount = isMobile ? mobileCount : count;
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    let animId: number;
+    let animId = 0;
     let particles: Particle[] = [];
+    // Decide count synchronously from the viewport — no desktop→mobile reflow.
+    const activeCount = window.innerWidth < 640 ? mobileCount : count;
 
     const resize = () => {
       canvas.width = window.innerWidth;
@@ -101,17 +90,44 @@ export default function ParticleField({ count = 120, mobileCount = 40, opacity =
       animId = requestAnimationFrame(draw);
     };
 
-    init();
-    draw();
+    const start = () => {
+      if (!animId) animId = requestAnimationFrame(draw);
+    };
+    const stop = () => {
+      if (animId) {
+        cancelAnimationFrame(animId);
+        animId = 0;
+      }
+    };
 
     const handleResize = () => { init(); };
+    // Pause the loop while the tab is hidden — no point burning the CPU.
+    const handleVisibility = () => {
+      if (document.hidden) stop();
+      else start();
+    };
+
+    init();
+
+    // Defer the first frame until the browser is idle so the rAF loop does
+    // not compete with React hydration during the critical first paint.
+    const ric =
+      typeof window.requestIdleCallback === "function" ? window.requestIdleCallback : undefined;
+    const idleHandle = ric
+      ? ric(start, { timeout: 500 })
+      : window.setTimeout(start, 200);
+
     window.addEventListener("resize", handleResize);
+    document.addEventListener("visibilitychange", handleVisibility);
 
     return () => {
-      cancelAnimationFrame(animId);
+      stop();
+      if (ric && window.cancelIdleCallback) window.cancelIdleCallback(idleHandle as number);
+      else window.clearTimeout(idleHandle as number);
       window.removeEventListener("resize", handleResize);
+      document.removeEventListener("visibilitychange", handleVisibility);
     };
-  }, [activeCount, opacity]);
+  }, [count, mobileCount, opacity]);
 
   return (
     <canvas
