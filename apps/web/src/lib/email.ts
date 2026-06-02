@@ -37,10 +37,14 @@ export async function sendLeadNotification(params: LeadEmailParams): Promise<boo
   const apiKey = process.env.MAILGUN_API_KEY?.trim();
   const domain = process.env.MAILGUN_DOMAIN?.trim() || "mg.notsaas.net";
   const from = process.env.MAILGUN_FROM?.trim() || `NotSaaS Leads <leads@${domain}>`;
-  const to = process.env.LEADS_NOTIFY_EMAIL?.trim() || "hello@notsaas.net";
+  const to = process.env.LEADS_NOTIFY_EMAIL?.trim();
 
   if (!apiKey) {
     console.warn("[email] MAILGUN_API_KEY not set — skipping lead notification");
+    return false;
+  }
+  if (!to) {
+    console.warn("[email] LEADS_NOTIFY_EMAIL not set — skipping lead notification");
     return false;
   }
 
