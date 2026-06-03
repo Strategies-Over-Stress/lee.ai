@@ -25,6 +25,23 @@ fi
 DO_SVR_IP=$(grep '^DO_SVR_IP=' "$CLAUDE_ENV" | cut -d= -f2)
 SERVER="root@${DO_SVR_IP}"
 
+# App runtime env vars (from the gitignored project .env) to hand to the pm2
+# process via --update-env. Without these the deployed server has no Mailgun
+# config and lead-notification emails can't send.
+APP_ENV_FILE="$MONO_ROOT/.env"
+APP_ENV_EXPORTS=""
+for VAR in MAILGUN_API_KEY MAILGUN_DOMAIN MAILGUN_FROM LEADS_NOTIFY_EMAIL IP_SALT; do
+  LINE=$(grep "^${VAR}=" "$APP_ENV_FILE" 2>/dev/null | head -1) || true
+  [ -z "$LINE" ] && continue
+  VAL=${LINE#*=}
+  # strip one layer of surrounding quotes if present
+  VAL=$(printf '%s' "$VAL" | sed -E "s/^[\"']//; s/[\"']\$//")
+  # single-quote-escape (' -> '\'') for safe eval in the remote shell
+  ESC=$(printf '%s' "$VAL" | sed "s/'/'\\\\''/g")
+  APP_ENV_EXPORTS="${APP_ENV_EXPORTS}export ${VAR}='${ESC}'
+"
+done
+
 ENV="${1:-}"
 if [ "$ENV" != "staging" ] && [ "$ENV" != "production" ]; then
   echo "Usage: $0 <staging|production>"
@@ -128,7 +145,7 @@ echo "Sync complete."
 echo "[3/4] Starting ${PM2_NAME}..."
 ssh -o StrictHostKeyChecking=no "${SERVER}" "
   cd ${DEPLOY_DIR}/apps/web
-  if pm2 describe ${PM2_NAME} > /dev/null 2>&1; then
+  ${APP_ENV_EXPORTS}if pm2 describe ${PM2_NAME} > /dev/null 2>&1; then
     PORT=${PORT} pm2 restart ${PM2_NAME} --update-env
   else
     PORT=${PORT} pm2 start server.js \
