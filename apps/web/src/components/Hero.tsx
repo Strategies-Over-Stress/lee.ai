@@ -94,16 +94,13 @@ function DotIndicators({
 function SlideHook() {
   return (
     <div className="text-center z-10">
-      <motion.h1
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.2 }}
-        className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight leading-[0.95] text-white"
-      >
+      {/* Plain element + CSS entrance so the headline is painted immediately,
+          not gated on Framer hydration (slow on mobile). */}
+      <h1 className="animate-rise text-5xl md:text-7xl lg:text-8xl font-black tracking-tight leading-[0.95] text-white">
         Are you ready for
         <br />
         <span className="text-gradient">your next SaaS bill?</span>
-      </motion.h1>
+      </h1>
     </div>
   );
 }
@@ -261,7 +258,10 @@ function HeroCarousel() {
   return (
     <section className="relative min-h-screen flex flex-col overflow-hidden pt-20 md:pt-36 lg:pt-44">
       <div className="flex-1 relative">
-        <AnimatePresence mode="wait">
+        {/* initial={false}: the first slide renders at its target state on
+            mount (visible at first paint) instead of fading in only after
+            hydration; later slide changes still animate. */}
+        <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={slideIndex}
             initial={{ opacity: 0 }}

@@ -69,6 +69,36 @@ body {
   animation: blink 1s step-end infinite;
 }
 
+/*
+ * CSS entrance for above-the-fold content. Runs at paint time, so it does
+ * NOT wait for React/Framer hydration — fixes the "content invisible until
+ * the JS bundle hydrates" lag on mobile. Opacity stays at 1 throughout so the
+ * element is fully visible on the very first frame; only the position eases in.
+ */
+@keyframes rise {
+  from { transform: translateY(16px); }
+  to   { transform: translateY(0); }
+}
+.animate-rise {
+  animation: rise 0.6s ease-out both;
+}
+
+/* Respect reduced-motion: show everything immediately, no movement. */
+@media (prefers-reduced-motion: reduce) {
+  .animate-rise,
+  .cursor-blink {
+    animation: none;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
