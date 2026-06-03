@@ -102,6 +102,26 @@ ssh -o StrictHostKeyChecking=no "${SERVER}" "
   chmod 600 /srv/sites/notsaas.net/shared/data-${ENV}/assessments.db 2>/dev/null || true
 "
 
+# Replace the native better-sqlite3 binary with a Linux build.
+# The bundle is built on macOS, so the shipped better_sqlite3.node is a
+# Mach-O binary and fails on the Linux server with "invalid ELF header"
+# (surfaces in the app as "Failed to save assessment"). Fetch the matching
+# Linux prebuilt for the deployed version and overwrite every copy.
+echo "  Installing Linux native better-sqlite3 binary..."
+ssh -o StrictHostKeyChecking=no "${SERVER}" "
+  set -e
+  TMP=\$(mktemp -d)
+  trap 'rm -rf \"\$TMP\"' EXIT
+  BS3_VER=\$(node -e \"process.stdout.write(require('${DEPLOY_DIR}/apps/web/node_modules/better-sqlite3/package.json').version)\")
+  cd \"\$TMP\"
+  npm init -y >/dev/null 2>&1
+  npm install better-sqlite3@\$BS3_VER --no-audit --no-fund >/dev/null 2>&1
+  SRC=\"\$TMP/node_modules/better-sqlite3/build/Release/better_sqlite3.node\"
+  if ! file \"\$SRC\" | grep -qE 'ELF.*x86-64'; then echo 'ERROR: did not obtain a Linux x86-64 better-sqlite3 binary'; exit 1; fi
+  find ${DEPLOY_DIR} -name better_sqlite3.node -type f -exec cp -f \"\$SRC\" \"{}\" \;
+  echo \"    better-sqlite3 @\$BS3_VER (linux x86-64) installed\"
+"
+
 echo "Sync complete."
 
 # ─── 3. Start/Restart ───────────────────────────────────
