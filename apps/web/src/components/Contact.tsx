@@ -74,9 +74,6 @@ export default function Contact() {
       <div className="mt-32 border-t border-surface-light pt-8">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-text-muted text-sm">
           <span>&copy; {new Date().getFullYear()} Rich Lee</span>
-          <a href="/build-not-buy" className="text-accent-bright hover:text-accent transition-colors">
-            Read: Why building beats subscribing &rarr;
-          </a>
           <span className="font-mono">Your solution. Your software. $0/month forever.</span>
         </div>
       </div>

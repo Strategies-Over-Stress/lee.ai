@@ -199,12 +199,6 @@ function SlideProof() {
             See the proof
           </a>
         </div>
-        <a
-          href="/build-not-buy"
-          className="text-sm text-accent-bright hover:text-white font-medium transition-all duration-300 mt-2 md:mt-0"
-        >
-          Read: Rebuilding the Wheel &rarr;
-        </a>
       </motion.div>
     </div>
   );
