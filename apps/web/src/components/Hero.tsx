@@ -96,7 +96,7 @@ function SlideHook() {
     <div className="text-center z-10">
       {/* Plain element + CSS entrance so the headline is painted immediately,
           not gated on Framer hydration (slow on mobile). */}
-      <h1 className="animate-fade-up text-5xl md:text-7xl lg:text-8xl font-black tracking-tight leading-[0.95] text-white">
+      <h1 className="animate-rise text-5xl md:text-7xl lg:text-8xl font-black tracking-tight leading-[0.95] text-white">
         Are you ready for
         <br />
         <span className="text-gradient">your next SaaS bill?</span>

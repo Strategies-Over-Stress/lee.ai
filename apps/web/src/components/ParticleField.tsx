@@ -23,15 +23,14 @@ export default function ParticleField({ count = 120, mobileCount = 40, opacity =
     if (!canvas) return;
 
     // Honor reduced-motion: skip the animation loop entirely.
-    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches) return;
 
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
     let animId = 0;
+    let running = false;
     let particles: Particle[] = [];
-    // Decide count synchronously from the viewport — no desktop→mobile reflow.
-    const activeCount = window.innerWidth < 640 ? mobileCount : count;
 
     const resize = () => {
       canvas.width = window.innerWidth;
@@ -40,6 +39,9 @@ export default function ParticleField({ count = 120, mobileCount = 40, opacity =
 
     const init = () => {
       resize();
+      // Recompute on every (re)init so a resize/rotation across the 640px
+      // breakpoint uses the right count — no desktop→mobile reflow on mount.
+      const activeCount = window.innerWidth < 640 ? mobileCount : count;
       particles = Array.from({ length: activeCount }, () => ({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
@@ -87,13 +89,18 @@ export default function ParticleField({ count = 120, mobileCount = 40, opacity =
         ctx.fill();
       }
 
-      animId = requestAnimationFrame(draw);
+      // Only schedule the next frame while the loop is meant to be running,
+      // so a stop() during this draw() (unmount / tab hidden) can't restart it.
+      if (running) animId = requestAnimationFrame(draw);
     };
 
     const start = () => {
-      if (!animId) animId = requestAnimationFrame(draw);
+      if (running) return;
+      running = true;
+      animId = requestAnimationFrame(draw);
     };
     const stop = () => {
+      running = false;
       if (animId) {
         cancelAnimationFrame(animId);
         animId = 0;
