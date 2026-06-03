@@ -119,23 +119,33 @@ ssh -o StrictHostKeyChecking=no "${SERVER}" "
   chmod 600 /srv/sites/notsaas.net/shared/data-${ENV}/assessments.db 2>/dev/null || true
 "
 
-# Replace the native better-sqlite3 binary with a Linux build.
-# The bundle is built on macOS, so the shipped better_sqlite3.node is a
-# Mach-O binary and fails on the Linux server with "invalid ELF header"
-# (surfaces in the app as "Failed to save assessment"). Fetch the matching
-# Linux prebuilt for the deployed version and overwrite every copy.
+# Install the native better-sqlite3 binary for Linux.
+# The bundle is built on macOS, so any shipped better_sqlite3.node is a Mach-O
+# binary; worse, under a pnpm node_modules layout the standalone trace often
+# omits the compiled .node entirely (→ "Could not locate the bindings file").
+# Either way the app can't open the DB ("Failed to save assessment"). So fetch
+# the matching Linux prebuilt and PLACE it into every bundled better-sqlite3
+# package's build/Release (creating the dir if needed), rather than only
+# replacing an existing file. -type d matches the real package dir in both
+# npm-flat and pnpm (.pnpm/...) layouts; the pnpm symlink is skipped.
 echo "  Installing Linux native better-sqlite3 binary..."
 ssh -o StrictHostKeyChecking=no "${SERVER}" "
   set -e
   TMP=\$(mktemp -d)
   trap 'rm -rf \"\$TMP\"' EXIT
-  BS3_VER=\$(node -e \"process.stdout.write(require('${DEPLOY_DIR}/apps/web/node_modules/better-sqlite3/package.json').version)\")
+  PKG=\$(find ${DEPLOY_DIR} -type d -name better-sqlite3 | head -1)
+  if [ -z \"\$PKG\" ] || [ ! -f \"\$PKG/package.json\" ]; then echo 'ERROR: better-sqlite3 package not found in deploy'; exit 1; fi
+  BS3_VER=\$(node -e \"process.stdout.write(require('\$PKG/package.json').version)\")
   cd \"\$TMP\"
   npm init -y >/dev/null 2>&1
   npm install better-sqlite3@\$BS3_VER --no-audit --no-fund >/dev/null 2>&1
   SRC=\"\$TMP/node_modules/better-sqlite3/build/Release/better_sqlite3.node\"
   if ! file \"\$SRC\" | grep -qE 'ELF.*x86-64'; then echo 'ERROR: did not obtain a Linux x86-64 better-sqlite3 binary'; exit 1; fi
-  find ${DEPLOY_DIR} -name better_sqlite3.node -type f -exec cp -f \"\$SRC\" \"{}\" \;
+  find ${DEPLOY_DIR} -type d -name better-sqlite3 | while read -r D; do
+    [ -f \"\$D/package.json\" ] || continue
+    mkdir -p \"\$D/build/Release\"
+    cp -f \"\$SRC\" \"\$D/build/Release/better_sqlite3.node\"
+  done
   echo \"    better-sqlite3 @\$BS3_VER (linux x86-64) installed\"
 "
 
