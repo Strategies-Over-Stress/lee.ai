@@ -26,6 +26,33 @@ function parseResultTitle(resultProfile: string): string {
   }
 }
 
+// Collapse CR/LF/extra whitespace — used for any value that lands in a mail
+// header (e.g. Subject) to prevent header injection from user input.
+function oneLine(s: string): string {
+  return s.replace(/[\r\n]+/g, " ").replace(/\s+/g, " ").trim();
+}
+
+// Flatten the stored quiz answers into readable [question, answer] pairs.
+function parseAnswers(answersJson: string): Array<[string, string]> {
+  try {
+    const obj = JSON.parse(answersJson) as Record<string, unknown>;
+    return Object.entries(obj).map(([k, v]) => {
+      let val: string;
+      if (v && typeof v === "object") {
+        const o = v as Record<string, unknown>;
+        val = o.value != null ? String(o.value) : JSON.stringify(v);
+      } else {
+        val = String(v);
+      }
+      return [k, val];
+    });
+  } catch {
+    return [];
+  }
+}
+
+const TIMEOUT_MS = 10_000;
+
 /**
  * Send the lead-notification email via the Mailgun HTTP API.
  *
@@ -51,8 +78,11 @@ export async function sendLeadNotification(params: LeadEmailParams): Promise<boo
   const { name, email, phone, preferredTime, businessDescription, assessment } = params;
   const resultTitle = parseResultTitle(assessment.result_profile);
   const potential = `$${assessment.potential_revenue.toLocaleString()}`;
+  const answers = parseAnswers(assessment.answers);
 
-  const subject = `New consultation request — ${name} (${resultTitle})`;
+  // oneLine() strips CR/LF from the user-controlled values before they enter
+  // the Subject header (header-injection defense).
+  const subject = `New consultation request — ${oneLine(name)} (${oneLine(resultTitle)})`;
 
   const text = [
     `New consultation request from notsaas.net`,
@@ -71,6 +101,9 @@ export async function sendLeadNotification(params: LeadEmailParams): Promise<boo
     `Potential revenue: ${potential}`,
     `Submitted:         ${assessment.created_at}`,
     `Assessment ID:     ${assessment.id}`,
+    ``,
+    `Quiz answers:`,
+    ...(answers.length ? answers.map(([q, a]) => `  ${q}: ${a}`) : ["  (none recorded)"]),
   ].join("\n");
 
   const html = `
@@ -91,6 +124,19 @@ export async function sendLeadNotification(params: LeadEmailParams): Promise<boo
       <tr><td><strong>Submitted</strong></td><td>${escapeHtml(assessment.created_at)}</td></tr>
       <tr><td><strong>Assessment ID</strong></td><td>${escapeHtml(assessment.id)}</td></tr>
     </table>
+    <h3>Quiz answers</h3>
+    <table cellpadding="6" style="border-collapse:collapse;font-family:sans-serif;font-size:14px">
+      ${
+        answers.length
+          ? answers
+              .map(
+                ([q, a]) =>
+                  `<tr><td><strong>${escapeHtml(q)}</strong></td><td>${escapeHtml(a)}</td></tr>`
+              )
+              .join("")
+          : `<tr><td colspan="2">(none recorded)</td></tr>`
+      }
+    </table>
   `;
 
   const form = new URLSearchParams();
@@ -109,6 +155,8 @@ export async function sendLeadNotification(params: LeadEmailParams): Promise<boo
         "Content-Type": "application/x-www-form-urlencoded",
       },
       body: form.toString(),
+      // Bound the request so a hung Mailgun/network can't delay the route.
+      signal: AbortSignal.timeout(TIMEOUT_MS),
     });
     if (!res.ok) {
       const detail = await res.text().catch(() => "");
