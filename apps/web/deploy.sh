@@ -110,15 +110,15 @@ ssh -o StrictHostKeyChecking=no "${SERVER}" "
 echo "  Installing Linux native better-sqlite3 binary..."
 ssh -o StrictHostKeyChecking=no "${SERVER}" "
   set -e
-  BS3_VER=\$(node -e \"process.stdout.write(require('${DEPLOY_DIR}/apps/web/node_modules/better-sqlite3/package.json').version)\")
   TMP=\$(mktemp -d)
+  trap 'rm -rf \"\$TMP\"' EXIT
+  BS3_VER=\$(node -e \"process.stdout.write(require('${DEPLOY_DIR}/apps/web/node_modules/better-sqlite3/package.json').version)\")
   cd \"\$TMP\"
   npm init -y >/dev/null 2>&1
   npm install better-sqlite3@\$BS3_VER --no-audit --no-fund >/dev/null 2>&1
   SRC=\"\$TMP/node_modules/better-sqlite3/build/Release/better_sqlite3.node\"
-  if ! file \"\$SRC\" | grep -q ELF; then echo 'ERROR: could not obtain Linux better-sqlite3 binary'; rm -rf \"\$TMP\"; exit 1; fi
-  find ${DEPLOY_DIR} -name better_sqlite3.node -exec cp -f \"\$SRC\" {} \;
-  rm -rf \"\$TMP\"
+  if ! file \"\$SRC\" | grep -qE 'ELF.*x86-64'; then echo 'ERROR: did not obtain a Linux x86-64 better-sqlite3 binary'; exit 1; fi
+  find ${DEPLOY_DIR} -name better_sqlite3.node -type f -exec cp -f \"\$SRC\" \"{}\" \;
   echo \"    better-sqlite3 @\$BS3_VER (linux x86-64) installed\"
 "
 
