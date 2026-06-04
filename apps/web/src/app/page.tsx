@@ -8,11 +8,13 @@ import Assessment from "@/components/Assessment";
 
 import Process from "@/components/Process";
 import Contact from "@/components/Contact";
+import ScrollReveal from "@/components/ScrollReveal";
 
 export default function Home() {
   return (
     <main className="relative">
       <ParticleField />
+      <ScrollReveal />
       <Navbar />
 
       {/* Hero — dark with particles */}

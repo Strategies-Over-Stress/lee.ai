@@ -84,32 +84,19 @@ body {
 }
 
 /*
- * Scroll-triggered reveal for below-the-fold sections. Driven by the CSS
- * scroll timeline (animation-timeline: view()), so it runs on the compositor
- * and is NOT gated on React/Framer hydration — content is in the DOM and
- * reveals as it scrolls into view, even before/without JS. Where the scroll
- * timeline is unsupported (or reduced-motion), the @supports block simply
- * doesn't apply and the element renders fully visible.
+ * Below-the-fold reveal, driven by an IntersectionObserver (see ScrollReveal).
+ * Content is FULLY VISIBLE the whole time (opacity 1) — just offset a little —
+ * so it's never gated on JS/hydration. When a section scrolls into view the
+ * observer sets [data-shown] and a plain CSS transition eases it into place.
+ * This replaces animation-timeline: view(), which renders choppily / too
+ * subtly on iOS Safari.
  */
-@keyframes reveal-rise {
-  /* Transform only — opacity stays 1 so the element is fully visible the whole
-     time and is never hidden while scrolling into view; it just eases up. */
-  from { transform: translateY(24px); }
-  to   { transform: translateY(0); }
+.reveal {
+  transform: translateY(30px);
+  transition: transform 0.7s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .reveal {
-      animation-name: reveal-rise;
-      animation-timing-function: linear;
-      animation-fill-mode: both;
-      /* auto duration maps the animation to the full scroll-timeline range;
-         set explicitly (not via the shorthand, which would reset it to 0s). */
-      animation-duration: auto;
-      animation-timeline: view();
-      animation-range: entry 5% cover 35%;
-    }
-  }
+.reveal[data-shown] {
+  transform: translateY(0);
 }
 
 /* Simple opacity fade used for keyed crossfades (e.g. testimonial carousels)
@@ -128,6 +115,10 @@ body {
   .fade-in,
   .cursor-blink {
     animation: none;
+  }
+  .reveal {
+    transform: none;
+    transition: none;
   }
   *,
   *::before,

@@ -22,7 +22,7 @@ export default function ParticleField({ count = 120, mobileCount = 40, opacity =
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    // Honor reduced-motion: skip the animation loop entirely.
+    // Honor reduced-motion: skip the animation entirely.
     if (window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches) return;
 
     const ctx = canvas.getContext("2d");
@@ -40,7 +40,7 @@ export default function ParticleField({ count = 120, mobileCount = 40, opacity =
     const init = () => {
       resize();
       // Recompute on every (re)init so a resize/rotation across the 640px
-      // breakpoint uses the right count — no desktop→mobile reflow on mount.
+      // breakpoint uses the right count.
       const activeCount = window.innerWidth < 640 ? mobileCount : count;
       particles = Array.from({ length: activeCount }, () => ({
         x: Math.random() * canvas.width,
@@ -50,19 +50,10 @@ export default function ParticleField({ count = 120, mobileCount = 40, opacity =
       }));
     };
 
-    const draw = () => {
+    // Paint the current constellation (no position update, no scheduling).
+    const render = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      for (const p of particles) {
-        p.x += p.vx;
-        p.y += p.vy;
-        if (p.x < 0) p.x = canvas.width;
-        if (p.x > canvas.width) p.x = 0;
-        if (p.y < 0) p.y = canvas.height;
-        if (p.y > canvas.height) p.y = 0;
-      }
-
-      // Constellation lines
       const maxDist = 130;
       for (let i = 0; i < particles.length; i++) {
         for (let j = i + 1; j < particles.length; j++) {
@@ -81,18 +72,39 @@ export default function ParticleField({ count = 120, mobileCount = 40, opacity =
         }
       }
 
-      // Dots
       for (const p of particles) {
         ctx.beginPath();
         ctx.arc(p.x, p.y, 1.5, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(99,102,241,${0.5 * opacity})`;
         ctx.fill();
       }
+    };
 
-      // Only schedule the next frame while the loop is meant to be running,
-      // so a stop() during this draw() (unmount / tab hidden) can't restart it.
+    const draw = () => {
+      for (const p of particles) {
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x < 0) p.x = canvas.width;
+        if (p.x > canvas.width) p.x = 0;
+        if (p.y < 0) p.y = canvas.height;
+        if (p.y > canvas.height) p.y = 0;
+      }
+      render();
       if (running) animId = requestAnimationFrame(draw);
     };
+
+    init();
+
+    // On touch devices render a single static frame — a continuously repainting
+    // canvas isn't worth the cost on mobile and a static one is cheaper to
+    // composite. Desktop animates.
+    const isTouch = window.matchMedia?.("(hover: none)")?.matches ?? false;
+    if (isTouch) {
+      render();
+      const onResize = () => { init(); render(); };
+      window.addEventListener("resize", onResize);
+      return () => window.removeEventListener("resize", onResize);
+    }
 
     const start = () => {
       if (running) return;
@@ -108,16 +120,11 @@ export default function ParticleField({ count = 120, mobileCount = 40, opacity =
     };
 
     const handleResize = () => { init(); };
-    // Pause the loop while the tab is hidden — no point burning the CPU.
     const handleVisibility = () => {
       if (document.hidden) stop();
       else start();
     };
 
-    init();
-
-    // Defer the first frame until the browser is idle so the rAF loop does
-    // not compete with React hydration during the critical first paint.
     const ric =
       typeof window.requestIdleCallback === "function" ? window.requestIdleCallback : undefined;
     const idleHandle = ric
@@ -137,10 +144,15 @@ export default function ParticleField({ count = 120, mobileCount = 40, opacity =
   }, [count, mobileCount, opacity]);
 
   return (
+    // Confined to the hero (top viewport of <main>) instead of position:fixed
+    // full-page. A fixed full-page canvas behind scrolling content forces iOS
+    // Safari to re-composite every section on scroll (visible flicker); an
+    // absolute, one-viewport canvas just scrolls away with the hero. No
+    // will-change either — it forced an extra compositing layer.
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 pointer-events-none z-0"
-      style={{ opacity: 1, willChange: "transform" }}
+      className="absolute top-0 left-0 right-0 h-screen pointer-events-none z-0"
+      style={{ opacity: 1 }}
     />
   );
 }
