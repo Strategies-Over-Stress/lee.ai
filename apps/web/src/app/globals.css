@@ -92,8 +92,10 @@ body {
  * doesn't apply and the element renders fully visible.
  */
 @keyframes reveal-rise {
-  from { opacity: 0; transform: translateY(24px); }
-  to   { opacity: 1; transform: translateY(0); }
+  /* Transform only — opacity stays 1 so the element is fully visible the whole
+     time and is never hidden while scrolling into view; it just eases up. */
+  from { transform: translateY(24px); }
+  to   { transform: translateY(0); }
 }
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
