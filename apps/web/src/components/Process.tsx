@@ -1,8 +1,3 @@
-"use client";
-
-import { motion, useInView } from "framer-motion";
-import { useRef } from "react";
-
 const stepIcons: Record<string, React.ReactNode> = {
   "01": (
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -57,18 +52,10 @@ const steps = [
 ];
 
 export default function Process() {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
-
   return (
-    <section className="relative py-32 px-6 bg-accent/[0.02]" ref={ref}>
+    <section className="relative py-32 px-6 bg-accent/[0.02]">
       <div className="max-w-5xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16"
-        >
+        <div className="reveal text-center mb-16">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-accent/10 mb-6">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M9 18l6-6-6-6" stroke="#6366f1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -86,18 +73,15 @@ export default function Process() {
           <p className="text-text-secondary mt-4 text-lg max-w-2xl mx-auto">
             No bloated proposals. No six-month timelines.
           </p>
-        </motion.div>
+        </div>
 
         <div className="relative">
           <div className="absolute left-8 top-0 bottom-0 w-px bg-gradient-to-b from-accent/50 via-accent/20 to-transparent hidden md:block" />
           <div className="space-y-8">
-            {steps.map((step, index) => (
-              <motion.div
+            {steps.map((step) => (
+              <div
                 key={step.number}
-                initial={{ opacity: 0, x: -30 }}
-                animate={isInView ? { opacity: 1, x: 0 } : {}}
-                transition={{ duration: 0.5, delay: 0.2 + index * 0.15 }}
-                className="relative flex gap-6 md:gap-8 group"
+                className="reveal relative flex gap-6 md:gap-8 group"
               >
                 <div className="relative z-10 flex-shrink-0 w-16 h-16 rounded-2xl bg-accent/10 border border-surface-light group-hover:border-accent/50 flex items-center justify-center transition-all duration-300">
                   {stepIcons[step.number]}
@@ -110,7 +94,7 @@ export default function Process() {
                   <p className="text-text-secondary mb-2">{step.description}</p>
                   <span className="text-sm font-mono text-accent-bright">{step.detail}</span>
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>

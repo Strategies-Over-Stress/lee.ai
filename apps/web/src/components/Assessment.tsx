@@ -239,13 +239,7 @@ export default function Assessment() {
   return (
     <section id="assess" className="relative py-32 px-6">
       <div className="max-w-3xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-12"
-        >
+        <div className="reveal text-center mb-12">
           {/* Assessment icon */}
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-accent/10 mb-6">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -264,7 +258,7 @@ export default function Assessment() {
           <p className="text-gray-500 mt-4 text-lg">
             7 questions. 60 seconds. Find out how much revenue you&apos;re leaving on the table.
           </p>
-        </motion.div>
+        </div>
 
         {/* Question card */}
         <div className="rounded-2xl border border-gray-200 bg-white shadow-sm p-8 sm:p-10">
