@@ -98,7 +98,12 @@ body {
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
     .reveal {
-      animation: reveal-rise linear both;
+      animation-name: reveal-rise;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      /* auto duration maps the animation to the full scroll-timeline range;
+         set explicitly (not via the shorthand, which would reset it to 0s). */
+      animation-duration: auto;
       animation-timeline: view();
       animation-range: entry 5% cover 35%;
     }
