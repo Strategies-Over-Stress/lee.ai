@@ -84,32 +84,16 @@ body {
 }
 
 /*
- * Scroll-triggered reveal for below-the-fold sections. Driven by the CSS
- * scroll timeline (animation-timeline: view()), so it runs on the compositor
- * and is NOT gated on React/Framer hydration — content is in the DOM and
- * reveals as it scrolls into view, even before/without JS. Where the scroll
- * timeline is unsupported (or reduced-motion), the @supports block simply
- * doesn't apply and the element renders fully visible.
+ * Below-the-fold entrance. NOT scroll-driven: animation-timeline: view() proved
+ * unreliable on iOS Safari (content invisible-until-scrolled, then already-
+ * revealed elements disappearing/resetting on further scroll). So .reveal runs
+ * a one-time load entrance instead — transform only (opacity stays 1, content
+ * always visible) and never tied to scroll position, so nothing can disappear.
+ * Far-below-the-fold elements finish off-screen and are simply static by the
+ * time you scroll to them.
  */
-@keyframes reveal-rise {
-  /* Transform only — opacity stays 1 so the element is fully visible the whole
-     time and is never hidden while scrolling into view; it just eases up. */
-  from { transform: translateY(24px); }
-  to   { transform: translateY(0); }
-}
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .reveal {
-      animation-name: reveal-rise;
-      animation-timing-function: linear;
-      animation-fill-mode: both;
-      /* auto duration maps the animation to the full scroll-timeline range;
-         set explicitly (not via the shorthand, which would reset it to 0s). */
-      animation-duration: auto;
-      animation-timeline: view();
-      animation-range: entry 5% cover 35%;
-    }
-  }
+.reveal {
+  animation: rise 0.6s ease-out both;
 }
 
 /* Simple opacity fade used for keyed crossfades (e.g. testimonial carousels)
@@ -125,6 +109,7 @@ body {
 /* Respect reduced-motion: show everything immediately, no movement. */
 @media (prefers-reduced-motion: reduce) {
   .animate-rise,
+  .reveal,
   .fade-in,
   .cursor-blink {
     animation: none;
