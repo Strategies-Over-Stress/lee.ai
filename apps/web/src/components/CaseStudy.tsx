@@ -268,17 +268,10 @@ function ProblemResultToggle({ pain, results }: { pain: string[]; results: strin
 }
 
 function CaseStudyRow({ c, index }: { c: typeof cases[0]; index: number }) {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-80px" });
   const reversed = index % 2 !== 0;
 
   return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 40 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.6, delay: 0.1 }}
-    >
+    <div className="reveal">
       {/* Two-column: image + results (alternating) */}
       <div className={`grid md:grid-cols-2 gap-8 md:gap-12 ${reversed ? "md:[direction:rtl]" : ""}`}>
         {/* Image side — oversized, pushes off-screen outward */}
@@ -312,23 +305,15 @@ function CaseStudyRow({ c, index }: { c: typeof cases[0]; index: number }) {
           </a>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
 export default function CaseStudy() {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
-
   return (
-    <section id="proof" className="relative py-16 md:py-32 px-4 md:px-6 overflow-hidden" ref={ref}>
+    <section id="proof" className="relative py-16 md:py-32 px-4 md:px-6 overflow-hidden">
       <div className="max-w-5xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-10 md:mb-16"
-        >
+        <div className="reveal text-center mb-10 md:mb-16">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-accent/10 mb-6">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M7 16L3 12M3 12L7 8M3 12H16" stroke="#6366f1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -345,7 +330,7 @@ export default function CaseStudy() {
           <p className="text-gray-500 mt-4 max-w-2xl mx-auto text-lg">
             Owner-operators who were in exactly your position. Here&apos;s what changed.
           </p>
-        </motion.div>
+        </div>
 
         {/* Stacked case studies */}
         <div className="space-y-8 md:space-y-12">

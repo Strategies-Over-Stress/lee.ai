@@ -1,7 +1,7 @@
 "use client";
 
-import { motion, useInView, AnimatePresence } from "framer-motion";
-import { useRef, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useState } from "react";
 
 interface Feature {
   id: string;
@@ -91,19 +91,12 @@ const features: Feature[] = [
 ];
 
 export default function Differentiator() {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
   const [openId, setOpenId] = useState<string | null>(features[0].id);
 
   return (
-    <section className="relative py-16 md:py-32 px-4 md:px-6 bg-accent/[0.02]" ref={ref}>
+    <section className="relative py-16 md:py-32 px-4 md:px-6 bg-accent/[0.02]">
       <div className="max-w-6xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-8 md:mb-16"
-        >
+        <div className="reveal text-center mb-8 md:mb-16">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-accent/10 mb-6">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94L14.7 6.3z" stroke="#6366f1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -119,19 +112,16 @@ export default function Differentiator() {
           <p className="text-text-secondary mt-4 text-lg max-w-2xl mx-auto">
             This isn&apos;t another tool to pay for. It&apos;s software you own &mdash; built by someone who&apos;s been doing this for a decade.
           </p>
-        </motion.div>
+        </div>
 
         <div className="max-w-3xl mx-auto space-y-4">
-          {features.map((feature, index) => {
+          {features.map((feature) => {
             const isOpen = openId === feature.id;
             return (
-              <motion.div
+              <div
                 key={feature.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={isInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.4, delay: 0.2 + index * 0.1 }}
                 data-accordion
-                className={"rounded-xl border transition-all duration-300 overflow-hidden " +
+                className={"reveal rounded-xl border transition-all duration-300 overflow-hidden " +
                   (isOpen ? "border-accent/50 bg-accent/5 glow" : "border-surface-light bg-surface hover:border-accent/20")}
               >
                 <button
@@ -195,7 +185,7 @@ export default function Differentiator() {
                     </motion.div>
                   )}
                 </AnimatePresence>
-              </motion.div>
+              </div>
             );
           })}
         </div>

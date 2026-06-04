@@ -1,6 +1,5 @@
 "use client";
 
-import { motion, useInView, AnimatePresence } from "framer-motion";
 import { useRef, useState, useEffect, useCallback } from "react";
 
 const badges = [
@@ -80,23 +79,15 @@ function QuoteCarousel() {
         ))}
       </div>
       <div className="relative overflow-hidden flex items-center" style={maxHeight ? { height: maxHeight } : undefined}>
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={current}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
-            className="text-center"
-          >
-            <blockquote className="text-xl sm:text-2xl text-white/90 font-light leading-relaxed italic">
-              &ldquo;{quotes[current].text}&rdquo;
-            </blockquote>
-            <p className="mt-6 text-emerald font-semibold text-sm tracking-wide uppercase">
-              &mdash; {quotes[current].name}
-            </p>
-          </motion.div>
-        </AnimatePresence>
+        {/* key forces a remount per quote so the CSS fade-in replays */}
+        <div key={current} className="fade-in text-center w-full">
+          <blockquote className="text-xl sm:text-2xl text-white/90 font-light leading-relaxed italic">
+            &ldquo;{quotes[current].text}&rdquo;
+          </blockquote>
+          <p className="mt-6 text-emerald font-semibold text-sm tracking-wide uppercase">
+            &mdash; {quotes[current].name}
+          </p>
+        </div>
       </div>
       <div className="flex items-center justify-center gap-3 mt-6">
         {quotes.map((_, i) => (
@@ -113,22 +104,15 @@ function QuoteCarousel() {
 }
 
 export default function Guarantee() {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
-
   return (
-    <section className="relative py-32 px-6 bg-emerald/[0.03]" ref={ref}>
+    <section className="relative py-32 px-6 bg-emerald/[0.03]">
       {/* Emerald glow background */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
         <div className="w-[600px] h-[600px] rounded-full bg-emerald/5 blur-[120px]" />
       </div>
 
       <div className="max-w-4xl mx-auto text-center relative z-10">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={isInView ? { opacity: 1, scale: 1 } : {}}
-          transition={{ duration: 0.6 }}
-        >
+        <div className="reveal">
           {/* Money icon */}
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-emerald/10 mb-6">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -152,23 +136,20 @@ export default function Guarantee() {
 
           <div className="flex flex-wrap justify-center gap-6 mb-10">
             {badges.map((badge) => (
-              <motion.div
+              <div
                 key={badge.text}
-                initial={{ opacity: 0, y: 10 }}
-                animate={isInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.4, delay: 0.3 }}
                 className="flex items-center gap-2 px-5 py-3 rounded-xl border border-emerald/20 bg-emerald/5"
               >
                 <span className="text-lg">{badge.icon}</span>
                 <span className="text-sm text-white/80">{badge.text}</span>
-              </motion.div>
+              </div>
             ))}
           </div>
 
           <p className="text-white/50 text-sm max-w-xl mx-auto">
             Not a &ldquo;satisfaction guarantee&rdquo; with fine print. If I can&apos;t save you money while giving you better software, the engagement is free. Period.
           </p>
-        </motion.div>
+        </div>
       </div>
     </section>
   );
