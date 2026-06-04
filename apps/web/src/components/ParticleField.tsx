@@ -22,7 +22,7 @@ export default function ParticleField({ count = 120, mobileCount = 40, opacity =
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    // Honor reduced-motion: skip the animation loop entirely.
+    // Honor reduced-motion: skip the animation entirely.
     if (window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches) return;
 
     const ctx = canvas.getContext("2d");
@@ -50,17 +50,9 @@ export default function ParticleField({ count = 120, mobileCount = 40, opacity =
       }));
     };
 
-    const draw = () => {
+    // Paint the current constellation (no position update, no scheduling).
+    const render = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      for (const p of particles) {
-        p.x += p.vx;
-        p.y += p.vy;
-        if (p.x < 0) p.x = canvas.width;
-        if (p.x > canvas.width) p.x = 0;
-        if (p.y < 0) p.y = canvas.height;
-        if (p.y > canvas.height) p.y = 0;
-      }
 
       // Constellation lines
       const maxDist = 130;
@@ -88,11 +80,37 @@ export default function ParticleField({ count = 120, mobileCount = 40, opacity =
         ctx.fillStyle = `rgba(99,102,241,${0.5 * opacity})`;
         ctx.fill();
       }
+    };
 
+    const draw = () => {
+      for (const p of particles) {
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x < 0) p.x = canvas.width;
+        if (p.x > canvas.width) p.x = 0;
+        if (p.y < 0) p.y = canvas.height;
+        if (p.y > canvas.height) p.y = 0;
+      }
+      render();
       // Only schedule the next frame while the loop is meant to be running,
       // so a stop() during this draw() (unmount / tab hidden) can't restart it.
       if (running) animId = requestAnimationFrame(draw);
     };
+
+    init();
+
+    // On touch devices (phones/tablets), do NOT run a continuous animation: a
+    // position:fixed canvas that repaints every frame makes content above it
+    // flicker / disappear-and-reappear while scrolling on iOS Safari. Render a
+    // single static constellation instead — the fixed layer stays unchanged
+    // during scroll, so content composites cleanly. Desktop keeps the motion.
+    const isTouch = window.matchMedia?.("(hover: none)")?.matches ?? false;
+    if (isTouch) {
+      render();
+      const onResize = () => { init(); render(); };
+      window.addEventListener("resize", onResize);
+      return () => window.removeEventListener("resize", onResize);
+    }
 
     const start = () => {
       if (running) return;
@@ -113,8 +131,6 @@ export default function ParticleField({ count = 120, mobileCount = 40, opacity =
       if (document.hidden) stop();
       else start();
     };
-
-    init();
 
     // Defer the first frame until the browser is idle so the rAF loop does
     // not compete with React hydration during the critical first paint.
@@ -140,7 +156,7 @@ export default function ParticleField({ count = 120, mobileCount = 40, opacity =
     <canvas
       ref={canvasRef}
       className="fixed inset-0 pointer-events-none z-0"
-      style={{ opacity: 1, willChange: "transform" }}
+      style={{ opacity: 1 }}
     />
   );
 }
