@@ -25,8 +25,6 @@ const quotes = [
 
 function QuoteCarousel() {
   const [current, setCurrent] = useState(0);
-  const [maxHeight, setMaxHeight] = useState<number | undefined>(undefined);
-  const measureRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const startTimer = useCallback(() => {
@@ -41,21 +39,6 @@ function QuoteCarousel() {
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [startTimer]);
 
-  useEffect(() => {
-    const measure = () => {
-      if (!measureRef.current) return;
-      const children = measureRef.current.children;
-      let tallest = 0;
-      for (let i = 0; i < children.length; i++) {
-        tallest = Math.max(tallest, (children[i] as HTMLElement).offsetHeight);
-      }
-      setMaxHeight(tallest);
-    };
-    measure();
-    window.addEventListener("resize", measure);
-    return () => window.removeEventListener("resize", measure);
-  }, []);
-
   const goTo = (i: number) => {
     setCurrent(i);
     startTimer();
@@ -67,27 +50,27 @@ function QuoteCarousel() {
       onMouseEnter={() => { if (timerRef.current) clearInterval(timerRef.current); }}
       onMouseLeave={() => startTimer()}
     >
-      {/* Hidden measurement container */}
-      <div ref={measureRef} aria-hidden className="absolute opacity-0 pointer-events-none" style={{ width: "100%", maxWidth: "48rem" }}>
+      {/* All quotes share one grid cell, so the container auto-sizes to the
+          tallest with no JS measurement or absolute positioning — robust on
+          mobile regardless of any transformed ancestor. Only the current one
+          is visible; the rest stay in flow (invisible) to hold the height. */}
+      <div className="grid">
         {quotes.map((q, i) => (
-          <div key={i} className="text-center">
-            <blockquote className="text-xl sm:text-2xl font-light leading-relaxed italic">
+          <div
+            key={i}
+            style={{ gridArea: "1 / 1" }}
+            aria-hidden={i !== current}
+            className={"text-center transition-opacity duration-500 " +
+              (i === current ? "opacity-100" : "opacity-0 pointer-events-none")}
+          >
+            <blockquote className="text-xl sm:text-2xl text-white/90 font-light leading-relaxed italic">
               &ldquo;{q.text}&rdquo;
             </blockquote>
-            <p className="mt-6 text-sm tracking-wide uppercase">&mdash; {q.name}</p>
+            <p className="mt-6 text-emerald font-semibold text-sm tracking-wide uppercase">
+              &mdash; {q.name}
+            </p>
           </div>
         ))}
-      </div>
-      <div className="relative overflow-hidden flex items-center" style={maxHeight ? { height: maxHeight } : undefined}>
-        {/* key forces a remount per quote so the CSS fade-in replays */}
-        <div key={current} className="fade-in text-center w-full">
-          <blockquote className="text-xl sm:text-2xl text-white/90 font-light leading-relaxed italic">
-            &ldquo;{quotes[current].text}&rdquo;
-          </blockquote>
-          <p className="mt-6 text-emerald font-semibold text-sm tracking-wide uppercase">
-            &mdash; {quotes[current].name}
-          </p>
-        </div>
       </div>
       <div className="flex items-center justify-center gap-3 mt-6">
         {quotes.map((_, i) => (
